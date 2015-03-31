@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            name="Star"
+            application="org.eclipse.e4.ui.workbench.swt.E4Application">
+         <property
+               name="appName"
+               value="Star">
+         </property>
+         <property
+               name="applicationXMI"
+               value="Star/Application.e4xmi">
+         </property>
+         <property
+               name="applicationCSS"
+               value="platform:/plugin/Star/css/default.css">
+         </property>
+         <property
+           name="lifeCycleURI"
+           value="platform:/plugin/Star/org.irri.breedingtool.application.handler.StartupLifeCycleHandler">
+         </property>
+         <property
+               name="startupForegroundColor"
+               value="000000">
+         </property>
+         <property
+               name="startupMessageRect"
+               value="7,252,445,20">
+         </property>
+         <property
+               name="startupProgressRect"
+               value="5,275,445,15">
+         </property>
+         <property
+               name="preferenceCustomization"
+               value="plugin_customization.ini">
+         </property>
+      </product>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="AnalysisData">
+         <equals
+               value="Show">
+         </equals>
+      </definition>
+   </extension>
+
+
+  <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="org.irri.activedata.expression">
+         <with
+               variable="activedata">
+            <equals
+                  value="org.irri.activedataset">
+            </equals>
+         </with>
+      </definition>
+   </extension>
+</plugin>

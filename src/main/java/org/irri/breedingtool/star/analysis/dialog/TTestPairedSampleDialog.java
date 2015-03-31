@@ -1,0 +1,338 @@
+package org.irri.breedingtool.star.analysis.dialog;
+
+import java.io.File;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.datamanipulation.dialog.OperationProgressDialog;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.utility.DialogFormUtility;
+import org.irri.breedingtool.utility.StarAnalysisUtilities;
+
+public class TTestPairedSampleDialog extends Dialog {
+	private String filePath = PartStackHandler.getActiveElementID();
+	private List lstNumericVariables;
+	private Button btnSummaryStatistics;
+	private Combo cmbAlternativeHypothesis;
+	private Spinner txtConfidenceInterval;
+	private Button btnAndersondarling;
+	private Button btnCramervonMises;
+	private Button btnLilliefors;
+	private Button btnShapirofrancia;
+	private Button btnShapirowilk;
+	private DialogFormUtility listManager = new DialogFormUtility();
+	private Button btnConfidenceInterval;
+	private Group grpTestForNormality;
+	private Button btnOkay;
+	private Label lblDataSet;
+	private Button btnDataSet2;
+	private Button btnDataSet1;
+	private List lstDataSet1;
+	private List lstDataSet2;
+	private Group grpDisplay;
+
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+	public TTestPairedSampleDialog(Shell parentShell) {
+		super(parentShell);
+		setShellStyle(SWT.BORDER | SWT.CLOSE | SWT.MIN | SWT.RESIZE);
+	}
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText("Paired Sample t-Test : " + new File(filePath).getName());
+	}
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite container = (Composite) super.createDialogArea(parent);
+		FillLayout fl_container = new FillLayout(SWT.HORIZONTAL);
+		fl_container.marginHeight = 8;
+		fl_container.marginWidth = 8;
+		container.setLayout(fl_container);
+		
+		TabFolder tabFolder = new TabFolder(container, SWT.NONE);
+		
+		TabItem tbtmTitleCase = new TabItem(tabFolder, SWT.NONE);
+		tbtmTitleCase.setText("Variable Description");
+		
+		Composite composite = new Composite(tabFolder, SWT.NONE);
+		tbtmTitleCase.setControl(composite);
+		composite.setLayout(new GridLayout(4, false));
+		
+		Label lblNumericVariables = new Label(composite, SWT.NONE);
+		lblNumericVariables.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		lblNumericVariables.setText("Numeric Variable(s):");
+		new Label(composite, SWT.NONE);
+		
+		Label lblTestVariables = new Label(composite, SWT.NONE);
+		lblTestVariables.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1));
+		lblTestVariables.setText("Data Set 1:");
+		
+		lstNumericVariables = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstNumericVariables = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 3);
+		gd_lstNumericVariables.heightHint = 130;
+		gd_lstNumericVariables.widthHint = 80;
+		lstNumericVariables.setLayoutData(gd_lstNumericVariables);
+		
+		btnDataSet1 = new Button(composite, SWT.NONE);
+		GridData gd_btnDataSet1 = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		gd_btnDataSet1.widthHint = 90;
+		btnDataSet1.setLayoutData(gd_btnDataSet1);
+		btnDataSet1.setText("Add");
+		
+		TabItem tbtmOption = new TabItem(tabFolder, SWT.NONE);
+		tbtmOption.setText("Options");
+		
+		Composite composite_1 = new Composite(tabFolder, SWT.NONE);
+		tbtmOption.setControl(composite_1);
+		composite_1.setLayout(new GridLayout(2, false));
+		
+		Label lblAlternativeHypothesis = new Label(composite_1, SWT.NONE);
+		lblAlternativeHypothesis.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblAlternativeHypothesis.setText("Alternative Hypothesis:");
+		
+		cmbAlternativeHypothesis = new Combo(composite_1, SWT.READ_ONLY);
+		cmbAlternativeHypothesis.setItems(new String[] {"less", "greater", "two.sided"});
+		GridData gd_cmbAlternativeHypothesis = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_cmbAlternativeHypothesis.widthHint = 5;
+		cmbAlternativeHypothesis.setLayoutData(gd_cmbAlternativeHypothesis);
+		cmbAlternativeHypothesis.setText("two.sided");
+		
+		grpDisplay = new Group(composite_1, SWT.NONE);
+		grpDisplay.setText("Display");
+		grpDisplay.setLayout(new GridLayout(3, false));
+		grpDisplay.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		
+		btnSummaryStatistics = new Button(grpDisplay, SWT.CHECK);
+		GridData gd_btnSummaryStatistics = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
+		gd_btnSummaryStatistics.heightHint = 25;
+		btnSummaryStatistics.setLayoutData(gd_btnSummaryStatistics);
+		btnSummaryStatistics.setText("Summary Statistics");
+		new Label(grpDisplay, SWT.NONE);
+		
+		
+		btnConfidenceInterval = new Button(grpDisplay, SWT.CHECK);
+		btnConfidenceInterval.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				txtConfidenceInterval.setEnabled(btnConfidenceInterval.getSelection());
+				
+			}
+		});
+		GridData gd_btnConfidenceInterval = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_btnConfidenceInterval.heightHint = 26;
+		btnConfidenceInterval.setLayoutData(gd_btnConfidenceInterval);
+		btnConfidenceInterval.setText("Confidence Interval");
+		
+		txtConfidenceInterval = new Spinner(grpDisplay, SWT.BORDER);
+		txtConfidenceInterval.setDigits(2);
+		txtConfidenceInterval.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		txtConfidenceInterval.setMaximum(9900);
+		txtConfidenceInterval.setMinimum(9000);
+		txtConfidenceInterval.setSelection(9500);
+		txtConfidenceInterval.setEnabled(false);
+		
+		Label label = new Label(grpDisplay, SWT.NONE);
+		GridData gd_label = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_label.widthHint = 127;
+		label.setLayoutData(gd_label);
+		label.setText("%");
+		
+		grpTestForNormality = new Group(composite_1, SWT.NONE);
+		grpTestForNormality.setText("Test for Normality");
+		grpTestForNormality.setLayout(new GridLayout(1, false));
+		grpTestForNormality.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		
+		btnShapirowilk = new Button(grpTestForNormality, SWT.CHECK);
+		btnShapirowilk.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
+		btnShapirowilk.setText("Shapiro-Wilk");
+		btnShapirowilk.setData("swilk");
+		
+		btnShapirofrancia = new Button(grpTestForNormality, SWT.CHECK);
+		btnShapirofrancia.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
+		btnShapirofrancia.setText("Shapiro-Francia");
+		btnShapirofrancia.setData("sfrancia");
+		
+		btnLilliefors = new Button(grpTestForNormality, SWT.CHECK);
+		btnLilliefors.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
+		btnLilliefors.setText("Lilliefors (Kolmogorov-Smirnov)");
+		btnLilliefors.setData("ks");
+		
+		btnCramervonMises = new Button(grpTestForNormality, SWT.CHECK);
+		btnCramervonMises.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
+		btnCramervonMises.setText("Cramer-Von Mises");
+		btnCramervonMises.setData("cramer");
+		
+		btnAndersondarling = new Button(grpTestForNormality, SWT.CHECK);
+		btnAndersondarling.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, true, 1, 1));
+		btnAndersondarling.setText("Anderson-Darling");
+		btnAndersondarling.setData("anderson");
+		
+		lstDataSet1 = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstDataSet1 = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_lstDataSet1.heightHint = 60;
+		gd_lstDataSet1.widthHint = 80;
+		lstDataSet1.setLayoutData(gd_lstDataSet1);
+
+		new Label(composite, SWT.NONE);
+		
+		lblDataSet = new Label(composite, SWT.NONE);
+		lblDataSet.setText("Data Set 2:");
+		new Label(composite, SWT.NONE);
+		
+		btnDataSet2 = new Button(composite, SWT.NONE);
+		GridData gd_btnDataSet2 = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		gd_btnDataSet2.widthHint = 90;
+		btnDataSet2.setLayoutData(gd_btnDataSet2);
+		btnDataSet2.setText("Add");
+		
+		lstDataSet2 = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstDataSet2 = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_lstDataSet2.heightHint = 60;
+		gd_lstDataSet2.widthHint = 80;
+		lstDataSet2.setLayoutData(gd_lstDataSet2);
+		
+		initializeContent();
+		
+		
+		return container;
+	}
+	
+	public void initializeContent(){
+		listManager.initializeNumericList(lstNumericVariables, filePath);
+		listManager.initializeSingleButtonList(lstNumericVariables, lstDataSet1, btnDataSet1);
+		listManager.initializeSingleButtonList(lstNumericVariables, lstDataSet2, btnDataSet2);
+	}
+	@Override
+	protected void buttonPressed(int ID){
+		if(ID == IDialogConstants.OK_ID){
+			okPressed();
+		}
+		else if(ID == IDialogConstants.CANCEL_ID){
+			cancelPressed();
+		}
+		else if (ID == IDialogConstants.RETRY_ID){
+			resetDialog();
+		}
+	}
+	void resetDialog(){
+		lstNumericVariables.removeAll();
+		lstDataSet1.removeAll();
+		lstDataSet2.removeAll();
+		
+		listManager.initializeNumericList(lstNumericVariables, filePath);
+		cmbAlternativeHypothesis.select(2);
+		listManager.setCheckBoxesToBoolean(false, grpDisplay,grpTestForNormality);
+		txtConfidenceInterval.setSelection(9500);
+		txtConfidenceInterval.setEnabled(false);
+		btnDataSet1.setText("Add");
+		btnDataSet2.setText("Add");
+		btnDataSet1.setEnabled(false);
+		btnDataSet2.setEnabled(false);
+	}
+	@Override
+	protected void okPressed(){
+
+		if (lstDataSet1.getItemCount() > 0 && lstDataSet2.getItemCount() > 0) {
+			if(lstDataSet1.getItemCount() != lstDataSet2.getItemCount()){
+
+				MessageDialog.openError(this.getShell(), "Error", "Data Set 1 and Data Set 2 must be equal");
+				return;
+			}
+			btnOkay.setEnabled(false);
+			String altHypo = cmbAlternativeHypothesis.getText();
+			boolean statistics = btnSummaryStatistics.getSelection();
+			boolean confInt = btnConfidenceInterval.getSelection();
+			float confLevel = (float) txtConfidenceInterval.getSelection() / 100;
+			Composite[] cmpGroup = { grpTestForNormality };
+			String[] method = listManager.getCheckBoxesValue(cmpGroup);
+			if(method.length <= 0) method = null;
+			
+			String outputFolder = StarAnalysisUtilities
+					.createOutputFolder(filePath,"TTestPairedSample");
+			OperationProgressDialog rInfo = new OperationProgressDialog(
+					getShell(), "Performing Analysis");
+			rInfo.open();
+			String dataFileName = filePath.replace(File.separator, "/");
+			//supply path and name of text file where text output is going to be saved
+			String outFileName = outputFolder + "//Output.txt";
+			StarAnalysisUtilities.testVarArgs(	dataFileName,
+					outFileName.replace(File.separator, "/"),
+					lstDataSet1.getItems(),
+					lstDataSet2.getItems(),
+					altHypo,
+					statistics,
+					confInt,
+					confLevel
+					, method);
+			
+			ProjectExplorerView.rJavaManager.getSTARAnalysisManager().doPairedMean(
+					dataFileName,
+					outFileName.replace(File.separator, "/"),
+					lstDataSet1.getItems(),
+					lstDataSet2.getItems(),
+					altHypo,
+					statistics,
+					confInt,
+					confLevel
+					, method
+					);
+			this.getShell().setMinimized(true);
+			StarAnalysisUtilities.openAndRefreshFolder(outFileName);
+			rInfo.close();
+			btnOkay.setEnabled(true);
+			
+		}
+		else{
+			MessageDialog.openError(this.getShell(), "Error", "Data Set 1 and Data Set 2 must not be empty");
+		}
+		
+	}
+
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.RETRY_ID, "Reset", false);
+		btnOkay = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(432, 420);
+	}
+
+}

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmlns:ui="http://www.eclipse.org/ui/2010/UIModel/application/ui" xmi:id="_BCleQOXKEeGy_o76r_fKDw" elementId="org.eclipse.e4.ide.application" bindingContexts="_BCleQeXKEeGy_o76r_fKDw">
+  <children xsi:type="basic:TrimmedWindow" xmi:id="_MSoqoOXUEeGy_o76r_fKDw" elementId="MainWindow" label="" x="49" y="430" width="827" height="317">
+    <children xsi:type="advanced:PerspectiveStack" xmi:id="__4dzgOXUEeGy_o76r_fKDw" elementId="trial.perspectivestack.0" selectedElement="_AxY_kOXVEeGy_o76r_fKDw">
+      <children xsi:type="advanced:Perspective" xmi:id="_AxY_kOXVEeGy_o76r_fKDw" elementId="MainPerspective">
+        <children xsi:type="basic:PartSashContainer" xmi:id="_K8_PYDU-EeKAZqiXPDpSxQ" elementId="MainPartSashContainer" selectedElement="_8PWEsOdpEeGgONtCIGiYrg" horizontal="true">
+          <children xsi:type="basic:PartStack" xmi:id="_8PWEsOdpEeGgONtCIGiYrg" elementId="ProjectExplorerStack" containerData="2" selectedElement="_4RjQAOXVEeGy_o76r_fKDw">
+            <children xsi:type="basic:Part" xmi:id="_4RjQAOXVEeGy_o76r_fKDw" elementId="ProjectExplorer" containerData="2" contributionURI="bundleclass://Star/org.irri.breedingtool.projectexplorer.view.ProjectExplorerView" label="Project Explorer">
+              <menus xmi:id="_gnk2kCpIEeKmNM9t6V4ivg" elementId="star.menu.0" label="Test"/>
+            </children>
+          </children>
+          <children xsi:type="basic:PartStack" xmi:id="_E3-AsDR0EeKd5bfbu_mxzg" elementId="ViewerStack" containerData="8">
+            <children xsi:type="basic:Part" xmi:id="_9GMbkDR1EeKd5bfbu_mxzg" elementId="retainer" visible="false" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.data.view.ApplicationPostInitializer"/>
+            <children xsi:type="basic:Part" xmi:id="_ZFm3QDU7EeKAZqiXPDpSxQ" elementId="retainer" visible="false"/>
+          </children>
+        </children>
+      </children>
+    </children>
+    <mainMenu xmi:id="_Ir5soOv3EeGpYfw0xkEiPA" elementId="mainMenu">
+      <children xsi:type="menu:Menu" xmi:id="_Q2pggOv3EeGpYfw0xkEiPA" elementId="trial.menu.0" label="Project">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_SHHp4Ov3EeGpYfw0xkEiPA" elementId="trial.directmenuitem.0" label="New Project" iconURI="platform:/plugin/Star/icons/package_new.png" contributionURI="bundleclass://Star/org.irri.breedingtool.projectexplorer.handler.NewProjectDialogHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_dTusQOv3EeGpYfw0xkEiPA" elementId="trial.directmenuitem.0" label="Open Project" iconURI="platform:/plugin/Star/icons/package_open.png" contributionURI="bundleclass://Star/org.irri.breedingtool.projectexplorer.handler.OpenProjectDialogHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_jj_-cPx0EeGlIIQcur5D8Q" elementId="star.directmenuitem.0" visible="false" label="Save" iconURI="platform:/plugin/Star/icons/save_edit.gif" contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.SaveHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_CVl4wAltEeK4R78732OSow" elementId="star.directmenuitem.0" label="Import Project" contributionURI="bundleclass://Star/org.irri.breedingtool.projectexplorer.handler.ImportProjectDialogHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_Ao63YAl0EeK4R78732OSow" elementId="star.directmenuitem.0" label="Rename Project" iconURI="platform:/plugin/Star/icons/renameFile.png" contributionURI="bundleclass://Star/org.irri.breedingtool.projectexplorer.handler.RenameProjectDialogHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_UiHhUAlyEeK4R78732OSow" elementId="star.directmenuitem.0" label="Delete Project" iconURI="platform:/plugin/Star/icons/deleteProject.png" contributionURI="bundleclass://Star/org.irri.breedingtool.projectexplorer.handler.DeleteProjectDialogHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_vshnUMK1EeK5GM0ckrMh9g" elementId="star.directmenuitem.5" label="Switch Workspace..." contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.ChangeWorkspaceHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_MTd2AC0uEeKVYL9HnWhEzA" elementId="star.directmenuitem.0" label="Quit" contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.QuitHandler"/>
+      </children>
+      <children xsi:type="menu:Menu" xmi:id="_onFVQAYhEeKRs5njibOBNw" elementId="star.menu.0" label="Data">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_TidCQAtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Save" iconURI="platform:/plugin/Star/icons/save_edit.gif" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.SaveFileHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_YI9TUAtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Save As..." iconURI="platform:/plugin/Star/icons/saveas.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.SaveAsFileHandler"/>
+        <children xsi:type="menu:MenuSeparator" xmi:id="_bjOawAtuEeKyF7gn2yX1gQ" elementId="star.menuseparator.0" accessibilityPhrase="Table"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_rJ4pMAYhEeKRs5njibOBNw" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Insert Row..." iconURI="platform:/plugin/Star/icons/table-insert-row-icon.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.InsertRowMenuHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_fT-vkAtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Delete Row" iconURI="platform:/plugin/Star/icons/table-delete-row-icon.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.DeleteRowMenuHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_j4aswDN-EeK2wK5vcNTlcQ" elementId="star.directmenuitem.0" label="Insert Column..." iconURI="platform:/plugin/Star/icons/table-insert-column-icon.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.InsertColumnMenuHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_bvZrUDOLEeK2wK5vcNTlcQ" elementId="star.directmenuitem.0" label="Delete Column" iconURI="platform:/plugin/Star/icons/table-delete-column-icon.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.DeleteColumnMenuHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_htMCoAtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Create New Variable..." iconURI="platform:/plugin/Star/icons/new_var.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.CreateNewVariableHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_kYtNsAtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Edit Variable Information..." iconURI="platform:/plugin/Star/icons/edit_var.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.EditVarInfoHandler"/>
+        <children xsi:type="menu:MenuSeparator" xmi:id="_n8D_sAtuEeKyF7gn2yX1gQ" elementId="star.menuseparator.0" accessibilityPhrase="Table"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_pe7goAtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Sort..." iconURI="platform:/plugin/Star/icons/sort.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.SortHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_q_sv0AtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Merge Datasets..." iconURI="platform:/plugin/Star/icons/merge.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.MergeHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_s1elsAtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Append Datasets..." iconURI="platform:/plugin/Star/icons/append.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.AppendHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_vaSr0AtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Create Data Subset..." iconURI="platform:/plugin/Star/icons/subset.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.SubsetHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="_x7PloAtuEeKyF7gn2yX1gQ" elementId="star.menu.0" accessibilityPhrase="Table" label="Reshape">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_Ni2a0AtvEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="From Long (Serial) to Wide (Parallel)..." iconURI="platform:/plugin/Star/icons/to_wide.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.ReshapeToWideHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_Q_WW4AtvEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="From Wide (Parallel) to Long (Serial)..." iconURI="platform:/plugin/Star/icons/to_long.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.ReshapeToLongHandler"/>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_2Nfd8AtuEeKyF7gn2yX1gQ" elementId="star.directmenuitem.0" accessibilityPhrase="Table" label="Aggregate..." iconURI="platform:/plugin/Star/icons/aggreagate.png" contributionURI="bundleclass://Star/org.irri.breedingtool.datamanipulation.handler.AggregateHandler"/>
+      </children>
+      <children xsi:type="menu:Menu" xmi:id="_QEHcoP2YEeGeoZyvxG0HOg" elementId="star.design.menu" label="Design">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_3xfJwP2YEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Completely Randomized Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.CompletelyRandomizationDesignHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_R40fAP2ZEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Randomized Complete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.RandomizedCompleteBlockDesignHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_X2k24P2ZEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Latin Square Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.LatinSquareDesignHandler"/>
+        <children xsi:type="menu:MenuSeparator" xmi:id="_iPsm0P2ZEeGeoZyvxG0HOg" elementId="star.menuseparator.0"/>
+        <children xsi:type="menu:Menu" xmi:id="_gItFIP2ZEeGeoZyvxG0HOg" elementId="star.menu.0" label="Split Plot Design">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_XUcvUP2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Completely Randomized Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitPlotCompletelyRandomizationDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_ZuiMIP2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Randomized Complete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitPlotRandomizedCompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_bznCQP2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Latin Square Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitPlotLatinSquareDesignHandler"/>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_c5Dc0P2aEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Strip Plot Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.StripPlotDesignHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="_pZ8nAP2ZEeGeoZyvxG0HOg" elementId="star.menu.0" label="Split-Split Plot Design">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_ddHWsP2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Completely Randomized Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitSplitPlotCompletelyRandomizationDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_f8Q5sP2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Randomized Complete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitSplitPlotRandomizedCompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_iAvS4P2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Latin Square Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitSplitPlotLatinSquareDesignHandler"/>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_mU99oP2aEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Strip-Split Plot Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.StripSplitPlotDesignHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="_7WynEP2ZEeGeoZyvxG0HOg" elementId="star.menu.0" label="Split-Split-Split Plot Design">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_ye9Y0P2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Completely Randomized Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitSplitSplitCompletelyRandomizationDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_1pL5IP2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Randomized Complete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitSplitSplitRandomizedCompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_4y9tgP2bEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Latin Square Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.SplitSplitSplitLatinSquareDesignHandler"/>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_4Up2UP2aEeGeoZyvxG0HOg" elementId="star.directmenuitem.0" label="Strip-Split-Split Plot Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.StripSplitSplitPlotDesignHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="__pPTsP2ZEeGeoZyvxG0HOg" elementId="star.menu.0" toBeRendered="false" visible="false" label="Incomplete Block Design">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_uz6bQAffEeK8fY2dJokKQA" elementId="star.directmenuitem.0" label="Augmented RCB ... " contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.AugmentedRandomizedCompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_aq9wAAffEeK8fY2dJokKQA" elementId="star.directmenuitem.0" label="Augmented Latin Square ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.AugmentedLatinSquareDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_YurCcAffEeK8fY2dJokKQA" elementId="star.directmenuitem.0" label="Lattice Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.IncompleteBlockLatticeDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_ss5rcAffEeK8fY2dJokKQA" elementId="star.directmenuitem.0" toBeRendered="false" visible="false" label="Alpha Lattice Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.IncompleteBlockIncompleteBlockAlphaLatticeDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_cT6q0AffEeK8fY2dJokKQA" elementId="star.directmenuitem.0" toBeRendered="false" visible="false" label="Rectangular Lattice Design" contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.IncompleteBlockRectangularLatticeDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_DjSFcDfdEeObufdVILJc9g" elementId="star.directmenuitem.0" toBeRendered="false" visible="false" label="Row-Column Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.RowColumnDesignHandler"/>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_ddAZ0AffEeK8fY2dJokKQA" elementId="star.directmenuitem.0" label="Balanced Incomplete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.IncompleteBlockBalancedIncompleteBlockDesignHandler"/>
+        <children xsi:type="menu:MenuSeparator" xmi:id="_koiV4DxNEeO1JPCQNvH8Vw" elementId="star.menuseparator.0"/>
+      </children>
+      <children xsi:type="menu:Menu" xmi:id="_XEu-QC7xEeKvU5lf1nZFXw" elementId="star.menu.0" label="Randomization">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_rP1r0F-oEeKNNMyuciD9wg" elementId="star.directmenuitem.0" label="Randomized Complete Block Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.RandomizedCompleteBlockDesignHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_evUrYC7xEeKvU5lf1nZFXw" elementId="star.directmenuitem.0" label="Lattice Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.IncompleteBlockLatticeDesignHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_zqSCYC7xEeKvU5lf1nZFXw" elementId="star.directmenuitem.0" label="Alpha Lattice Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.IncompleteBlockIncompleteBlockAlphaLatticeDesignHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_wZtpgC7xEeKvU5lf1nZFXw" elementId="star.directmenuitem.0" label="Augmented Latin Square Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.AugmentedLatinSquareDesignHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_TGW5kEgeEeKPWsHxSQgXzg" elementId="star.directmenuitem.0" label="Augmented Randomized Complete Block Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.AugmentedRandomizedCompleteBlockDesignHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_bo8f4DfHEeOmFIfJUjgEqg" elementId="star.directmenuitem.0" label="Row-Column Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.RowColumnDesignHandler"/>
+      </children>
+      <children xsi:type="menu:Menu" xmi:id="_kKt98AbtEeK3w6ZMumhoJQ" elementId="mnuAnalysis" accessibilityPhrase="" label="Analysis">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_xmx6cAbtEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" accessibilityPhrase="" label="Single-environment Analysis..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.environment.handler.SingleEnvironmentHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="_p14J8AbtEeK3w6ZMumhoJQ" elementId="star.menu.0" accessibilityPhrase="" label="Multi-environment Analysis">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_DJXXUByuEeKUroVZ8iILDQ" elementId="star.directmenuitem.0" label="One-Stage Analysis..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.environment.handler.OneStageMultiEnvironmentHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_39uOYAbtEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" accessibilityPhrase="" label="Two-Stage Analysis..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.environment.handler.TwoStageMultiEnvironmentHandler"/>
+          <children xsi:type="menu:Menu" xmi:id="_sPQFMK_0EeOK4YWY8IEuLA" elementId="star.menu.0" label="GxE Analysis">
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_ya7kUK_0EeOK4YWY8IEuLA" elementId="star.directmenuitem.0" label="Stability Models..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.environment.handler.StabilityModelsHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_1G40QK_0EeOK4YWY8IEuLA" elementId="star.directmenuitem.0" label="Multiplicative Models..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.environment.handler.MultiplicativeModelsHandler"/>
+          </children>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_6vsmwAbtEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" accessibilityPhrase="" label="Selection Index..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.handler.SelectionIndexHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_9K3osAbtEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" accessibilityPhrase="" label="QTL Analysis..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.handler.QTLAnalysisHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="__JIFIAbtEeK3w6ZMumhoJQ" elementId="star.menu.0" label="Mating Designs">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_Lg8WYAbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.nc1" label="North Carolina I..." iconURI="" contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.matingdesign.handler.NorthCarolinaExperimentIHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_NCuSMAbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" label="North Carolina II..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.matingdesign.handler.NorthCarolinaExperimentIIHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_PMmv0AbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" label="North Carolina III..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.matingdesign.handler.NorthCarolinaExperimentIIIHandler"/>
+          <children xsi:type="menu:Menu" xmi:id="_Q0zcsAbuEeK3w6ZMumhoJQ" elementId="star.menu.0" label="Triple Test Cross">
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_tM7I0AbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" label="Triple Test Cross (no parents)..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.matingdesign.handler.TripleTestCrossHandler"/>
+          </children>
+          <children xsi:type="menu:Menu" xmi:id="_TVpBwAbuEeK3w6ZMumhoJQ" elementId="star.menu.0" label="Diallel Analysis">
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_WRwNkAbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" label="Griffing Method I..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.matingdesign.handler.DiallelGriffingIHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_YzKaYAbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" label="Griffing Method II..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.matingdesign.handler.DiallelGriffingIIHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_Zozo8AbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" label="Griffing Method III..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.matingdesign.handler.DiallelGriffingIIIHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_bBUUAAbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" label="Griffing Method IV..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.matingdesign.handler.DiallelGriffingIVHandler"/>
+          </children>
+        </children>
+        <children xsi:type="menu:Menu" xmi:id="_FEMVYAbuEeK3w6ZMumhoJQ" elementId="star.menu.0" label="Generation Mean Analysis">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_mXuyoAbuEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" label="Raw data as input..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.generationmean.handler.RawDataDialogHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_AcuVQCFsEeKMN9TQ0iqQaA" elementId="star.directmenuitem.0" label="Summary statistics as input..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.generationmean.handler.SummaryStatisticsDialogHandler"/>
+        </children>
+      </children>
+      <children xsi:type="menu:Menu" xmi:id="_Hd9CkA0DEeKeDv0TwD2MsQ" elementId="star.menu.0" label="Analyze">
+        <visibleWhen xsi:type="ui:CoreExpression" xmi:id="_8QAhMD6LEeKI1qF7l-yEKQ" coreExpressionId="org.eclipse.e4.CSS.Editor.opened"/>
+        <children xsi:type="menu:Menu" xmi:id="_mDe9MA3OEeKdC5urcwXWYw" elementId="star.menu.0" label="Descriptive Statistics">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_EItpYA3lEeKdC5urcwXWYw" elementId="star.directmenuitem.0" label="Descriptive ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.DescriptiveAnalysisHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_jJHeYBgBEeKCNObSOoSgYA" elementId="star.directmenuitem.0" label="Cross Tabulation ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.DescriptiveStatisticsCrossTabulationHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_VH5rcBcGEeKTXuUAbdpv0w" elementId="star.directmenuitem.0" label="Normality Test ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.DescriptiveStatisticsNormalityTestHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_g5QeIBgNEeKCNObSOoSgYA" elementId="star.directmenuitem.0" label="Homogeneity of Variances ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.DescriptiveStatisticsHeteroskedasticityHandler"/>
+        </children>
+        <children xsi:type="menu:Menu" xmi:id="_aRWmIBhGEeKCNObSOoSgYA" elementId="star.menu.0" label="t-Test">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_c640MBhGEeKCNObSOoSgYA" elementId="star.directmenuitem.0" label="One Sample ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.TTestOneSampleHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_ZdfVECmxEeKhH92qBwLr6g" elementId="star.directmenuitem.0" label="Paired Sample ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.TTestPairedSampleHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_X45WMBjkEeKuWZAyIulIDw" elementId="star.directmenuitem.0" label="Independent Sample ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.TTestIndependentSampleHandler"/>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_DeaUIEpqEeK46LVAo1IiKg" elementId="star.directmenuitem.3" label="Test on Proportion ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.TestOnProportionHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="_Nh5QEEBKEeKvbKKZVd4LqQ" elementId="star.menu.1" label="Chi - Square">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_c5i_oEpHEeKXNppx2ayQKQ" elementId="star.directmenuitem.2" label="Goodness of Fit ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.ChiSquareGoodnessOfFitHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_x1jE0EBJEeKvbKKZVd4LqQ" elementId="star.directmenuitem.1" label="Test of Independence ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.ChiSquareIndependenceTestHandler"/>
+        </children>
+        <children xsi:type="menu:Menu" xmi:id="_4EfzgBzgEeKYDaXRJRFT4A" elementId="star.design.menu" label="Analysis of Variance">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzgRzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Completely Randomized Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.CompletelyRandomizationDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzghzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Randomized Complete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.RandomizedCompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzgxzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Latin Square Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.LatinSquareDesignHandler"/>
+          <children xsi:type="menu:MenuSeparator" xmi:id="_4EfzhBzgEeKYDaXRJRFT4A" elementId="star.menuseparator.0"/>
+          <children xsi:type="menu:Menu" xmi:id="_4EfzhRzgEeKYDaXRJRFT4A" elementId="star.menu.0" label="Split Plot Design">
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzhhzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Completely Randomized Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitCompletelyRandomizationDesignHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzhxzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Randomized Complete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitRandomizedCompleteBlockDesignHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfziBzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Latin Square Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitLatinSquareDesignHandler"/>
+          </children>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfziRzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Strip Plot Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.StripPlotDesignHandler"/>
+          <children xsi:type="menu:Menu" xmi:id="_4EfzihzgEeKYDaXRJRFT4A" elementId="star.menu.0" label="Split-Split Plot Design">
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzixzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Completely Randomized Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitSplitCompletelyRandomizationDesignHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzjBzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Randomized Complete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitSplitRandomizedCompleteBlockDesignHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzjRzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Latin Square Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitSplitLatinSquareDesignHandler"/>
+          </children>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzjhzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Strip-Split Plot Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.StripSplitPlotDesignHandler"/>
+          <children xsi:type="menu:Menu" xmi:id="_4EfzjxzgEeKYDaXRJRFT4A" elementId="star.menu.0" label="Split-Split Split Plot Design">
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzkBzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Completely Randomized Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitSplitSplitCompletelyRandomizationDesignHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzkRzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Randomized Complete Block Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitSplitSplitRandomizedCompleteBlockDesignHandler"/>
+            <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzkhzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Latin Square Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.SplitSplitSplitLatinSquareDesignHandler"/>
+          </children>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_4EfzkxzgEeKYDaXRJRFT4A" elementId="star.directmenuitem.0" label="Strip-Split Split Plot Design ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.anova.handler.StripSplitSplitPlotDesignHandler"/>
+          <children xsi:type="menu:MenuSeparator" xmi:id="_x7i94Dn5EeOEHd58oJhTBQ" elementId="star.menuseparator.0"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_zrR1kDHeEeK_7NtVcoY29A" elementId="star.directmenuitem.0" accessibilityPhrase="" label="Balanced Incomplete Block ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.BalancedIncompleteBlockDesignHandler"/>
+        </children>
+        <children xsi:type="menu:Menu" xmi:id="_6hy-YKfzEeKECNcukMZI-A" elementId="star.menu.0" toBeRendered="false" visible="false" label="Incomplete Block">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_7MR5AKsYEeKf2MnLxvcM7g" elementId="star.directmenuitem.0" label="Augmented RCB ... " contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.AugmentedRCBIncompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_TIK8QKvbEeKo5-O9AoRavA" elementId="star.directmenuitem.0" label="Augmented Latin Square ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.AugmentedLSIncompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_lynCIKvbEeKo5-O9AoRavA" elementId="star.directmenuitem.0" label="Alpha Lattice ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.AlphaLatticeIncompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_oX-h4KvbEeKo5-O9AoRavA" elementId="star.directmenuitem.0" label="Row-Column ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.RowColumnIncompleteBlockDesignHandler"/>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_Jy9yIA0DEeKeDv0TwD2MsQ" elementId="star.directmenuitem.0" label="Correlation..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.CorrelationAnalysisHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_LdQ-AB9dEeKrPO1gRPm7wQ" elementId="star.directmenuitem.0" toBeRendered="false" visible="false" label="Regression..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.RegressionAnalysisHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="_3IS9MEBoEeOUxoeZ3_bkUQ" elementId="star.menu.0" label="Regression">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_28GlcN4qEeK7w7kqJF4JHw" elementId="star.directmenuitem.0" label="Linear..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.MultipleLinearRegressionHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_CWbRIBX5EeOmMawcFyZ7EQ" elementId="star.directmenuitem.0" label="Non Linear..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.NonLinearRegressionHandler"/>
+        </children>
+        <children xsi:type="menu:Menu" xmi:id="_hJuFUCnPEeKhH92qBwLr6g" elementId="star.menu.0" label="Non-Parametric Test">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_kKXL0CnPEeKhH92qBwLr6g" elementId="star.directmenuitem.0" label="One Sample..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.NonParametricOneSampleHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_sbJ9UCnPEeKhH92qBwLr6g" elementId="star.directmenuitem.0" label="Two Related Samples..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.NonParametricTwoRelatedSamplesHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_xeQq0CnPEeKhH92qBwLr6g" elementId="star.directmenuitem.0" label="Two Independent Samples..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.NonParametricTwoIndependentSamplesHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_1x1Y0CnPEeKhH92qBwLr6g" elementId="star.directmenuitem.0" label="Several Related Samples..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.NonParametricSeveralRelatedSamplesHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_6YyV0CnPEeKhH92qBwLr6g" elementId="star.directmenuitem.0" label="Several Independent Samples..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.NonParametricSeveralIndependentSamplesHandler"/>
+        </children>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_j8Ac8H_VEeKKDOxyxf0h8g" elementId="star.directmenuitem.0" label="Fit Distributions ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.FittingDistributionsHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="_CrI0oFrzEeK0poBlwI9qKA" elementId="star.menu.0" label="Multivariate Analysis">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_GS0F8FrzEeK0poBlwI9qKA" elementId="star.directmenuitem.0" label="Principal Component Analysis ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.PrincipalComponentAnalysisHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_ZGb9AFrzEeK0poBlwI9qKA" elementId="star.directmenuitem.0" label="Cluster Analysis ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.ClusterAnalysisHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_CWS9gLCcEeKEsoQKZPKBVg" elementId="star.directmenuitem.0" label="Manova ..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.ManovaHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_rBQOkCv-EeOf8sf-o4BtHw" elementId="star.directmenuitem.0" label="MDS..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.MultiDimensionalScalingAnalysisHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_REOAYC8VEeOwOJONkYIdyQ" elementId="star.directmenuitem.0" label="Discriminant Analysis..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.analysis.handler.DiscriminantAnalysisHandler"/>
+        </children>
+      </children>
+      <children xsi:type="menu:Menu" xmi:id="_RnnnwFYhEeK2D4357n_y3g" elementId="star.menu.0" label="Graphs">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_U12eUFYhEeK2D4357n_y3g" elementId="star.directmenuitem.0" label="Bar Graph..." contributionURI="bundleclass://Star/org.irri.breedingtool.graphs.handler.BarGraphHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_v89iMF37EeKCHP1SkknZJw" elementId="star.directmenuitem.0" label="Line Graph..." contributionURI="bundleclass://Star/org.irri.breedingtool.graphs.handler.LineGraphHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_amM8oGUlEeKw_4bpuy85YA" elementId="star.directmenuitem.0" label="Scatter Plot..." contributionURI="bundleclass://Star/org.irri.breedingtool.graphs.handler.ScatterPlotGraphHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_T2ie8GnAEeK0264ITqsoyQ" elementId="star.directmenuitem.0" label="Box Plot..." contributionURI="bundleclass://Star/org.irri.breedingtool.graphs.handler.BoxPlotHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_b1pPAG9cEeKu7JShB-ad3Q" elementId="star.directmenuitem.0" label="Pie Chart..." contributionURI="bundleclass://Star/org.irri.breedingtool.graphs.handler.PieChartHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_tpEawHWmEeKv3MvJDDh2-Q" elementId="star.directmenuitem.0" label="Histogram..." contributionURI="bundleclass://Star/org.irri.breedingtool.graphs.handler.HistogramHandler"/>
+      </children>
+      <children xsi:type="menu:Menu" xmi:id="_PbJYoC0uEeKVYL9HnWhEzA" elementId="star.menu.0" label="Help">
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_QtcuAC0uEeKVYL9HnWhEzA" elementId="star.directmenuitem.0" label="User's Manual" contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.HelpHandler"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_UzdZMISmEeKWd7v4INcoGg" elementId="star.directmenuitem.4" label="About..." contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.AboutUsHandler"/>
+      </children>
+    </mainMenu>
+  </children>
+  <handlers xmi:id="_mCMkAPJUEeGR_uwKWG8F1g" elementId="newProjectCommand" contributionURI="bundleclass://Star/org.irri.breedingtool.projectexplorer.handler.NewProjectDialogHandler" command="_-ECo4PJTEeGR_uwKWG8F1g"/>
+  <handlers xmi:id="_bxEdAPJVEeGR_uwKWG8F1g" elementId="star.handler.0" contributionURI="bundleclass://Star/org.irri.breedingtool.projectexplorer.handler.OpenProjectDialogHandler" command="_YE3RAPJVEeGR_uwKWG8F1g"/>
+  <handlers xmi:id="_ZD1-wAhvEeKfgfx8iZ55fg" elementId="star.handler.0" contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.MenuHandler" command="_QWRKoAhvEeKfgfx8iZ55fg"/>
+  <handlers xmi:id="_zsN0YAlHEeK4R78732OSow" elementId="star.handler.0" contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.EventBrokerHandler" command="_tMQuYAlHEeK4R78732OSow"/>
+  <handlers xmi:id="_zwTvwDVxEeKAZqiXPDpSxQ" elementId="star.handler.0" contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.PartStackHandler" command="_38-kgDVxEeKAZqiXPDpSxQ"/>
+  <handlers xmi:id="_jQCLwDumEeOLkNlilSMyPA" elementId="restartApp" contributionURI="bundleclass://Star/org.irri.breedingtool.application.handler.RestartApplicationHandler"/>
+  <bindingTables xmi:id="_BCleTOXKEeGy_o76r_fKDw" bindingContext="_BCleQeXKEeGy_o76r_fKDw">
+    <bindings xmi:id="_BCleTeXKEeGy_o76r_fKDw" keySequence="M1+Q"/>
+    <bindings xmi:id="_BCleUOXKEeGy_o76r_fKDw" keySequence="M1+O"/>
+    <bindings xmi:id="_BCleU-XKEeGy_o76r_fKDw" keySequence="M1+S"/>
+    <bindings xmi:id="_BCleVuXKEeGy_o76r_fKDw" keySequence="M1+A"/>
+  </bindingTables>
+  <rootContext xmi:id="_BCleQeXKEeGy_o76r_fKDw" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
+    <children xmi:id="_BCleQuXKEeGy_o76r_fKDw" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
+    <children xmi:id="_BCleQ-XKEeGy_o76r_fKDw" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
+  </rootContext>
+  <toolBarContributions xmi:id="_LkjWAAiZEeKfgfx8iZ55fg" elementId="star.toolbarcontribution.0"/>
+  <commands xmi:id="_-ECo4PJTEeGR_uwKWG8F1g" elementId="newProjectCommandID" commandName="newProjectCommand" description="Add New Projec"/>
+  <commands xmi:id="_YE3RAPJVEeGR_uwKWG8F1g" elementId="openProjectCommandID" commandName="openProjectCommand" description="Open Project"/>
+  <commands xmi:id="_QWRKoAhvEeKfgfx8iZ55fg" elementId="application.menu" commandName="menuCommand"/>
+  <commands xmi:id="_tMQuYAlHEeK4R78732OSow" elementId="star.command.0" commandName="eventBrokerCommand"/>
+  <commands xmi:id="_38-kgDVxEeKAZqiXPDpSxQ" elementId="star.command.0" commandName="PartStack"/>
+  <addons xmi:id="_BCleROXKEeGy_o76r_fKDw" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
+  <addons xmi:id="_BCleReXKEeGy_o76r_fKDw" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
+  <addons xmi:id="_BCleRuXKEeGy_o76r_fKDw" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
+  <addons xmi:id="_BCleR-XKEeGy_o76r_fKDw" elementId="org.eclipse.e4.ui.workbench.commands.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.CommandProcessingAddon"/>
+  <addons xmi:id="_BCleSOXKEeGy_o76r_fKDw" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
+  <addons xmi:id="_BCleSeXKEeGy_o76r_fKDw" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
+  <addons xmi:id="_y0fKcCveEeKg-5zb-iw9Ww" elementId="org.eclipse.e4.ui.workbench.addons.swt" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
+  <addons xmi:id="_t2UCcCvtEeKg-5zb-iw9Ww" elementId="MinMax Addon" contributionURI="platform:/plugin/org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.MinMaxAddon"/>
+  <addons xmi:id="_t2UCcSvtEeKg-5zb-iw9Ww" elementId="DnD Addon" contributionURI="platform:/plugin/org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.dndaddon.DnDAddon"/>
+  <addons xmi:id="_t2UCcivtEeKg-5zb-iw9Ww" elementId="Cleanup Addon" contributionURI="platform:/plugin/org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.cleanupaddon.CleanupAddon"/>
+</application:Application>

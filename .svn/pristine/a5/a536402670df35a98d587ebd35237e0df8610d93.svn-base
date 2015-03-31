@@ -1,0 +1,6 @@
+ENV:Factor
+REP:Factor
+PLOTS:Numeric
+GENOTYPE:Factor
+HEIGHT:Numeric
+FTIME:Numeric

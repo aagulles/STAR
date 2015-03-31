@@ -1,0 +1,26 @@
+package org.irri.breedingtool.utility;
+
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Text;
+
+public class DialogListValidator {
+
+ 
+	public DialogListValidator(){
+	
+
+	}
+
+	public boolean validate(){
+		
+		return true;
+	}
+	public boolean performAddProcess(){
+		
+		return true;
+	}
+	public void performRemoveProcess(){
+		
+	}
+}

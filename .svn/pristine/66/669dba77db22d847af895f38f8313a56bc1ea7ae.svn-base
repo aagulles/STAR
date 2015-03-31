@@ -1,0 +1,92 @@
+package org.irri.breedingtool.projectexplorer.view;
+
+import java.io.File;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.wb.swt.ResourceManager;
+import org.irri.breedingtool.application.model.ProjectExplorerTreeNodeModel;
+import org.irri.breedingtool.manager.impl.ProjectExplorerManager;
+
+public class ProjectTreeComponent {
+	//INITs
+	//static TreeItem DEFAULT_TREE;
+	//static String DEFAULT_PROJECTName;
+	private static ProjectExplorerManager projMan = new ProjectExplorerManager();
+	//root path folder of all projects
+
+	//root path of the current opened project
+	static String PROJECT_PATH;
+	private ProjectExplorerManager projectExplorerManager = new ProjectExplorerManager();
+
+//
+	public static String getCurrentWorkspacePath(){
+		ProjectExplorerManager projectExplorerManager = new ProjectExplorerManager();
+
+		return projectExplorerManager.getWorkspacePath();
+	}
+	public ProjectTreeComponent(TreeItem projectTree, String projectName){
+		if(projectName.equals("null")) return;
+		//Remove all the elements for tree initialization
+		projectTree.removeAll();
+
+		System.out.println(System.getProperty("java.library.path"));
+		//Set the project tree main variables
+		//		DEFAULT_TREE = projectTree;
+		//		DEFAULT_PROJECTName = projectName;
+		//        
+		//Set the projectPath
+		PROJECT_PATH = projectExplorerManager.getWorkspacePath()+ projectName + File.separator ;
+		if(!new File(PROJECT_PATH).exists()){
+			if( Display.getCurrent().getActiveShell() != null)
+			{
+				Display.getCurrent().getActiveShell().setText(RJavaManagerInitializer.APPLICATION_TITLE);
+			}
+			projectTree.setText("...");
+			RJavaManagerInitializer.isProjectActive = false;
+			
+			
+			return;
+		}
+		//Init the Manager
+		
+
+		//Set the last opened project
+		projectExplorerManager.saveLastOpenedProject(projectName);
+		File fileData = new File(PROJECT_PATH + File.separator +"Data");
+		File fileOutput = new File(PROJECT_PATH + File.separator +"Output");
+
+		//Initialize the tree    
+		final File projectPath = new File(PROJECT_PATH);
+		
+		if(!fileOutput.exists()) fileOutput.mkdir();
+		if(!fileData.exists()) fileData.mkdir();
+		projectExplorerManager.listFolder(projectPath, projectTree);
+		projectExplorerManager.listFiles(projectPath, projectTree);
+		projectExplorerManager.saveLastOpenedProject(projectName);
+		projectTree.setImage(ResourceManager.getPluginImage(projectExplorerManager.getPackageName(), "icons/package.png"));	
+
+		projectTree.setExpanded(true);
+		projectTree.setText(projectName);
+	
+		projectTree.setData(new ProjectExplorerTreeNodeModel(projectPath, projectTree));
+
+		
+		
+		if( Display.getCurrent().getActiveShell() != null) Display.getCurrent().getActiveShell().setText(RJavaManagerInitializer.APPLICATION_TITLE+ projectName);
+		boolean invalidFiles = false;
+		for(int i = 0; i < ProjectExplorerView.projectTree.getItemCount(); i++){
+			if(!ProjectExplorerView.projectTree.getItem(i).getText().equals("Data") && !ProjectExplorerView.projectTree.getItem(i).getText().equals("Output")){
+				ProjectExplorerView.projectTree.getItem(i).dispose();
+			invalidFiles = true;
+			}
+		}
+	if(invalidFiles){
+		MessageDialog.openWarning(Display.getCurrent().getActiveShell(), "Warning: Invalid Files", "Warning! There are some files outside the primary folders. \n Make sure all of the files are inside Data/Output folder.");
+	}
+	RJavaManagerInitializer.isProjectActive = true;
+	}
+
+}
+

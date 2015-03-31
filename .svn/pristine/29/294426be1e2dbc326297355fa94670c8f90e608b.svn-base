@@ -1,0 +1,733 @@
+package org.irri.breedingtool.pbtools.analysis.matingdesign.dialog;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ShellListener;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Combo;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.application.model.ProjectExplorerTreeNodeModel;
+import org.irri.breedingtool.datamanipulation.dialog.OperationProgressDialog;
+import org.irri.breedingtool.manager.impl.DataManipulationManager;
+import org.irri.breedingtool.manager.impl.ProjectExplorerManager;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.utility.DialogFormUtility;
+import org.irri.breedingtool.utility.EnvVarValidator;
+import org.irri.breedingtool.utility.PBToolAnalysisUtilities;
+import org.irri.breedingtool.utility.TextVarValidator;
+import org.irri.breedingtool.utility.WindowDialogControlUtil;
+import org.eclipse.wb.swt.SWTResourceManager;
+
+public class GriffingMethodDialog extends Dialog {
+
+
+	String analysisType;
+	DataManipulationManager dataManipulationManager = new DataManipulationManager();
+	private DialogFormUtility dlgManager = new DialogFormUtility();
+	ArrayList<String> varInfo;
+	private File file;
+	private String[] factorVariables;
+	private String[] numericVariables;
+	private List numVarList;
+	private Button addBtn;
+	private Button moveBtn;
+	private List factorVarList;
+	private Button btnAddRep;
+	private Button btnAddP2;
+	private Button btnAddP1;
+	private Button btnAddEnv;
+	private Button performMultiRadio;
+	private List responseVarList;
+	private Combo designCombo;
+	private String[] designs={"CRD","RCB","Alpha","RowColumn"};
+	private Button btnCross;
+	private Button btnAddBlock;
+	private Label lblBlock;
+	private Label lblRep;
+	private String design="CRD";
+	private String[] respvars;
+	private String p1="NULL";
+	private String p2="NULL";
+	private String rep="NULL";
+	private String block="NULL";
+	private String row = "NULL";
+	private String column = "NULL";
+	private String cross="TRUE";
+	private String environment="NULL";
+	private String individual="NULL";
+	private String alpha="NULL";
+	private Button performPerSiteRadio;
+	private Label lblP2;
+	private Label lblP1;
+	private Text significanceLevel;
+	private ShellListener newShellListener;
+	protected boolean reFocused;
+	protected boolean pressedOkButton;
+	private Label lblLevelOfSignificance;
+	private Button btnAddRow;
+	private Label lblRow;
+	private Button btnAddCol;
+	private Label lblCol;
+	private Text txtEnvVar;
+	private Text txtP1Var;
+	private Text txtP2Var;
+	private Text txtBlockVar;
+	private Text txtRepVar;
+	private Text txtRowVar;
+	private Text txtColVar;
+	private Text text;
+	private Label lblEnv;
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+	public GriffingMethodDialog(Shell parentShell, String analysisType, File file) {
+		super(parentShell);
+		setShellStyle(SWT.BORDER | SWT.CLOSE | SWT.MIN | SWT.RESIZE);
+		setBlockOnOpen(false);
+		this.analysisType = analysisType;
+		this.file = file;
+		setFactors(); //gets the variables from the active File
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(final Composite parent) {
+
+		Composite container = (Composite) super.createDialogArea(parent);
+		GridLayout gridLayout = (GridLayout) container.getLayout();
+		gridLayout.numColumns = 7;
+
+		getShell().setData("analysis",analysisType);
+		getShell().setData("filePathID",file.getAbsolutePath());
+		WindowDialogControlUtil.addWindowDialogToList(getShell());
+
+		parent.addDisposeListener(new DisposeListener(){
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				// TODO Auto-generated method stub
+				WindowDialogControlUtil.removeWindowDialogToList(getShell());
+			}
+
+		});
+
+		Group group = new Group(container, SWT.NONE);
+		group.setLayout(new GridLayout(2, false));
+		GridData gd_group = new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1);
+		gd_group.heightHint = 46;
+		gd_group.widthHint = 318;
+		group.setLayoutData(gd_group);
+
+		Label lblTypeOfDesign = new Label(group, SWT.NONE);
+		GridData gd_lblTypeOfDesign = new GridData(SWT.LEFT, SWT.BOTTOM, true, true, 2, 1);
+		gd_lblTypeOfDesign.heightHint = 17;
+		lblTypeOfDesign.setLayoutData(gd_lblTypeOfDesign);
+		lblTypeOfDesign.setText("TYPE OF DESIGN:");
+
+		designCombo = new Combo(group, SWT.READ_ONLY);
+		designCombo.setItems(new String[] {"Completely Randomized Design (CRD)", "Randomized Complete Block (RCB)", "Alpha-Lattice", "Row-Column"});
+		designCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
+		designCombo.select(1);
+		designCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				enableFactorButtons(false);
+				if(designCombo.getSelectionIndex()==1){//RCB
+					lblBlock.setEnabled(true);
+					disable("replicate");
+					disable("row");
+					disable("column");
+				}
+				else if(designCombo.getSelectionIndex()==0){//CRD
+					disable("replicate");
+					disable("block");
+					disable("row");
+					disable("column");
+				}
+				else if(designCombo.getSelectionIndex()==2){//Alpha lattice
+					lblRep.setEnabled(true);
+					lblBlock.setEnabled(true);
+					disable("row");
+					disable("column");
+				}
+				else if(designCombo.getSelectionIndex()==3){//Row-Column
+					lblRep.setEnabled(true);
+					lblRow.setEnabled(true);
+					lblCol.setEnabled(true);
+					disable("block");
+				}
+			}
+		});
+
+		btnCross = new Button(group, SWT.RADIO);
+		btnCross.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				cross = "TRUE";
+			}
+		});
+		btnCross.setSelection(true);
+		btnCross.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, true, true, 1, 1));
+		btnCross.setText("Cross");
+
+		Button btnSelf = new Button(group, SWT.RADIO);
+		btnSelf.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				cross = "FALSE";
+			}
+		});
+		GridData gd_btnSelf = new GridData(SWT.LEFT, SWT.TOP, true, true, 1, 1);
+		gd_btnSelf.widthHint = 124;
+		btnSelf.setLayoutData(gd_btnSelf);
+		btnSelf.setText("Self");
+
+		Group group_1 = new Group(container, SWT.NONE);
+		group_1.setLayout(new GridLayout(1, false));
+		GridData gd_group_1 = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_group_1.heightHint = 35;
+		gd_group_1.widthHint = 104;
+		group_1.setLayoutData(gd_group_1);
+
+		Label lblDataInput = new Label(group_1, SWT.NONE);
+		lblDataInput.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
+		lblDataInput.setText("DATA INPUT:");
+
+		Button btnPlotMeans = new Button(group_1, SWT.RADIO);
+		btnPlotMeans.setSelection(true);
+		btnPlotMeans.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
+		btnPlotMeans.setText("Plot Means");
+
+		Button btnDataMeans = new Button(group_1, SWT.RADIO);
+		btnDataMeans.setEnabled(false);
+		btnDataMeans.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
+		btnDataMeans.setText("Individual Values");
+
+		Label lblNumericVariables = new Label(container, SWT.NONE);
+		GridData gd_lblNumericVariables = new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1);
+		gd_lblNumericVariables.widthHint = 194;
+		lblNumericVariables.setLayoutData(gd_lblNumericVariables);
+		lblNumericVariables.setText("Numeric Variable(s):");
+		new Label(container, SWT.NONE);
+		new Label(container, SWT.NONE);
+
+		Label lblResponseVariables = new Label(container, SWT.NONE);
+		lblResponseVariables.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		lblResponseVariables.setText("Response Variable(s):");
+
+		numVarList = new List(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_numVarList = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 2);
+		gd_numVarList.heightHint = 50;
+		gd_numVarList.widthHint = 45;
+		numVarList.setLayoutData(gd_numVarList);
+		numVarList.setItems(numericVariables);
+
+		new Label(container, SWT.NONE);
+		new Label(container, SWT.NONE);
+		new Label(container, SWT.NONE);
+
+		responseVarList = new List(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_responseVarList = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 2);
+		gd_responseVarList.heightHint = 50;
+		responseVarList.setLayoutData(gd_responseVarList);
+	
+		new Label(container, SWT.NONE);
+
+		addBtn = new Button(container, SWT.NONE);
+		
+		addBtn.setEnabled(false);
+		GridData gd_addBtn = new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1);
+		gd_addBtn.widthHint = 76;
+		addBtn.setLayoutData(gd_addBtn);
+		addBtn.setText("Add");
+		new Label(container, SWT.NONE);
+
+		Label lblFactors = new Label(container, SWT.NONE);
+		GridData gd_lblFactors = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_lblFactors.widthHint = 65;
+		lblFactors.setLayoutData(gd_lblFactors);
+		lblFactors.setText("Factors:");
+
+		moveBtn = new Button(container, SWT.NONE);
+		
+		GridData gd_moveBtn = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
+		gd_moveBtn.heightHint = 24;
+		gd_moveBtn.widthHint = 90;
+		moveBtn.setLayoutData(gd_moveBtn);
+		moveBtn.setText("Set to Factor");
+
+		Group performAnalysisGroup = new Group(container, SWT.NONE);
+		performAnalysisGroup.setLayout(new GridLayout(4, false));
+		GridData gd_performAnalysisGroup = new GridData(SWT.FILL, SWT.FILL, true, true, 5, 2);
+		gd_performAnalysisGroup.heightHint = 57;
+		gd_performAnalysisGroup.widthHint = 71;
+		performAnalysisGroup.setLayoutData(gd_performAnalysisGroup);
+
+		performPerSiteRadio = new Button(performAnalysisGroup, SWT.RADIO);
+		performPerSiteRadio.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+		performPerSiteRadio.setTouchEnabled(false);
+		performPerSiteRadio.setSelection(true);
+		performPerSiteRadio.setGrayed(false);
+		performPerSiteRadio.setEnabled(true);
+		performPerSiteRadio.setText("Perform Analysis Per Environment");
+
+		performMultiRadio = new Button(performAnalysisGroup, SWT.RADIO);
+		performMultiRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String selectedNumVars = txtEnvVar.getText();
+				if(!txtEnvVar.getText().isEmpty()){
+					String[] levelItems = DataManipulationManager.getEnvtLevels(selectedNumVars, file);
+						if(levelItems.length<2){
+							factorVarList.add(selectedNumVars);
+							txtEnvVar.setText("");
+							MessageDialog.openWarning(getShell(), "Invalid factor", "The environment factor for a Multi-Environment Analysis should have atleast 2(two) levels.\n\n" +
+									selectedNumVars+" has 1 level only. \n\n" +
+									"Please choose a different environment factor.");
+						}
+				}
+			}
+		});
+		performMultiRadio.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+		performMultiRadio.setText("Perform Multiple Environment Analysis");
+
+		btnAddEnv = new Button(performAnalysisGroup, SWT.NONE);
+		btnAddEnv.setEnabled(false);
+		GridData gd_btnAddEnv = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnAddEnv.widthHint = 62;
+		btnAddEnv.setLayoutData(gd_btnAddEnv);
+		btnAddEnv.setText("Add");
+
+		lblEnv = new Label(performAnalysisGroup, SWT.NONE);
+		GridData gd_lblEnv = new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1);
+		gd_lblEnv.widthHint = 62;
+		lblEnv.setLayoutData(gd_lblEnv);
+		lblEnv.setText("Environment:");
+		
+		txtEnvVar = new Text(performAnalysisGroup, SWT.BORDER);
+		txtEnvVar.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtEnvVar.setEditable(false);
+		GridData gd_txtEnvVar = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_txtEnvVar.widthHint = 206;
+		txtEnvVar.setLayoutData(gd_txtEnvVar);
+
+
+		factorVarList = new List(container, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		GridData gd_factorVarList = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 3);
+		gd_factorVarList.widthHint = 53;
+		gd_factorVarList.heightHint = 239;
+		factorVarList.setLayoutData(gd_factorVarList);
+		factorVarList.setItems(factorVariables);
+
+		Group dynamicGroup = new Group(container, SWT.NONE);
+		dynamicGroup.setLayout(new GridLayout(3, false));
+		GridData gd_dynamicGroup = new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1);
+		gd_dynamicGroup.heightHint = 40;
+		dynamicGroup.setLayoutData(gd_dynamicGroup);
+
+		btnAddP1 = new Button(dynamicGroup, SWT.NONE);
+		btnAddP1.setEnabled(false);
+		GridData gd_btnAddP1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnAddP1.widthHint = 62;
+		btnAddP1.setLayoutData(gd_btnAddP1);
+		btnAddP1.setText("Add");
+
+		lblP1 = new Label(dynamicGroup, SWT.NONE);
+		GridData gd_lblP1 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblP1.widthHint = 62;
+		lblP1.setLayoutData(gd_lblP1);
+		lblP1.setText("P1:");
+		
+		txtP1Var = new Text(dynamicGroup, SWT.BORDER);
+		txtP1Var.setEditable(false);
+		txtP1Var.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtP1Var.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+
+		btnAddP2 = new Button(dynamicGroup, SWT.NONE);
+		btnAddP2.setEnabled(false);
+		GridData gd_btnAddP2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnAddP2.widthHint = 62;
+		btnAddP2.setLayoutData(gd_btnAddP2);
+		btnAddP2.setText("Add");
+
+		lblP2 = new Label(dynamicGroup, SWT.NONE);
+		GridData gd_lblP2 = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblP2.widthHint = 62;
+		lblP2.setLayoutData(gd_lblP2);
+		lblP2.setText("P2:");
+		
+		txtP2Var = new Text(dynamicGroup, SWT.BORDER);
+		txtP2Var.setEditable(false);
+		txtP2Var.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtP2Var.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+
+		if(analysisType.equals("NCIII")){
+			lblP1.setText("Tester:");
+			lblP2.setText("F2:");
+		}
+
+		parent.getShell().setText(getDialogName(analysisType, file));
+
+		Group group_3 = new Group(container, SWT.NONE);
+		group_3.setLayout(new GridLayout(3, false));
+		GridData gd_group_3 = new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1);
+		gd_group_3.heightHint = 110;
+		group_3.setLayoutData(gd_group_3);
+
+		btnAddBlock = new Button(group_3, SWT.NONE);
+		btnAddBlock.setEnabled(false);
+		GridData gd_btnAddBlock = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnAddBlock.widthHint = 62;
+		btnAddBlock.setLayoutData(gd_btnAddBlock);
+		btnAddBlock.setText("Add");
+
+		lblBlock = new Label(group_3, SWT.NONE);
+		GridData gd_lblBlock = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblBlock.widthHint = 62;
+		lblBlock.setLayoutData(gd_lblBlock);
+		lblBlock.setText("Block:");
+		
+		txtBlockVar = new Text(group_3, SWT.BORDER);
+		txtBlockVar.setEditable(false);
+		txtBlockVar.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtBlockVar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+
+		btnAddRep = new Button(group_3, SWT.NONE);
+		btnAddRep.setEnabled(false);
+		GridData gd_btnAddRep = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnAddRep.widthHint = 62;
+		btnAddRep.setLayoutData(gd_btnAddRep);
+		btnAddRep.setText("Add");
+
+		lblRep = new Label(group_3, SWT.NONE);
+		GridData gd_lblRep = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblRep.widthHint = 62;
+		lblRep.setLayoutData(gd_lblRep);
+		lblRep.setText("Replicate:");
+		
+		txtRepVar = new Text(group_3, SWT.BORDER);
+		txtRepVar.setEditable(false);
+		txtRepVar.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtRepVar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+
+		btnAddRow = new Button(group_3, SWT.NONE);
+		btnAddRow.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddRow.setText("Add");
+		btnAddRow.setEnabled(false);
+
+		lblRow = new Label(group_3, SWT.NONE);
+		GridData gd_lblRow = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblRow.widthHint = 62;
+		lblRow.setLayoutData(gd_lblRow);
+		lblRow.setText("Row:");
+		lblRow.setEnabled(false);
+		
+		txtRowVar = new Text(group_3, SWT.BORDER);
+		txtRowVar.setEditable(false);
+		txtRowVar.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtRowVar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+
+		btnAddCol = new Button(group_3, SWT.NONE);
+		btnAddCol.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		btnAddCol.setText("Add");
+		btnAddCol.setEnabled(false);
+
+		lblCol = new Label(group_3, SWT.NONE);
+		GridData gd_lblCol = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblCol.widthHint = 62;
+		lblCol.setLayoutData(gd_lblCol);
+		lblCol.setText("Column:");
+		lblCol.setEnabled(false);
+		
+		txtColVar = new Text(group_3, SWT.BORDER);
+		txtColVar.setEditable(false);
+		txtColVar.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		txtColVar.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+
+		Button button_4 = new Button(group_3, SWT.NONE);
+		button_4.setEnabled(false);
+		GridData gd_button_4 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_button_4.widthHint = 62;
+		button_4.setLayoutData(gd_button_4);
+		button_4.setText("Add");
+
+		Label lblIndividual = new Label(group_3, SWT.NONE);
+		GridData gd_lblIndividual = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_lblIndividual.widthHint = 62;
+		lblIndividual.setLayoutData(gd_lblIndividual);
+		lblIndividual.setEnabled(false);
+		lblIndividual.setText("Individual:");
+		
+		text = new Text(group_3, SWT.BORDER);
+		text.setEditable(false);
+		text.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		GridData gd_text = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_text.widthHint = 206;
+		text.setLayoutData(gd_text);
+
+		lblLevelOfSignificance = new Label(container, SWT.NONE);
+		lblLevelOfSignificance.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblLevelOfSignificance.setText("Level of Significance:");
+
+		significanceLevel = new Text(container, SWT.BORDER);
+		significanceLevel.setText("0.05");
+		new Label(container, SWT.NONE);
+		new Label(container, SWT.NONE);
+		new Label(container, SWT.NONE);
+		new Label(container, SWT.NONE);
+		new Label(container, SWT.NONE);
+
+		disable("replicate");
+		initializeForm();
+		return container;
+	}
+	void initializeForm(){
+		dlgManager.initializeSingleSelectionList(factorVarList, txtEnvVar, btnAddEnv, new EnvVarValidator(factorVarList,  performMultiRadio.getSelection(),  file,  txtEnvVar, lblEnv));
+		dlgManager.initializeSingleSelectionList(factorVarList, txtP1Var, btnAddP1, new TextVarValidator(txtP1Var, lblP1));
+		dlgManager.initializeSingleSelectionList(factorVarList, txtP2Var, btnAddP2, new TextVarValidator(txtP2Var, lblP2));
+		dlgManager.initializeSingleSelectionList(factorVarList, txtBlockVar, btnAddBlock, new TextVarValidator(txtBlockVar, lblBlock));
+		dlgManager.initializeSingleSelectionList(factorVarList, txtRepVar, btnAddRep, new TextVarValidator(txtRepVar, lblRep));
+		dlgManager.initializeSingleSelectionList(factorVarList, txtRowVar, btnAddRow, new TextVarValidator(txtRowVar, lblRow));
+		dlgManager.initializeSingleSelectionList(factorVarList, txtColVar, btnAddCol, new TextVarValidator(txtColVar, lblCol));
+		dlgManager.initializeVariableMoveList(numVarList, factorVarList, moveBtn, file.getAbsolutePath());
+		dlgManager.initializeSingleButtonList(numVarList, responseVarList, addBtn);
+	}
+	
+	protected void disable(String string) {
+		// TODO Auto-generated method stub
+		if(string.equals("replicate")){
+			lblRep.setEnabled(false);
+			if(!txtRepVar.getText().isEmpty())factorVarList.add(txtRepVar.getText());
+			txtRepVar.setText("");
+			btnAddRep.setEnabled(false);
+		}
+		else if(string.equals("block")){
+			lblBlock.setEnabled(false);
+			if(!txtBlockVar.getText().isEmpty())factorVarList.add(txtBlockVar.getText());
+			txtBlockVar.setText("");
+			btnAddBlock.setEnabled(false);
+		}
+		else if(string.equals("row")){
+			lblRow.setEnabled(false);
+			if(!txtRowVar.getText().isEmpty())factorVarList.add(txtRowVar.getText());
+			txtRowVar.setText("");
+			btnAddRow.setEnabled(false);
+		}
+		else if(string.equals("column")){
+			lblCol.setEnabled(false);
+			if(!txtColVar.getText().isEmpty())factorVarList.add(txtColVar.getText());
+			txtColVar.setText("");
+			btnAddCol.setEnabled(false);
+		}
+	}
+
+	protected void setFactors() {
+		// TODO Auto-generated method stub
+		varInfo=dataManipulationManager.getVarInfoFromFile(file.getAbsolutePath());
+		numericVariables=dataManipulationManager.getNumericVars(varInfo);
+		factorVariables=dataManipulationManager.getFactorVars(varInfo);
+	}
+
+	protected void reset() {
+		// TODO Auto-generated method stub
+		txtP1Var.setText("");
+		txtP2Var.setText("");
+		txtRepVar.setText("");
+		txtBlockVar.setText("");
+		txtEnvVar.setText("");
+		txtColVar.setText("");
+		txtRowVar.setText("");
+		responseVarList.removeAll();
+		numVarList.removeAll();
+		factorVarList.removeAll();
+	}
+
+
+	private String getDialogName(String analysisType2, File file2) {
+		// TODO Auto-generated method stub
+		String dialogName;
+		if(analysisType2.equals("GriffingI")) dialogName="Diallel Analysis - Griffing Method I: "+dataManipulationManager.getDisplayFileName(file2.getAbsolutePath());
+		else if(analysisType2.equals("GriffingII"))dialogName="Diallel Analysis - Griffing Method II: "+dataManipulationManager.getDisplayFileName(file2.getAbsolutePath());
+		else if(analysisType2.equals("GriffingIII")) dialogName="Diallel Analysis - Griffing Method III: "+dataManipulationManager.getDisplayFileName(file2.getAbsolutePath());
+		else dialogName="Diallel Analysis - Griffing Method IV: "+dataManipulationManager.getDisplayFileName(file2.getAbsolutePath());
+		return dialogName;
+	}
+
+	public void enableFactorButtons(boolean state){
+		//un-select factor fields
+		txtP1Var.setSelection(-1);
+		txtP2Var.setSelection(-1);
+		txtRepVar.setSelection(-1);
+		txtBlockVar.setSelection(-1);
+		txtEnvVar.setSelection(-1);
+		txtRowVar.setSelection(-1);
+		txtColVar.setSelection(-1);
+
+		if(state){//if enable all buttons
+			//change button text
+			btnAddP2.setText("Add");
+			btnAddRep.setText("Add");
+			btnAddBlock.setText("Add");
+			btnAddEnv.setText("Add");
+			btnAddP1.setText("Add");
+			btnAddRow.setText("Add");
+			btnAddCol.setText("Add");
+
+			//enable empty fields
+			if(txtEnvVar.getText().isEmpty()) btnAddEnv.setEnabled(state);
+			if(txtRepVar.getText().isEmpty()&& lblRep.getEnabled())  btnAddRep.setEnabled(state);
+			if(txtBlockVar.getText().isEmpty() && lblBlock.getEnabled())  btnAddBlock.setEnabled(state);
+			if(txtP1Var.getText().isEmpty())  btnAddP1.setEnabled(state);
+			if(txtP2Var.getText().isEmpty()) btnAddP2.setEnabled(state);
+			if(txtRowVar.getText().isEmpty() && lblRow.getEnabled())  btnAddRow.setEnabled(state);
+			if(txtColVar.getText().isEmpty() && lblCol.getEnabled()) btnAddCol.setEnabled(state);
+		}
+		else{
+			//disable all buttons
+			btnAddRep.setEnabled(state);
+			btnAddBlock.setEnabled(state);
+			btnAddP1.setEnabled(state);
+			btnAddP2.setEnabled(state);
+			btnAddEnv.setEnabled(state);
+			btnAddRow.setEnabled(state);
+			btnAddCol.setEnabled(state);
+		}
+	}
+
+	public void enableNumericButtons(boolean state){
+		addBtn.setEnabled(state);
+	}
+
+	@Override
+	protected void okPressed(){
+		pressedOkButton = true;
+		if(responseVarList.getItemCount()<1){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a Response variable.");
+		}
+		//check if required fields are empty
+		else if(performMultiRadio.getSelection() && txtEnvVar.getText().isEmpty()){//if perform for multiple environment
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "An environment factor is required for a multiple environment analysis.\n\nPlease enter an environment factor.");
+		}
+		else if(txtP1Var.getText().isEmpty()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a P1 variable.");
+		}
+		else if(txtP2Var.getText().isEmpty()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a P2 variable.");
+		}
+		else if(txtRepVar.getText().isEmpty() && lblRep.getEnabled()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a Replicate variable.");
+		}
+		else if(txtBlockVar.getText().isEmpty() && lblBlock.getEnabled()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a Block variable.");
+		}
+		else if(txtRowVar.getText().isEmpty() && lblRow.getEnabled()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a Row variable.");
+		}
+		else if(txtColVar.getText().isEmpty() && lblCol.getEnabled()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a Column variable.");
+		}
+
+		else{
+			try{
+				if( Double.parseDouble(significanceLevel.getText())<=0 || Double.parseDouble(significanceLevel.getText())>=1){//check level if 0<levelOfSignificance<1
+					MessageDialog.openWarning(getShell(), "Invalid Input", "Sorry, the level of signifcance should have a value of between 0 and 1.");
+				}
+				else{
+					//call RJAVA function here
+					respvars = responseVarList.getItems();
+					p1 = txtP1Var.getText();
+					p2 = txtP2Var.getText();
+					environment="NULL";
+					if(!txtRepVar.getText().isEmpty()) rep = txtRepVar.getText();
+					if(!txtBlockVar.getText().isEmpty())block = txtBlockVar.getText();
+					if(!txtColVar.getText().isEmpty()) column = txtColVar.getText();
+					if(!txtRowVar.getText().isEmpty()) row = txtRowVar.getText();
+					if(!txtEnvVar.getText().isEmpty())environment =  txtEnvVar.getText();
+					alpha = significanceLevel.getText();
+					design = designs[designCombo.getSelectionIndex()];
+					String dataFileName = file.getAbsolutePath().toString().replaceAll("\\\\+", "/");
+
+					File outputFolder = PBToolAnalysisUtilities.createOutputFolder(file.getName(),analysisType);
+					String newFileName = outputFolder.getAbsolutePath().toString().replaceAll("\\\\+", "/") + "/output.txt";
+					OperationProgressDialog rInfo = new OperationProgressDialog(getShell(), "Diallel Analysis: "+analysisType);
+					rInfo.open();
+					if(analysisType.equals("GriffingI")){
+						if(performPerSiteRadio.getSelection())ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doDiallel1Test(dataFileName, newFileName, design, respvars, p1, p2, rep, block, row, column, cross, individual, environment, alpha);
+						else ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doDiallel1METest(dataFileName, newFileName, design, respvars, p1, p2, rep, block, row, column, cross, individual, environment, alpha);
+					}
+					else if(analysisType.equals("GriffingII")){
+						if(performPerSiteRadio.getSelection())ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doDiallel2Test(dataFileName, newFileName, design, respvars, p1, p2, rep, block, row, column, cross, individual, environment, alpha);
+						else ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doDiallel2METest(dataFileName, newFileName, design, respvars, p1, p2, rep, block, row, column, cross, individual, environment, alpha);
+					}
+					else if(analysisType.equals("GriffingIII")){
+						if(performPerSiteRadio.getSelection())ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doDiallel3Test(dataFileName, newFileName, design, respvars, p1, p2, rep, block, row, column, cross, individual, environment, alpha);
+						else ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doDiallel3METest(dataFileName, newFileName, design, respvars, p1, p2, rep, block, row, column, cross, individual, environment, alpha);
+					}
+					else{
+						if(performPerSiteRadio.getSelection())ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doDiallel4Test(dataFileName, newFileName, design, respvars, p1, p2, rep, block, row, column, cross, individual, environment, alpha);
+						else ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doDiallel4METest(dataFileName, newFileName, design, respvars, p1, p2, rep, block, row, column, cross, individual, environment, alpha);
+					}
+					rInfo.close();
+					WindowDialogControlUtil.hideAllWindowDialog();
+
+					PBToolAnalysisUtilities.openFolder(outputFolder);
+
+				}
+			}catch(NumberFormatException nfe){//if not a number
+				MessageDialog.openWarning(getShell(), "Invalid Format", "The Level of Signifcance should have a numeric value of between 0 and 1.");
+			}
+		}
+	}
+
+
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(533, 667);
+	}
+
+}

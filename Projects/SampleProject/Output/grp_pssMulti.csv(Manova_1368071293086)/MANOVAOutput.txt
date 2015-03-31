@@ -1,0 +1,78 @@
+Statistical Tool for Agricultural Research (STAR)
+Thu May 09 11:48:13 2013
+
+Summary Information
+-------------------------------- 
+FACTOR   NO. OF LEVELS  LEVELS  
+-------------------------------- 
+VARIETY  3              A, B, C 
+-------------------------------- 
+Number of Observations: 12 
+
+
+DESCRIPTIVE STATISTICS
+------------------------------------------- 
+Variable   N_Obs    Min   Max  Mean  StdDev
+------------------------------------------- 
+YIELD         12   3.80  6.30  4.76    0.78
+Yld2          12   1.41  4.61  2.59    1.16
+Yld3          12  -1.35  1.35 -0.00    1.00
+------------------------------------------- 
+
+
+CORRELATION ANALYSIS 
+
+Pearson's product-moment correlation, Prob > |r|
+
+                     YIELD      Yld2      Yld3
+YIELD   coef          1.00      0.36      0.86
+        p-value               0.2479    0.0003
+        n               12        12        12
+Yld2    coef          0.36      1.00      0.12
+        p-value     0.2479              0.7170
+        n               12        12        12
+Yld3    coef          0.86      0.12      1.00
+        p-value     0.0003    0.7170          
+        n               12        12        12
+
+
+
+
+BOX'S M TEST FOR HOMOGENEITY OF COVARIANCE MATRICES
+---------------------------------------------------
+ Box M   F      df1 df2 Prob  
+ 12.4298 0.5054 12  392 0.9112
+
+
+BARTLETT'S SPHERICITY TEST
+--------------------------
+ Statistic  Value   Df Prob  
+ Chi-Square 15.2072 3  0.0016
+
+
+SUM OF SQUARES AND PRODUCTS FOR THE HYPOTHESIS 
+----------------------------------------------
+
+TERM: VARIETY 
+
+         YIELD     Yld2     Yld3
+YIELD  1.00167 -1.32063  2.18898
+Yld2  -1.32063  1.75708 -2.97636
+Yld3   2.18898 -2.97636  5.29630
+
+
+SUM OF SQUARES AND PRODUCTS FOR ERROR
+-------------------------------------
+        YIELD     Yld2    Yld3
+YIELD 5.70750  4.93348 5.19036
+Yld2  4.93348 13.10917 4.47371
+Yld3  5.19036  4.47371 5.70370
+
+
+MULTIVARIATE ANALYSIS OF VARIANCE IN CRD
+-----------------------------------------
+          Df  Wilks approx F num Df den Df Pr(>F)  
+VARIETY    2 0.2378    2.452      6     14 0.0783 .
+Residuals  9                                       
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 

@@ -1,0 +1,152 @@
+package org.irri.breedingtool.utility;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.application.model.ProjectExplorerTreeNodeModel;
+import org.irri.breedingtool.manager.impl.ProjectExplorerManager;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+
+public class StarRandomizationUtilities {
+
+	public static String createOutputFile(String OutputFolder, String newFileName){
+		ProjectExplorerManager projectMan = new ProjectExplorerManager();
+
+		File fileFolder  = new File(((ProjectExplorerTreeNodeModel) projectMan.getOutputFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getPath() + File.separator + "Randomization" );
+		if(!fileFolder.exists()) fileFolder.mkdir();
+		Calendar cldTime = Calendar.getInstance();
+		fileFolder  = new File(((ProjectExplorerTreeNodeModel) projectMan.getOutputFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getPath() + File.separator + "Randomization" + File.separator + OutputFolder + "_" +cldTime.getTimeInMillis());
+		if(!fileFolder.exists()) fileFolder.mkdir();
+
+
+
+		return fileFolder.getPath() + File.separator + newFileName ;
+	}
+	public static String createOutputFolder(String OutputFolder){
+		ProjectExplorerManager projectMan = new ProjectExplorerManager();
+
+		File fileFolder  = new File(((ProjectExplorerTreeNodeModel) projectMan.getOutputFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getPath() + File.separator + "Randomization" );
+		if(!fileFolder.exists()) fileFolder.mkdir();
+		Calendar cldTime = Calendar.getInstance();
+		fileFolder  = new File(((ProjectExplorerTreeNodeModel) projectMan.getOutputFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getPath() + File.separator +"Randomization" + File.separator  +OutputFolder + "_" +cldTime.getTimeInMillis());
+		if(!fileFolder.exists()) fileFolder.mkdir();
+
+
+
+		return fileFolder.getPath()+ File.separator ;
+	}
+		
+	public static void openAndRefreshFileFolder(String outputFile){
+		ProjectExplorerManager projectMan = new ProjectExplorerManager();
+		projectMan.refreshFolder(projectMan.getTreeNodeModelbyFilePath(outputFile + ".csv"));
+		
+		//System.out.println("This File: " + outputFile);
+		if(new File(outputFile + ".csv").exists() || new File(outputFile).exists()){
+		
+			if(!outputFile.endsWith("csv"))
+			PartStackHandler.execute(projectMan.getTreeNodeModelbyFilePath(outputFile + ".csv"));
+			else 			PartStackHandler.execute(projectMan.getTreeNodeModelbyFilePath(outputFile));
+
+			//System.out.println("This File2: " + outputFile);
+		}
+		else{
+			PartStackHandler.execute(projectMan.getTreeNodeModelbyFilePath(outputFile + ".txt"));
+				
+		}
+
+	}
+	public static void testVarArgs( Object... parameters){
+		System.out.println("---------------------- testVarArgs---------------");
+		for(Object u: parameters)
+		{
+			if(u == null) System.out.println("Null");
+			else
+				System.out.println((u.getClass().isArray())? Arrays.deepToString((Object[]) u) : u);
+
+
+		}
+		System.out.println("---------------------- EndtestVarArgs---------------");
+	}
+	public static ArrayList<Text> getAllText(Composite parent){
+		ArrayList returnText = new ArrayList<Text>();
+		for(int i = 0; i < parent.getChildren().length; i++){
+			if(parent.getChildren()[i] instanceof Text){
+				returnText.add(parent.getChildren()[i]);
+			}
+			else if (parent.getChildren()[i] instanceof Composite){
+				ArrayList<Text> childParent = getAllText((Composite) parent.getChildren()[i]);
+				returnText.addAll(childParent);
+			}
+		}
+		
+		return returnText;
+		
+	}
+	public static boolean isTextUnique(ArrayList<Text> lstText) {
+		for(int x = 0; x < lstText.size(); x++){
+			Text compareText = lstText.get(x);
+			for(int i = 0; i < lstText.size(); i++){
+				if(lstText.get(i).getText().equals(compareText.getText()) && lstText.get(i) != compareText){
+					System.out.println(compareText.getText() + " = " + lstText.get(i).getText());
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	public static boolean validateVariableText(String value){
+		char[] charSet = value.toCharArray() ;
+		
+		if(!Character.isLetter(charSet[0]) && charSet[0] != '.') return false;
+		for(int i = 1; i < charSet.length; i++){
+			if( !Character.isLetterOrDigit(charSet[i]) && charSet[i]!= '.' && charSet[i]!= '_'   ){
+			
+				return false;
+			}
+		}
+		return true;
+	}
+	public static void validateSpinner(Spinner spinner){
+		String string = spinner.getText();
+		String message = null;
+		try {
+			int value = Integer.parseInt(string);
+			int maximum = spinner.getMaximum();
+			int minimum = spinner.getMinimum();
+			if (value > maximum) {
+				message = "Current input is greater than the maximum limit ("+maximum+")";
+			} else if (value < minimum) {
+				message = "Current input is less than the minimum limit ("+minimum+")";
+			}
+		} catch (Exception ex) {
+			message = "Current input is not numeric";
+		}
+		if (message != null) {
+			MessageDialog.open(SWT.ERROR, Display.getCurrent().getActiveShell(), "Validation Error", message, SWT.NONE);
+			spinner.setSelection(spinner.getMinimum());
+			
+		} else {
+			
+		}
+	}
+	public static  boolean validateTextFiles( Text... fieldTexts){
+		for(Text u: fieldTexts)
+		{
+
+			if(u.getText().equals("")) return false;
+
+		}
+		return true;
+	} 
+
+
+}

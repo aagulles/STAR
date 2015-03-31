@@ -1,0 +1,567 @@
+package org.irri.breedingtool.star.analysis.dialog;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.graphs.dialog.ChooseLineTypesDialog;
+import org.irri.breedingtool.graphs.dialog.ChoosePlotSymbolsDialog;
+import org.irri.breedingtool.manager.impl.DataManipulationManager;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.utility.DialogFormUtility;
+import org.irri.breedingtool.utility.GraphsUtilities;
+import org.irri.breedingtool.utility.StarAnalysisUtilities;
+
+public class MultidimensionalScalingAnalysisDialog extends Dialog {
+
+	private Button btnOk;
+	private Button btnAddNumeric;
+	private List lstNumericVars;
+	private List lstVars;
+	private String filePath = PartStackHandler.getActiveElementID();
+	private DataManipulationManager dataManipulationManager = new DataManipulationManager();
+	private DialogFormUtility listManager = new DialogFormUtility();
+	private ArrayList<String> tableData = new ArrayList<String>();
+	private TabItem tbtmNewItem_1;
+	private Composite composite_2;
+	private Group group_9;
+	private Button btnCorrelationMatrix;
+	private Button btnDescriptive;
+	private Group grpPlot;
+	private Table table;
+	private TableItem tableItem;
+	private TableItem tableItem_1;
+	private TableColumn tblclmnNewColumn;
+	private TableColumn tblclmnNewColumn_1;
+	private TableColumn tblclmnNewColumn_2;
+	private TableColumn tblclmnSize;
+	private TableColumn tblclmnNewColumn_3;
+	private TableColumn tableColumn;
+	private TableColumn tableColumn_1;
+	private Button btnUseIDVar;
+	private Label lblFormatPoints;
+	private Composite composite_1;
+	private Button btnShowLegend;
+	private Label label;
+	private CCombo cmbPosition;
+	private Label lblNoOfColumns;
+	private Spinner spinColumns;
+	private Label label_1;
+	private Text txtTitle;
+	private Label lblFactors;
+	private List lstFactors;
+	private Button btnMove;
+	private Button btnAddFactor;
+	private Text txtIDVar;
+	private Label lblIdVar;
+	private Label label_3;
+	private Button btnClassical;
+	private Button btnNonMetric;
+	private Label label_2;
+	private Combo cmbDistance;
+	private Label label_4;
+	private Spinner spinDimensions;
+	private Label lblNewLabel;
+	private TabItem tbtmVariableDescription;
+	
+	private String[] pCol = {"rgb(255,0,255, max = 255)","rgb(0,255,0, max = 255)","rgb(255,0,0, max = 255)"}; //default: RGB values for gray
+	private int[] pChars = {2, 0, 3};//{0 for all lines, possible values 0 to 25 - see diagram};
+	private double[] pSizes = {1,1,1};//{1 for all lines, possible values 0.5 to 3, increment: 0.1};
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+	public MultidimensionalScalingAnalysisDialog(Shell parentShell) {
+		super(parentShell);
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
+	}
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText("Multidimensional Scaling: " + new File(filePath).getName());
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite container = (Composite) super.createDialogArea(parent);
+		FillLayout fl_container = new FillLayout(SWT.HORIZONTAL);
+		fl_container.marginHeight = 8;
+		fl_container.marginWidth = 8;
+		container.setLayout(fl_container);
+		
+		TabFolder tabFolder = new TabFolder(container, SWT.NONE);
+		
+		tbtmVariableDescription = new TabItem(tabFolder, SWT.NONE);
+		tbtmVariableDescription.setText("Variable Description");
+		
+		Composite composite = new Composite(tabFolder, SWT.NONE);
+		tbtmVariableDescription.setControl(composite);
+		composite.setLayout(new GridLayout(8, false));
+		
+		Label lblAvailableData = new Label(composite, SWT.NONE);
+		GridData gd_lblAvailableData = new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1);
+		gd_lblAvailableData.widthHint = 102;
+		lblAvailableData.setLayoutData(gd_lblAvailableData);
+		lblAvailableData.setText("Numeric Variables:");
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		
+		Label lblDependentVariables = new Label(composite, SWT.NONE);
+		lblDependentVariables.setText("Variables:");
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		
+		lstNumericVars = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstNumericVars = new GridData(SWT.FILL, SWT.TOP, false, false, 3, 1);
+		gd_lstNumericVars.heightHint = 140;
+		gd_lstNumericVars.widthHint = 155;
+		lstNumericVars.setLayoutData(gd_lstNumericVars);
+		
+		btnAddNumeric = new Button(composite, SWT.NONE);
+		GridData gd_btnAddNumeric = new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1);
+		gd_btnAddNumeric.widthHint = 90;
+		btnAddNumeric.setLayoutData(gd_btnAddNumeric);
+		btnAddNumeric.setText("Add");
+		
+		lstVars = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstVars = new GridData(SWT.FILL, SWT.TOP, false, false, 3, 1);
+		gd_lstVars.heightHint = 140;
+		gd_lstVars.widthHint = 155;
+		lstVars.setLayoutData(gd_lstVars);
+		
+		lblFactors = new Label(composite, SWT.NONE);
+		lblFactors.setText("Factors:");
+		new Label(composite, SWT.NONE);
+		
+		btnMove = new Button(composite, SWT.NONE);
+		btnMove.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
+		btnMove.setText("Set to Factor");
+		btnMove.setEnabled(false);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		
+		lblIdVar = new Label(composite, SWT.NONE);
+		lblIdVar.setText("ID variable:");
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		
+		lstFactors = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstFactors = new GridData(SWT.FILL, SWT.CENTER, false, false, 3, 1);
+		gd_lstFactors.heightHint = 140;
+		gd_lstFactors.widthHint = 155;
+		lstFactors.setLayoutData(gd_lstFactors);
+		
+		btnAddFactor = new Button(composite, SWT.NONE);
+		GridData gd_btnAddFactor = new GridData(SWT.FILL, SWT.TOP, false, false, 2, 1);
+		gd_btnAddFactor.widthHint = 90;
+		btnAddFactor.setLayoutData(gd_btnAddFactor);
+		btnAddFactor.setText("Add");
+		
+		txtIDVar = new Text(composite, SWT.BORDER);
+		GridData gd_txtIDVar = new GridData(SWT.FILL, SWT.TOP, true, false, 3, 1);
+		gd_txtIDVar.widthHint = 155;
+		txtIDVar.setLayoutData(gd_txtIDVar);
+		listManager.initializeSingleButtonList(lstNumericVars, lstVars, btnAddNumeric);
+		listManager.initializeSingleSelectionList(lstFactors, txtIDVar, btnAddFactor);
+		
+				
+				listManager.initializeNumericList(lstNumericVars, filePath);
+		
+		tbtmNewItem_1 = new TabItem(tabFolder, SWT.NONE);
+		tbtmNewItem_1.setText("Options");
+		
+		composite_2 = new Composite(tabFolder, SWT.NONE);
+		tbtmNewItem_1.setControl(composite_2);
+		composite_2.setLayout(new GridLayout(5, false));
+		
+		label_3 = new Label(composite_2, SWT.NONE);
+		label_3.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		label_3.setText("Type:");
+		
+		btnClassical = new Button(composite_2, SWT.RADIO);
+		btnClassical.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		btnClassical.setText("Classical");
+		btnClassical.setSelection(true);
+		
+		lblNewLabel = new Label(composite_2, SWT.NONE);
+		
+		btnNonMetric = new Button(composite_2, SWT.RADIO);
+		btnNonMetric.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		btnNonMetric.setText("Nonmetric");
+		new Label(composite_2, SWT.NONE);
+		
+		label_2 = new Label(composite_2, SWT.NONE);
+		label_2.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		label_2.setText("Distance Measure:");
+		
+		cmbDistance = new Combo(composite_2, SWT.NONE);
+		GridData gd_cmbDistance = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_cmbDistance.widthHint = 93;
+		cmbDistance.setLayoutData(gd_cmbDistance);
+		cmbDistance.setItems(new String[] {"Binary", "Canberra", "Euclidean", "Maximum", "Manhattan", "Minkowski"});
+		cmbDistance.select(2);
+		new Label(composite_2, SWT.NONE);
+		
+		label_4 = new Label(composite_2, SWT.NONE);
+		label_4.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		label_4.setText("Number of dimensions:");
+		
+		spinDimensions = new Spinner(composite_2, SWT.BORDER);
+		spinDimensions.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		spinDimensions.setMaximum(5);
+		spinDimensions.setMinimum(2);
+		
+		group_9 = new Group(composite_2, SWT.NONE);
+		GridData gd_group_9 = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 1);
+		gd_group_9.widthHint = 214;
+		group_9.setLayoutData(gd_group_9);
+		group_9.setText("Display");
+		group_9.setLayout(new GridLayout(1, false));
+		
+		btnDescriptive = new Button(group_9, SWT.CHECK);
+		btnDescriptive.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		btnDescriptive.setText("Descriptive Statistics");
+		
+		btnCorrelationMatrix = new Button(group_9, SWT.CHECK);
+		btnCorrelationMatrix.setText("Correlation Matrix");
+		new Label(composite_2, SWT.NONE);
+		new Label(composite_2, SWT.NONE);
+		new Label(composite_2, SWT.NONE);
+		
+		grpPlot = new Group(composite_2, SWT.NONE);
+		grpPlot.setLayout(new GridLayout(6, false));
+		GridData gd_grpPlot = new GridData(SWT.FILL, SWT.CENTER, true, false, 5, 1);
+		gd_grpPlot.heightHint = 233;
+		gd_grpPlot.widthHint = 392;
+		grpPlot.setLayoutData(gd_grpPlot);
+		grpPlot.setText("Plot");
+		
+		composite_1 = new Composite(grpPlot, SWT.BORDER);
+		GridData gd_composite_1 = new GridData(SWT.FILL, SWT.FILL, false, false, 6, 1);
+		gd_composite_1.widthHint = 438;
+		composite_1.setLayoutData(gd_composite_1);
+		composite_1.setLayout(new GridLayout(4, false));
+		
+		lblFormatPoints = new Label(composite_1, SWT.NONE);
+		lblFormatPoints.setText("Format points");
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		
+		table = new Table(composite_1, SWT.BORDER | SWT.FULL_SELECTION);
+		GridData gd_table = new GridData(SWT.FILL, SWT.FILL, false, false, 4, 1);
+		gd_table.widthHint = 460;
+		table.setLayoutData(gd_table);
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		
+		tableItem = new TableItem(table, SWT.NONE);
+		
+		tableItem_1 = new TableItem(table, SWT.NONE);
+		
+		tblclmnNewColumn = new TableColumn(table, SWT.NONE);
+		tblclmnNewColumn.setWidth(95);
+		tblclmnNewColumn.setText("Variable");
+		
+		tblclmnNewColumn_2 = new TableColumn(table, SWT.NONE);
+		tblclmnNewColumn_2.setWidth(69);
+		tblclmnNewColumn_2.setText("Color");
+		
+		tblclmnNewColumn_3 = new TableColumn(table, SWT.NONE);
+		tblclmnNewColumn_3.setWidth(27);
+		
+		tblclmnSize = new TableColumn(table, SWT.NONE);
+		tblclmnSize.setWidth(59);
+		tblclmnSize.setText("Size");
+		
+		tableColumn = new TableColumn(table, SWT.NONE);
+		tableColumn.setWidth(25);
+		
+		tblclmnNewColumn_1 = new TableColumn(table, SWT.NONE);
+		tblclmnNewColumn_1.setWidth(174);
+		tblclmnNewColumn_1.setText("Symbol");
+		
+		tableColumn_1 = new TableColumn(table, SWT.NONE);
+		tableColumn_1.setWidth(27);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		
+		btnUseIDVar = new Button(composite_1, SWT.CHECK);
+		btnUseIDVar.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		btnUseIDVar.setText("Use ID variable");
+		
+		btnShowLegend = new Button(grpPlot, SWT.CHECK);
+		btnShowLegend.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		btnShowLegend.setText("Show legend");
+		new Label(grpPlot, SWT.NONE);
+		new Label(grpPlot, SWT.NONE);
+		new Label(grpPlot, SWT.NONE);
+		new Label(grpPlot, SWT.NONE);
+		
+		label = new Label(grpPlot, SWT.NONE);
+		label.setText("Position:");
+		label.setEnabled(false);
+		
+		cmbPosition = new CCombo(grpPlot, SWT.BORDER);
+		cmbPosition.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+		cmbPosition.setItems(new String[] {"bottom", "bottom-left", "bottom-right", "center", "left", "right", "top", "top-left", "top-right"});
+		cmbPosition.setEnabled(false);
+		cmbPosition.setEditable(false);
+		cmbPosition.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		new Label(grpPlot, SWT.NONE);
+		
+		lblNoOfColumns = new Label(grpPlot, SWT.NONE);
+		lblNoOfColumns.setEnabled(false);
+		lblNoOfColumns.setText("No. of Columns:");
+		
+		spinColumns = new Spinner(grpPlot, SWT.BORDER);
+		spinColumns.setMaximum(5);
+		spinColumns.setMinimum(1);
+		spinColumns.setSelection(1);
+		spinColumns.setEnabled(false);
+		new Label(grpPlot, SWT.NONE);
+		
+		label_1 = new Label(grpPlot, SWT.NONE);
+		label_1.setText("Title:");
+		label_1.setEnabled(false);
+		
+		txtTitle = new Text(grpPlot, SWT.BORDER);
+		GridData gd_txtTitle = new GridData(SWT.FILL, SWT.CENTER, true, false, 4, 1);
+		gd_txtTitle.widthHint = 245;
+		txtTitle.setLayoutData(gd_txtTitle);
+		
+		return container;
+	}
+	
+	protected void addItemToTable(final String varName) {
+
+		final RGB[] colors = GraphsUtilities.getGrayShades(table.getItemCount()+1);
+		final int ctr=table.getItemCount();
+		final TableItem tableItem = new TableItem(table, SWT.CENTER);
+		tableItem.setText(0, varName);
+		tableItem.setData("index",ctr);
+		
+		TableEditor[] tableEditors = new TableEditor[6];
+		tableEditors[0] = new TableEditor(table);
+		tableEditors[1] = new TableEditor(table);//color
+		tableEditors[2] = new TableEditor(table);//color button
+		tableEditors[3] = new TableEditor(table);//size spinner
+		tableEditors[4] = new TableEditor(table);//point type
+		tableEditors[5] = new TableEditor(table);//point type button
+		
+		for(TableEditor te : tableEditors){
+			te.grabHorizontal = true;
+			te.grabVertical = true;
+			te.layout();
+		}
+		Text newEditor = new Text(table, SWT.NONE);
+		newEditor.setText(varName);
+		GraphsUtilities.refreshTableColors(table, 2, colors);
+
+		Button chooseColorButton = new Button(table, SWT.NONE | SWT.CENTER);
+		chooseColorButton.setImage(ResourceManager.getPluginImage("Star", "icons/ellipsis.png"));
+		chooseColorButton.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
+		chooseColorButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				table.setSelection(-1);
+				try{
+					int index = ctr;
+					RGB rgbColor = GraphsUtilities.chooseColor();
+					tableItem.setBackground(2, new Color(Display.getCurrent(), rgbColor));
+				}catch(Exception ex){
+					System.out.println("Exception at RGB choose color");
+				}
+			}
+		});
+		
+		Spinner pointSize = new Spinner(table, SWT.BORDER);
+		pointSize.setMaximum(30);
+		pointSize.setMinimum(5);
+		pointSize.setSelection(10);
+		pointSize.setDigits(1);
+
+		final Label pointLabel = new Label(table, SWT.BORDER | SWT.CENTER);
+		pointLabel.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		pointLabel.setImage(ResourceManager.getPluginImage("Star", "icons/plotsymbol1.png"));
+		pointLabel.setBounds(tableItem.getBounds());
+		pointLabel.setData("pointChars", "1");
+
+		Button choosePlotBtn = new Button(table, SWT.NONE | SWT.CENTER);
+		choosePlotBtn.setImage(ResourceManager.getPluginImage("Star", "icons/ellipsis.png"));
+		choosePlotBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ChoosePlotSymbolsDialog choosePlotDlg = new ChoosePlotSymbolsDialog(getShell());
+				choosePlotDlg.open();
+				if(choosePlotDlg.getReturnCode()==0){
+					pointLabel.setImage(ResourceManager.getPluginImage("Star", "icons/plotsymbol"+choosePlotDlg.getChosenSymbol()+".png"));
+					pointLabel.setData("pointChars", choosePlotDlg.getChosenSymbol());
+				}
+			}
+		});
+		
+		tableEditors[0].setEditor(newEditor, tableItem, 1);
+		tableEditors[2].setEditor(chooseColorButton, tableItem, 3);
+		tableEditors[3].setEditor(pointSize, tableItem, 4);
+		tableEditors[4].setEditor(pointLabel, tableItem, 6);
+		tableEditors[5].setEditor(choosePlotBtn, tableItem, 7);
+		
+		tableItem.setData("Editors", tableEditors);
+
+		table.pack();
+//		composite_2.pack();
+	}
+	
+	
+	protected void removeAllItemsFromVarTable() {
+		// TODO Auto-generated method stub
+		int item=0;
+		for(int i=0;i<table.getItemCount(); i++){
+			TableItem tableItem = table.getItem(i);
+			TableEditor[] editors = (TableEditor[])tableItem.getData("Editors");
+			for(TableEditor te : editors){
+				te.getEditor().dispose();
+			}
+		}
+		table.pack();
+		table.removeAll();
+		table.pack();
+	}	
+	
+	
+	
+@Override
+	protected void buttonPressed(int buttonID){
+		if(buttonID == IDialogConstants.OK_ID) okPressed();
+		else if(buttonID == IDialogConstants.RETRY_ID){
+			btnClassical.setSelection(true);
+			spinDimensions.setSelection(2);
+			lstNumericVars.removeAll();
+			lstFactors.removeAll();
+			lstVars.removeAll();
+			listManager.initializeNumericList(lstNumericVars, filePath);
+			listManager.initializeFactorList(lstFactors, filePath);			
+		}
+		else this.close();
+	}
+	
+protected void	okPressed(){
+	
+	String outputFolder = StarAnalysisUtilities.createOutputFolder(filePath,"MDS");
+	String dataFileName = filePath.replace(File.separator, "/");
+	String outputPath = outputFolder;
+	String [] vars = lstVars.getItems();
+	String idVar = txtIDVar.getText();
+	String distance = cmbDistance.getText();
+	String type = "Classical";
+	if(btnNonMetric.getSelection()){
+		type = "Nonmetric";
+	}
+	Integer dimnum = spinDimensions.getSelection();
+	boolean useIdVar = btnUseIDVar.getSelection();
+	boolean showLeg = btnShowLegend.getSelection();
+	String legTitle = txtTitle.getText();
+	String legPos = cmbPosition.getText();
+	Integer legNcol = spinColumns.getSelection();
+	
+	if(table.getItemCount() > 0){	
+		pCol = new String[table.getItemCount()];
+		pChars  = new int[table.getItemCount()];
+		pSizes  = new double[table.getItemCount()];
+	}
+	
+	int ctr=0;
+	
+	ArrayList<String> arrPlotCol = new ArrayList<String>();
+	for(TableItem tableItem: table.getItems()){
+		int index = ctr;
+		TableEditor editors[]= (TableEditor[]) tableItem.getData("Editors"); 
+		pChars[index] =  (Integer) editors[5].getEditor().getData("pChars");//{0 for all lines, possible values 0 to 25 - see diagram};
+		pSizes[index]  = dataManipulationManager.convertInttoDouble(((Spinner) editors[7].getEditor()).getSelection(), 1); //{1 for all lines, possible values 0.5 to 3, increment: 0.1};
+		arrPlotCol.add( GraphsUtilities.convertToRrgbFormat(tableItem.getBackground(2).getRGB().toString()));
+		ctr++;
+	}
+	if(!arrPlotCol.isEmpty())	pCol = arrPlotCol.toArray(new String[arrPlotCol.size()]);
+	
+	btnOk.setEnabled(false);
+	
+	ProjectExplorerView.rJavaManager.getSTARAnalysisManager().doMDS(
+			dataFileName ,
+			outputPath.replace(File.separator, "/"),
+			vars,
+			idVar,
+			distance,
+			type ,
+			dimnum,
+			useIdVar,
+			pChars,
+			pSizes,
+			pCol,
+			showLeg,		
+			legTitle ,
+			legPos,
+			legNcol);
+	this.getShell().setMinimized(true);
+	StarAnalysisUtilities.openAndRefreshFolder(outputFolder);
+	btnOk.setEnabled(true);	
+	
+
+	}
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.RETRY_ID, "Reset", false);
+		btnOk = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(557, 514);
+	}
+}

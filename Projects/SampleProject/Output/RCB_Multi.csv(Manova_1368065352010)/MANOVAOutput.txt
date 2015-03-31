@@ -1,0 +1,46 @@
+Statistical Tool for Agricultural Research (STAR)
+Thu May 09 10:09:12 2013
+
+Summary Information
+------------------------------------ 
+FACTOR  NO. OF LEVELS  LEVELS       
+------------------------------------ 
+Gen     8              1, 2, ..., 8 
+Blk     4              1, 2, 3, 4   
+------------------------------------ 
+Number of Observations: 64 
+
+
+
+
+SUM OF SQUARES AND PRODUCTS FOR THE HYPOTHESIS 
+----------------------------------------------
+
+TERM: Gen 
+
+          Y1        Y2
+Y1 1317.4994 -191.6475
+Y2 -191.6475  329.1700
+
+TERM: Blk 
+
+         Y1     Y2
+Y1 218.5569 -7.495
+Y2  -7.4950  1.205
+
+
+SUM OF SQUARES AND PRODUCTS FOR ERROR
+-------------------------------------
+         Y1      Y2
+Y1 897.6581 334.340
+Y2 334.3400 335.895
+
+
+MULTIVARIATE ANALYSIS OF VARIANCE IN RCBD
+-----------------------------------------
+          Df  Pillai approx F num Df den Df   Pr(>F)    
+Gen        7 1.14263  10.0905     14    106 5.44e-14 ***
+Blk        3 0.29661   3.0762      6    106 0.008143 ** 
+Residuals 53                                            
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 

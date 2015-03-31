@@ -1,0 +1,460 @@
+package org.irri.breedingtool.pbtools.analysis.dialog;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TreeItem;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.application.model.ProjectExplorerTreeNodeModel;
+import org.irri.breedingtool.datamanipulation.dialog.OperationProgressDialog;
+import org.irri.breedingtool.manager.impl.DataManipulationManager;
+import org.irri.breedingtool.manager.impl.ProjectExplorerManager;
+import org.irri.breedingtool.pbtools.analysis.environment.dialog.SpecifyRowColDialog;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.utility.PBToolAnalysisUtilities;
+import org.irri.breedingtool.utility.WindowDialogControlUtil;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Slider;
+import org.eclipse.swt.widgets.Spinner;
+
+public class SelectionIndexDialog extends Dialog {
+
+	private ProjectExplorerTreeNodeModel fileModel;
+	private ArrayList<String> varInfo;
+	private String[] numericVariables;
+	private String[] factorVariables;
+	private File file;
+	private DataManipulationManager dataManipulationManager = new DataManipulationManager();
+	private FileDialog fd;
+
+	//specify parameters
+	private int selectionIndex = 0;
+	private int designIndex = 0;
+	private boolean basisCorrelation=true;
+	private int percentSelected = 5;
+
+	private String weightsFileName="";
+	private String markersFileName="";
+	private String qtlFileName ="";
+	private Spinner percentSelectedSpinner;
+	private String analysisType;
+	private Group grpMarkersFilecsv;
+	private Group grpQtlFilecsv;
+	private CCombo markersFileText;
+	private CCombo qtlFileText;
+	private CCombo weightsFileText;
+
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+	public SelectionIndexDialog(Shell parentShell, String analysisType, File file) {
+		super(parentShell);
+		setShellStyle(SWT.BORDER | SWT.CLOSE | SWT.MIN | SWT.RESIZE);
+		setBlockOnOpen(false);
+		this.analysisType = analysisType;
+		this.file=file;
+		setFactors();
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+
+		getShell().setData("analysis", analysisType);
+		getShell().setData("filePathID",file.getAbsolutePath());
+		WindowDialogControlUtil.addWindowDialogToList(getShell());
+
+		parent.addDisposeListener(new DisposeListener(){
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				// TODO Auto-generated method stub
+				WindowDialogControlUtil.removeWindowDialogToList(getShell());
+			}
+
+		});
+
+		fd = new FileDialog(getShell(), SWT.OPEN);
+		fd.setText("Choose File Input");
+		ProjectExplorerManager projectExplorerManger = new ProjectExplorerManager();
+		fd.setFilterPath(((ProjectExplorerTreeNodeModel)projectExplorerManger.getDataFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getAbsolutePath());
+		String[] filterExt = {"*.csv"};
+		fd.setFilterExtensions(filterExt);
+
+		parent.getShell().setText("Selection Index Analysis: "+dataManipulationManager.getDisplayFileName(file.getAbsolutePath()));
+		Composite container = (Composite) super.createDialogArea(parent);
+		GridLayout gridLayout = (GridLayout) container.getLayout();
+		gridLayout.numColumns = 2;
+
+		Group grpSelectionIndex = new Group(container, SWT.NONE);
+		grpSelectionIndex.setText("Selection Index");
+		grpSelectionIndex.setLayout(new GridLayout(2, false));
+		GridData gd_grpSelectionIndex = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_grpSelectionIndex.heightHint = 227;
+		grpSelectionIndex.setLayoutData(gd_grpSelectionIndex);
+
+		Label lblPhenotypicSelectionIndices = new Label(grpSelectionIndex, SWT.NONE);
+		lblPhenotypicSelectionIndices.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		lblPhenotypicSelectionIndices.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+		lblPhenotypicSelectionIndices.setText("Phenotypic Selection Indices");
+		new Label(grpSelectionIndex, SWT.NONE);
+
+		Button btnSmithSelectionIndex = new Button(grpSelectionIndex, SWT.RADIO);
+		btnSmithSelectionIndex.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectionIndex = 0;
+				enableMarkersAndQTL(false);
+			}
+		});
+		btnSmithSelectionIndex.setSelection(true);
+		btnSmithSelectionIndex.setText("Smith Selection Index");
+		new Label(grpSelectionIndex, SWT.NONE);
+
+		Button btnEigenSelectionIndex = new Button(grpSelectionIndex, SWT.RADIO);
+		btnEigenSelectionIndex.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectionIndex = 1;
+				enableMarkersAndQTL(false);
+			}
+		});
+		btnEigenSelectionIndex.setText("Eigen Selection Index Method (ESIM)");
+		new Label(grpSelectionIndex, SWT.NONE);
+
+		Button btnRestrictiveKempthorneAnd = new Button(grpSelectionIndex, SWT.RADIO);
+		btnRestrictiveKempthorneAnd.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectionIndex = 2;
+				enableMarkersAndQTL(false);
+			}
+		});
+		btnRestrictiveKempthorneAnd.setText("Restrictive Kempthorne and Nordskog selection Index");
+		new Label(grpSelectionIndex, SWT.NONE);
+
+		Button btnRestrictiveEigenSelection = new Button(grpSelectionIndex, SWT.RADIO);
+		btnRestrictiveEigenSelection.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectionIndex = 3;
+				enableMarkersAndQTL(false);
+			}
+		});
+		btnRestrictiveEigenSelection.setText("Restrictive Eigen Selection Index Mehod");
+
+		Label lblMolecularSelectionIndices = new Label(grpSelectionIndex, SWT.NONE);
+		GridData gd_lblMolecularSelectionIndices = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
+		gd_lblMolecularSelectionIndices.widthHint = 207;
+		lblMolecularSelectionIndices.setLayoutData(gd_lblMolecularSelectionIndices);
+		lblMolecularSelectionIndices.setText("Molecular Selection Indices");
+		lblMolecularSelectionIndices.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+		new Label(grpSelectionIndex, SWT.NONE);
+
+		Button btnLandeAndThompson = new Button(grpSelectionIndex, SWT.RADIO);
+		btnLandeAndThompson.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectionIndex = 4;
+				enableMarkersAndQTL(true);
+			}
+		});
+		btnLandeAndThompson.setText("Lande and Thompson Selection Index");
+		new Label(grpSelectionIndex, SWT.NONE);
+
+		Button btnMolecularEsim = new Button(grpSelectionIndex, SWT.RADIO);
+		btnMolecularEsim.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				selectionIndex = 5;
+				enableMarkersAndQTL(true);
+			}
+		});
+		btnMolecularEsim.setText("Molecular ESIM");
+
+		Group grpBasisForSelection = new Group(container, SWT.NONE);
+		grpBasisForSelection.setText("Basis for Selection Index");
+		grpBasisForSelection.setLayout(new GridLayout(1, false));
+		GridData gd_grpBasisForSelection = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_grpBasisForSelection.heightHint = 82;
+		grpBasisForSelection.setLayoutData(gd_grpBasisForSelection);
+
+		Button btnVariancecovarianceMatrix = new Button(grpBasisForSelection, SWT.RADIO);
+		btnVariancecovarianceMatrix.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				basisCorrelation=false;
+			}
+		});
+		btnVariancecovarianceMatrix.setSelection(true);
+		btnVariancecovarianceMatrix.setText("Variance-Covariance Matrix");
+
+		Button btnMatrix = new Button(grpBasisForSelection, SWT.RADIO);
+		btnMatrix.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				basisCorrelation=true;
+			}
+		});
+		btnMatrix.setLayoutData(new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1));
+		btnMatrix.setText("Correlation Matrix");
+
+		Group grpDesign = new Group(container, SWT.NONE);
+		grpDesign.setText("Design");
+		grpDesign.setLayout(new GridLayout(1, false));
+		GridData gd_grpDesign = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_grpDesign.heightHint = 77;
+		grpDesign.setLayoutData(gd_grpDesign);
+
+		Button btnLattice = new Button(grpDesign, SWT.RADIO);
+		btnLattice.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				designIndex = 0;
+			}
+		});
+		btnLattice.setSelection(true);
+		btnLattice.setText("Lattice");
+
+		Button btnRansomizedCompleteBlock = new Button(grpDesign, SWT.RADIO);
+		btnRansomizedCompleteBlock.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				designIndex = 1;
+			}
+		});
+		btnRansomizedCompleteBlock.setText("Randomized Complete Block");
+
+		Group grpWeightsFilecsv = new Group(container, SWT.NONE);
+		grpWeightsFilecsv.setText("Weights file (.csv)");
+		grpWeightsFilecsv.setLayout(new GridLayout(3, false));
+		GridData gd_grpWeightsFilecsv = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_grpWeightsFilecsv.heightHint = 67;
+		grpWeightsFilecsv.setLayoutData(gd_grpWeightsFilecsv);
+
+		Label label = new Label(grpWeightsFilecsv, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label.setText("Filename:");
+
+		weightsFileText = new CCombo(grpWeightsFilecsv, SWT.BORDER);
+		weightsFileText.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		weightsFileText.setEditable(false);
+		weightsFileText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		weightsFileText.setItems(dataManipulationManager.getCsvFilesFromDir(file));
+		weightsFileText.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				weightsFileName = file.getParentFile().getAbsolutePath()+"\\"+weightsFileText.getText();
+			}
+		});
+		Button button = new Button(grpWeightsFilecsv, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try{
+					String selected = fd.open();
+					weightsFileName=selected;
+					weightsFileText.setText(new File(selected).getName());
+				}catch(NullPointerException npe){}
+			}
+		});
+		button.setText("Browse");
+
+		grpMarkersFilecsv = new Group(container, SWT.NONE);
+		grpMarkersFilecsv.setText("Markers file (.csv)");
+		grpMarkersFilecsv.setLayout(new GridLayout(3, false));
+		grpMarkersFilecsv.setVisible(false);
+		GridData gd_grpMarkersFilecsv = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_grpMarkersFilecsv.heightHint = 63;
+		grpMarkersFilecsv.setLayoutData(gd_grpMarkersFilecsv);
+		Label label_1 = new Label(grpMarkersFilecsv, SWT.NONE);
+		label_1.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_1.setText("Filename:");
+
+		markersFileText = new CCombo(grpMarkersFilecsv, SWT.BORDER);
+		markersFileText.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		markersFileText.setEditable(false);
+		markersFileText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		markersFileText.setItems(dataManipulationManager.getCsvFilesFromDir(file));
+		markersFileText.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				markersFileName = file.getParentFile().getAbsolutePath()+"\\"+markersFileText.getText();
+			}
+		});
+		Button button_1 = new Button(grpMarkersFilecsv, SWT.NONE);
+		button_1.setText("Browse");
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try{String selected = fd.open();
+				markersFileName=selected;
+				markersFileText.setText(new File(selected).getName());
+				}catch(NullPointerException npe){}
+			}
+		});
+		grpQtlFilecsv = new Group(container, SWT.NONE);
+		grpQtlFilecsv.setText("QTL file (.csv)");
+		grpQtlFilecsv.setLayout(new GridLayout(3, false));
+		grpQtlFilecsv.setVisible(false);
+		GridData gd_grpQtlFilecsv = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_grpQtlFilecsv.heightHint = 65;
+		grpQtlFilecsv.setLayoutData(gd_grpQtlFilecsv);
+		Label label_2 = new Label(grpQtlFilecsv, SWT.NONE);
+		label_2.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		label_2.setText("Filename:");
+
+		qtlFileText = new CCombo(grpQtlFilecsv, SWT.BORDER);
+		qtlFileText.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		qtlFileText.setEditable(false);
+		qtlFileText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		qtlFileText.setItems(dataManipulationManager.getCsvFilesFromDir(file));
+		qtlFileText.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				qtlFileName = file.getParentFile().getAbsolutePath()+"\\"+qtlFileText.getText();
+			}
+		});
+		Button button_2 = new Button(grpQtlFilecsv, SWT.NONE);
+		button_2.setText("Browse");
+		button_2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				try{	String selected = fd.open();
+				qtlFileName=selected;
+				qtlFileText.setText(new File(selected).getName());
+				}catch(NullPointerException npe){}
+			}
+		});
+		Group grpSelectedGenotypes = new Group(container, SWT.NONE);
+		grpSelectedGenotypes.setText("Selected genotypes");
+		grpSelectedGenotypes.setLayout(new GridLayout(2, false));
+		GridData gd_grpSelectedGenotypes = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_grpSelectedGenotypes.heightHint = 65;
+		grpSelectedGenotypes.setLayoutData(gd_grpSelectedGenotypes);
+
+		Label lblPercentSelected = new Label(grpSelectedGenotypes, SWT.NONE);
+		lblPercentSelected.setText("Percent Selected:");
+
+		percentSelectedSpinner = new Spinner(grpSelectedGenotypes, SWT.BORDER);
+		percentSelectedSpinner.setSelection(5);
+
+		return container;
+
+	}
+
+	protected void enableMarkersAndQTL(boolean state) {
+		// TODO Auto-generated method stub
+		grpMarkersFilecsv.setVisible(state);
+		grpQtlFilecsv.setVisible(state);
+	}
+
+	protected void activateDesign(String design) {
+		// TODO Auto-generated method stub
+	}
+
+	protected void setFactors() {
+		// TODO Auto-generated method stub
+		varInfo=dataManipulationManager.getVarInfoFromFile(file.getAbsolutePath());
+		numericVariables=dataManipulationManager.getNumericVars(varInfo);
+		factorVariables=dataManipulationManager.getFactorVars(varInfo);
+	}
+
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		//		createButton(parent, IDialogConstants.DESELECT_ALL_ID, "Reset", true);
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	@Override
+	protected void okPressed(){
+		System.out.println("designIndex"+Integer.toString(designIndex));
+		System.out.println("WEIGHT: "+weightsFileName);
+		System.out.println("MARKERS: "+markersFileName);
+		System.out.println("QTL: "+qtlFileName);
+		
+		if(weightsFileText.getText().equals("")){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please specify which file to use for the Weights file!");
+		}
+		else if(markersFileText.getText().equals("") && grpMarkersFilecsv.getVisible()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please specify which file to use for the Markers file!");
+		}
+		else if(qtlFileText.getText().equals("") && grpQtlFilecsv.getVisible()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please specify which file to use for the QTL file!");
+		}
+		else{
+			if(!grpQtlFilecsv.getVisible()) qtlFileName="NULL";
+			if(!grpMarkersFilecsv.getVisible())markersFileName="NULL";
+			weightsFileName=weightsFileName.replaceAll("\\\\+", "/");
+			markersFileName=markersFileName.replaceAll("\\\\+", "/");
+			qtlFileName =qtlFileName.replaceAll("\\\\+", "/");
+			percentSelected = percentSelectedSpinner.getSelection();
+
+			String dataFileName = file.getAbsolutePath().toString().replaceAll("\\\\+", "/");
+
+			File outputFolder = PBToolAnalysisUtilities.createOutputFolder(file.getName(),analysisType);
+			String newOutputFileName = outputFolder.getAbsolutePath()+"/output.txt";
+			OperationProgressDialog rInfo = new OperationProgressDialog(getShell(), "Selection Index Analysis");
+			rInfo.open();
+			ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doSelectionIndex(dataFileName, newOutputFileName.replaceAll("\\\\+", "/"), outputFolder.getAbsolutePath().replaceAll("\\\\+", "/")+"/", selectionIndex, designIndex, basisCorrelation, weightsFileName, markersFileName,
+					qtlFileName, percentSelected);
+			rInfo.close();
+			WindowDialogControlUtil.hideAllWindowDialog();
+
+			PBToolAnalysisUtilities.openFolder(outputFolder);
+		}
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(645, 726);
+	}
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected boolean isResizable() {
+		return true;
+	}
+}

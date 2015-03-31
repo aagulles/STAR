@@ -1,0 +1,17 @@
+Statistical Tool for Agricultural Research (STAR)
+Result of Randomization
+Thu May 16 11:28:05 2013
+
+
+DESIGN PROPERTIES:
+	Augmented Latin Square Design (Augmented LSD)
+
+DESIGN PARAMETERS:
+	Number of Trials = 1
+	Number of Replicated Treatments = 5
+	Levels of Replicated Treatments = check1, check2, check3, check4, check5
+	Number of Unreplicated Treatments = 50
+	Levels of UnReplicated Treatments = new1, new2, new3, ..., new50
+	Number of Field Row = 15
+	Number of Field Column = 5
+

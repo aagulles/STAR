@@ -1,0 +1,554 @@
+package org.irri.breedingtool.datamanipulation.dialog;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.List;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.application.model.ProjectExplorerTreeNodeModel;
+import org.irri.breedingtool.manager.impl.DataManipulationManager;
+import org.irri.breedingtool.manager.impl.ProjectExplorerManager;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.projectexplorer.view.RJavaManagerInitializer;
+import org.irri.breedingtool.rjava.manager.RJavaManager;
+
+public class AppendDialog extends Dialog {
+	private List transactionDataList;
+	private List workingDataList;
+	private CCombo transactionFileNameCombo;
+	private Combo delimiterCombo;
+	private String fileName;
+	private String delimiter[] = {",", " ", "\t", ";"};
+	private String separator = "NULL";
+	private int fileFormat= 1;
+	private String dataFileName;
+	private ProjectExplorerTreeNodeModel fileModel;
+	private DataManipulationManager dataManipulationManager = new DataManipulationManager();
+	private List activeDataList;
+	protected ArrayList<String> keyVariablesMasterList = new ArrayList<String>();
+	protected ArrayList<String> keyVariablesTransactList = new ArrayList<String>();
+	protected ArrayList<String> otherVariablesMasterList = new ArrayList<String>();
+	protected ArrayList<String> otherVariablesTransactList = new ArrayList<String>();
+	private String transactionFileName;
+	private String transactionName;
+	private ProjectExplorerManager projExpMan;
+	private Button pairBtn;
+	private Button addBtn;
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+	public AppendDialog(Shell parentShell, ProjectExplorerTreeNodeModel fileModel) {
+		super(parentShell);
+		this.fileModel = fileModel;
+		projExpMan =  new ProjectExplorerManager();
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		parent.getShell().setText("Append Data: "+dataManipulationManager.getDisplayFileName(fileModel.getProjectFile().getAbsolutePath()));
+		Composite container = (Composite) super.createDialogArea(parent);
+		dataFileName = fileModel.getProjectFile().getAbsolutePath();
+
+		Group group = new Group(container, SWT.NONE);
+		group.setLayout(new GridLayout(3, false));
+		GridData gd_group = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_group.heightHint = 74;
+		group.setLayoutData(gd_group);
+
+		Label lblTransactionDataFile = new Label(group, SWT.NONE);
+		lblTransactionDataFile.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		lblTransactionDataFile.setText("Transaction Data File Name:");
+		lblTransactionDataFile.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+
+		transactionFileNameCombo = new CCombo(group, SWT.BORDER);
+		transactionFileNameCombo.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		transactionFileNameCombo.setEditable(false);
+		transactionFileNameCombo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		transactionFileNameCombo.setItems(dataManipulationManager.getFilesFromDir(fileModel));
+		transactionFileNameCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				delimiterCombo.select(-1);
+				resetList();
+				transactionFileName = fileModel.getProjectFile().getParentFile().getAbsolutePath()+System.getProperty("file.separator")+transactionFileNameCombo.getText();
+
+				if(transactionFileName.endsWith(".txt")){
+					String tmpFile = transactionFileName.replaceAll(".txt", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION);
+					projExpMan.deleteFile(tmpFile);
+				}
+
+				setTransactionDataFromFile(transactionFileName);
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
+
+		Button button = new Button(group, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				FileDialog fd;
+				fd = new FileDialog(getShell(), SWT.OPEN);
+				fd.setText("Choose File Input");
+				ProjectExplorerManager projectExplorerManger = new ProjectExplorerManager();
+				fd.setFilterPath(((ProjectExplorerTreeNodeModel)projectExplorerManger.getDataFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getAbsolutePath());
+				String[] filterExt = {"*.csv","*.txt"};
+				fd.setFilterExtensions(filterExt);
+				try{
+				String selected = fd.open();
+				delimiterCombo.setItems(new String[] {"comma", "space", "tab", "semicolon"});
+				resetList();
+				transactionFileNameCombo.setText((new File(selected)).getName().toString());
+				//				transactionFileNameCombo.setText();
+				transactionFileName = selected;
+				setTransactionDataFromFile(selected);
+				}catch(Exception ex){}
+			}
+		});
+		GridData gd_button = new GridData(SWT.LEFT, SWT.FILL, true, false, 1, 1);
+		gd_button.widthHint = 97;
+		button.setLayoutData(gd_button);
+		button.setText("Browse");
+
+		Label label_1 = new Label(group, SWT.NONE);
+		label_1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		label_1.setText("Text File Delimeter:");
+		label_1.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+
+		delimiterCombo = new Combo(group, SWT.READ_ONLY);
+		delimiterCombo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		delimiterCombo.setItems(new String[] {"comma", "space", "tab", "semicolon"});
+		delimiterCombo.setEnabled(false);
+		delimiterCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				separator = delimiter[delimiterCombo.getSelectionIndex()];
+
+				resetList();
+//				transactionFileName = new File(transactionFileName).getAbsolutePath()+System.getProperty("file.separator")+transactionFileNameCombo.getText();
+
+				String tmpFile = transactionFileName.replaceAll(".txt", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION);
+				projExpMan.deleteFile(tmpFile);
+
+				setTransactionDataFromFile(transactionFileName);
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
+		new Label(group, SWT.NONE);
+
+		Group group_1 = new Group(container, SWT.NONE);
+		group_1.setLayout(new GridLayout(5, false));
+		GridData gd_group_1 = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_group_1.widthHint = 402;
+		gd_group_1.heightHint = 275;
+		group_1.setLayoutData(gd_group_1);
+		group_1.setText("Variables in the...");
+		group_1.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+
+		Label label_2 = new Label(group_1, SWT.NONE);
+		label_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		label_2.setText("Active Data:");
+		label_2.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+		new Label(group_1, SWT.NONE);
+		new Label(group_1, SWT.NONE);
+
+		Label lblNewWorkingData = new Label(group_1, SWT.NONE);
+		lblNewWorkingData.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		lblNewWorkingData.setText("New Working Data:");
+		lblNewWorkingData.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+		new Label(group_1, SWT.NONE);
+		new Label(group_1, SWT.NONE);
+		new Label(group_1, SWT.NONE);
+
+		Group group_2 = new Group(group_1, SWT.NONE);
+		group_2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 4));
+		group_2.setLayout(new GridLayout(2, false));
+		new Label(group_2, SWT.NONE);
+
+		workingDataList = new List(group_2, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		GridData gd_workingDataList = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 4);
+		gd_workingDataList.widthHint = 157;
+		workingDataList.setLayoutData(gd_workingDataList);
+		workingDataList.setSize(174, 151);
+		workingDataList.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(workingDataList.getSelectionCount()>0) enableRemove(true);
+			}
+		});
+		new Label(group_2, SWT.NONE);
+
+		pairBtn = new Button(group_2, SWT.NONE);
+		GridData gd_pairBtn = new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1);
+		gd_pairBtn.widthHint = 62;
+		pairBtn.setLayoutData(gd_pairBtn);
+		pairBtn.setSize(67, 23);
+		pairBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				String selectedActiveVars[]= activeDataList.getSelection();
+				String selectedTransactionVars[]= transactionDataList.getSelection();
+				if(selectedActiveVars.length != 1 || selectedTransactionVars.length != 1){//if there's no selected or more than 1 selected active variable
+					MessageDialog.openWarning(Display.getCurrent().getActiveShell(), "Wrong Variable Pairing", "Please choose one variable from the active data and one from the transaction data." );
+				}
+				else{
+					workingDataList.add(selectedActiveVars[0]+" (active) & "+selectedTransactionVars[0]+" (transaction)");
+					keyVariablesMasterList.add(selectedActiveVars[0]);
+					keyVariablesTransactList.add(selectedTransactionVars[0]);
+					activeDataList.remove(activeDataList.getSelectionIndices());
+					transactionDataList.remove(transactionDataList.getSelectionIndices());
+					transactionName=transactionFileNameCombo.getText().replaceAll(".csv", "_");
+					transactionName=transactionName.replaceAll(".txt", "_");
+					transactionFileNameCombo.setEnabled(false);
+
+				}
+			}
+		});
+		pairBtn.setText("Pair");
+
+		addBtn = new Button(group_2, SWT.NONE);
+		GridData gd_addBtn = new GridData(SWT.FILL, SWT.TOP, true, true, 1, 1);
+		gd_addBtn.widthHint = 61;
+		gd_addBtn.heightHint = 24;
+		addBtn.setLayoutData(gd_addBtn);
+		addBtn.setSize(67, 23);
+		addBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(addBtn.getText().equals("Add")){
+					String selectedNumVars[]= activeDataList.getSelection();
+					for(int i=0; i< selectedNumVars.length; i++){
+						workingDataList.add(selectedNumVars[i]+ "(Active)");
+						otherVariablesMasterList.add(selectedNumVars[i]);
+					}
+					activeDataList.remove(activeDataList.getSelectionIndices());
+					String selectedTransactionVars[]= transactionDataList.getSelection();
+					for(int i=0; i< selectedTransactionVars.length; i++){
+						workingDataList.add(selectedTransactionVars[i] + "(Transaction)");
+						otherVariablesTransactList.add(selectedTransactionVars[i]);
+					}
+					transactionDataList.remove(transactionDataList.getSelectionIndices());
+				}else{//if the purpose is to remove
+					int selectedVars[]= workingDataList.getSelectionIndices();
+
+					if(selectedVars.length >0){
+
+						//if there's a selected item from the list of other variables
+						for(int i=0; i< selectedVars.length; i++){
+							String selectedString = workingDataList.getItem(selectedVars[i]);
+							if(selectedString.contains("&")){//if paired variables is selected
+								workingDataList.remove(selectedVars[i]);
+								activeDataList.add(keyVariablesMasterList.get(selectedVars[i]));
+								keyVariablesMasterList.remove(selectedVars[i]);
+								transactionDataList.add(keyVariablesTransactList.get(selectedVars[i]));
+								keyVariablesTransactList.remove(selectedVars[i]);
+							}
+							else{//if single variable is selected
+								if(selectedString.endsWith("(Active)")){
+									selectedString = selectedString.replaceAll("(Active)", "");
+									selectedString=	selectedString.substring(0, selectedString.length()-2);
+									activeDataList.add(selectedString);
+									otherVariablesMasterList.remove(selectedString);
+								}
+								else{
+									selectedString = selectedString.replaceAll("(Transaction)", "");
+									selectedString = selectedString.substring(0, selectedString.length()-2);
+									transactionDataList.add(selectedString);
+									otherVariablesTransactList.remove(selectedString);
+								}
+								System.out.println("selected String :"+selectedString);
+								workingDataList.remove(selectedVars[i]);
+							}
+						}
+					}
+				}
+			}
+		});
+		addBtn.setText("Add");
+
+		activeDataList = new List(group_1, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_activeDataList = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_activeDataList.heightHint = 95;
+		activeDataList.setLayoutData(gd_activeDataList);
+		ArrayList<String> s= dataManipulationManager.getVarInfoFromFile(dataFileName);
+		activeDataList.setItems(dataManipulationManager.getListItems(s));
+		activeDataList.addListener(SWT.MouseDown, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				// TODO Auto-generated method stub
+				enableRemove(false);
+			}
+		});
+		new Label(group_1, SWT.NONE);
+
+		Label label_3 = new Label(group_1, SWT.NONE);
+		label_3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+		label_3.setText("Transaction Data:");
+		label_3.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+		new Label(group_1, SWT.NONE);
+
+		transactionDataList = new List(group_1, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_transactionDataList = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_transactionDataList.heightHint = 95;
+		transactionDataList.setLayoutData(gd_transactionDataList);
+		new Label(group_1, SWT.NONE);
+		transactionDataList.addListener(SWT.MouseDown, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				// TODO Auto-generated method stub
+				if(transactionDataList.getItemCount()<1){
+					if(!transactionFileNameCombo.getText().isEmpty()) MessageDialog.openWarning(getShell(), "Empty Transaction File", "Please choose a different transaction file.");
+					else MessageDialog.openWarning(getShell(), "Transaction File", "Please choose a transaction file first.");
+				}
+				else if(transactionDataList.getItemCount()>0 && delimiterCombo.getText().isEmpty() && delimiterCombo.getEnabled()){
+						MessageDialog.openWarning(getShell(), "Transaction File", "Please choose a the proper delimiter for your selected .txt transaction file.");
+				}else enableRemove(false);
+			}
+		});
+		new Label(group_1, SWT.NONE);
+
+		Label lblNewLabel = new Label(group_1, SWT.NONE);
+		lblNewLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
+//		lblNewLabel.setText("(*)-Active Data");
+
+		Label lbltransactionData = new Label(group_1, SWT.NONE);
+		lbltransactionData.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+//		lbltransactionData.setText("(+)-Transaction Data");
+
+		return container;
+	}
+
+	protected void enableRemove(boolean state) {
+		// TODO Auto-generated method stub
+		pairBtn.setEnabled(!state);
+		if(state){
+			addBtn.setText("Remove");
+			activeDataList.setSelection(-1);
+			transactionDataList.setSelection(-1);
+		}
+		else{
+			addBtn.setText("Add");
+			workingDataList.setSelection(-1);
+		}
+	}
+
+	protected void setTransactionDataFromFile(String transactionFileName2) {
+		// TODO Auto-generated method stub
+		ArrayList<String> s = null;
+		int format = 1;
+		String tmpFile="";
+		transactionFileName = transactionFileName2;
+
+		if(transactionFileName2.endsWith(".txt")){
+			delimiterCombo.setEnabled(true);
+			tmpFile = transactionFileName2.replaceAll(".txt", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION);
+			format = 2;
+			//			separator = delimiter[delimiterCombo.getSelectionIndex()];
+		}
+		else{// if the user selected a .csv file
+			delimiterCombo.select(0);//change the delimiter to comma
+			delimiterCombo.setEnabled(false);
+			tmpFile = transactionFileName2.replaceAll(".csv", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION);
+		}
+
+		if(delimiterCombo.getSelectionIndex()>=0){//if there's a delimiter selected
+			try{
+				Scanner newScanner = new Scanner(new File(tmpFile));
+				s=dataManipulationManager.getVarInfoFromFile(transactionFileName2);
+				System.out.println("somehow, "+ tmpFile +" still exists");
+				newScanner.close();
+			}catch(FileNotFoundException npe){
+				System.out.println("filenotFound");
+				String rJavaTmpFile = tmpFile.replaceAll("\\\\","/");
+				String dataFile = transactionFileName2.replaceAll("\\\\","/");
+				s=ProjectExplorerView.rJavaManager.getRJavaDataManipulationManager().getVariableInfo(dataFile, rJavaTmpFile, format, separator);
+			}
+//			String rJavaTmpFile = tmpFile.replaceAll("\\\\","/");
+//			String dataFile = transactionFileName2.replaceAll("\\\\","/");
+//			s=ProjectExplorerView.rJavaManager.getRJavaDataManipulationManager().getVariableInfo(dataFile, rJavaTmpFile, format, separator);
+			transactionDataList.setItems(dataManipulationManager.getListItems(s));
+		}
+	}
+
+	protected void resetList() {
+		// TODO Auto-generated method stub
+
+		//remove all variable contents from the box lists
+		transactionDataList.removeAll();
+		workingDataList.removeAll();
+		activeDataList.removeAll();
+
+		keyVariablesMasterList.clear();
+		keyVariablesTransactList.clear();
+		otherVariablesMasterList.clear();
+		otherVariablesTransactList.clear();
+
+		//re-initialize active data variables
+		ArrayList<String> s= dataManipulationManager.getVarInfoFromFile(fileModel.getProjectFile().getAbsolutePath());
+		activeDataList.setItems(dataManipulationManager.getListItems(s));
+	}
+
+	protected String[] getListItems(ArrayList<String> varInfo) {
+		ArrayList<String> variableNames = new ArrayList<String>();
+		for(String s:varInfo){
+			String[] tmp = s.split(":");
+			variableNames.add(tmp[0]);
+		}
+
+		// TODO Auto-generated method stub
+		return variableNames.toArray(new String[variableNames.size()]);
+	}
+
+	@Override
+	protected void okPressed(){
+		//CALL THE RJAVA FUNCTION HERE
+
+		if(keyVariablesTransactList.isEmpty()){
+			MessageDialog.openWarning(getShell(), "Transaction Variables", "Please choose a variable from the transaction data to:\n add to the working data variables\n or pair with an active data variable"); 
+		}
+		else{
+			String[] keyVariablesMaster= keyVariablesMasterList.toArray(new String[keyVariablesMasterList.size()]);
+			String[] keyVariablesTransact= keyVariablesTransactList.toArray(new String[keyVariablesTransactList.size()]);
+			String[] otherVariablesMaster= otherVariablesMasterList.toArray(new String[otherVariablesMasterList.size()]);
+			String[] otherVariablesTransact= otherVariablesTransactList.toArray(new String[otherVariablesTransactList.size()]);
+
+			//			System.out.println("keyVariablesMaster:");
+			//			for(String s : keyVariablesMaster){
+			//				System.out.println(s);	
+			//			}
+			//			System.out.println("==keyVariablesTransact===");
+			//			for(String s : keyVariablesTransact){
+			//				System.out.println(s);	
+			//			}
+			//			System.out.println("otherVariablesMaster:");
+			//			for(String s : otherVariablesMaster){
+			//				System.out.println(s);	
+			//			}
+			//
+			//			System.out.println("otherVariablesTransact:");
+			//			for(String s : otherVariablesTransact){
+			//				System.out.println(s);	
+			//			}
+
+			String tmptransactionFileName="";
+			String masterFile = fileModel.getProjectFile().getName().replaceAll(".csv", "");
+			String transactionFile = transactionName.replaceAll(".csv", "");
+			masterFile = masterFile.replaceAll("_", "");
+			transactionFile = transactionFile.replaceAll("_", "");
+			
+			if(transactionFileName.endsWith(".txt")){//if txtFile was chosen as a transactionFileName
+				tmptransactionFileName = transactionFileName.replaceAll(".txt", "_tmpFile.csv");
+				dataManipulationManager.convertTxtToCsv(transactionFileName, tmptransactionFileName, separator);
+				transactionFileName = tmptransactionFileName.replaceAll("\\\\+", "/");
+			}
+			else {
+				tmptransactionFileName = transactionFileName;
+				transactionFileName = tmptransactionFileName.replaceAll("\\\\+", "/");
+			}
+			
+			dataFileName = fileModel.getProjectFile().getAbsolutePath().toString().replaceAll("\\\\+", "/");
+			String fileNameExtension = dataManipulationManager.getManipulatedFileNameExtension("_"+transactionName+"_append", fileModel.getProjectFile().getAbsolutePath());
+			String newFileName = dataFileName.replaceAll(".csv", fileNameExtension);
+			newFileName = newFileName.replaceAll(".txt",fileNameExtension);
+			ProjectExplorerView.rJavaManager.getRJavaDataManipulationManager().appendData(masterFile, transactionFile, dataFileName, transactionFileName, newFileName, keyVariablesMaster, keyVariablesTransact, otherVariablesMaster, otherVariablesTransact);
+			if(tmptransactionFileName.endsWith("_tmpFile.csv")){
+				projExpMan.deleteFile(tmptransactionFileName);
+			}
+
+			close();
+			String newFile=fileModel.getProjectFile().getName().replaceAll(".csv", fileNameExtension);
+			TreeItem sortedTree = projExpMan.getTreeNodeByName(fileModel.getParentTreeItem(), newFile);
+
+			try{
+				if(((ProjectExplorerTreeNodeModel) sortedTree.getData()).getElementInStack() == null){//if the filename created hasn't been opened
+					PartStackHandler.execute(projExpMan.createNewProjectExplorerModel((ProjectExplorerTreeNodeModel) fileModel.getParentTreeItem().getData(), newFile));
+				}
+				else{//re-open file
+					PartStackHandler.reOpenPart((ProjectExplorerTreeNodeModel) sortedTree.getData());
+				}
+			}catch(NullPointerException npe){
+				MessageDialog.openWarning(Display.getCurrent().getActiveShell(), "Append was Unsuccessful", "Failed to create appended file.\n\n" +
+						"Are you sure you specified the correct delimiter and/or variables?" );
+			}
+		}
+	}
+
+	@Override
+	protected void buttonPressed(int buttonId) { //wen Reset button is pressed
+		if (buttonId == IDialogConstants.DESELECT_ALL_ID) {
+			transactionFileNameCombo.setEnabled(true);
+			transactionFileNameCombo.setItems(dataManipulationManager.getFilesFromDir(fileModel));
+			delimiterCombo.setItems(new String[] {"comma", "space", "tab", "semicolon"});
+			delimiterCombo.setEnabled(false);
+			resetList();
+		}
+		super.buttonPressed(buttonId);
+	}
+
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.DESELECT_ALL_ID, "Reset", true);
+
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(618, 468);
+	}/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected boolean isResizable() {
+		return true;
+	}
+}

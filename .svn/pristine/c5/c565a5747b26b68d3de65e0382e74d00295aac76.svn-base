@@ -1,0 +1,717 @@
+package org.irri.breedingtool.star.analysis.anova.dialog;
+
+import java.io.File;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.datamanipulation.dialog.OperationProgressDialog;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.utility.DialogFormUtility;
+import org.irri.breedingtool.utility.GeneralUtility;
+import org.irri.breedingtool.utility.StarAnalysisUtilities;
+
+public class StripSplitPlotDesignDialog extends Dialog {
+	private Button btnDisplay1;
+	private Spinner txtSignificantLevel;
+	private String filePath = PartStackHandler.getActiveElementID();
+	private List lstNumericVariables;
+	private List lstFactorVariables;
+	private List lstFactors;
+	private List lstResponse;
+	private DialogFormUtility listManager = new DialogFormUtility();
+	private Composite cmpModel;
+	private Button btnDisplay2;
+	private Button btnDisplay3;
+	private Text txtBlock;
+	private List lstHorizontal;
+	private List lstSubSubPlot;
+	private Button btnOk;
+	private Button btnContrast;
+	private Button btnPostHoc;
+	private ContrastDialog dlgContrast;
+	private PostHocDialog dlgPostHoc;
+	private boolean isContrastReady = false;
+	private String[] preHocResult = null;
+	private String[] postHocVar = null;
+	private String[] postHocOpts = null;
+	private String outputFolderPath;
+	private String design = "Strip-Split";
+	private Text txtCombinedAnalysis;
+	private Button btnPerformSet;
+	private Button btnPerformCombined;
+	private Button btnAddCombinedAnalysis;
+	private Button btnResponseVariable;
+	private Button btnMove;
+	private Button btnVertical;
+	private Button btnHorizontal;
+	private Button btnSubSubPlot;
+	private Button btnBlock;
+
+	/**
+	 * Create the dialog.
+	 * 
+	 * @param parentShell
+	 */
+	public StripSplitPlotDesignDialog(Shell parentShell) {
+		super(parentShell);
+		setShellStyle(SWT.BORDER | SWT.CLOSE | SWT.MIN | SWT.RESIZE);
+	}
+
+	@Override
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText("Strip- Split Plot Design : "
+				+ new File(filePath).getName());
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * 
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite container = (Composite) super.createDialogArea(parent);
+		FillLayout fl_container = new FillLayout(SWT.HORIZONTAL);
+		fl_container.marginHeight = 8;
+		fl_container.marginWidth = 8;
+		container.setLayout(fl_container);
+
+		TabFolder tabFolder = new TabFolder(container, SWT.NONE);
+
+		TabItem tbtmModel = new TabItem(tabFolder, SWT.NONE);
+		tbtmModel.setText("Model");
+
+		cmpModel = new Composite(tabFolder, SWT.NONE);
+		tbtmModel.setControl(cmpModel);
+		cmpModel.setLayout(new GridLayout(4, false));
+
+		Label lblNumericVariables = new Label(cmpModel, SWT.HORIZONTAL);
+		lblNumericVariables.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+				true, true, 2, 1));
+		lblNumericVariables.setText("Numeric Variable(s)");
+		new Label(cmpModel, SWT.NONE);
+
+		Label lblResponseVariables = new Label(cmpModel, SWT.NONE);
+		lblResponseVariables.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+				true, true, 1, 1));
+		lblResponseVariables.setText("Response Variable(s)");
+
+		lstNumericVariables = new List(cmpModel, SWT.BORDER | SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstNumericVariables = new GridData(SWT.FILL, SWT.FILL,
+				true, true, 2, 2);
+		gd_lstNumericVariables.heightHint = 43;
+		gd_lstNumericVariables.widthHint = 86;
+		lstNumericVariables.setLayoutData(gd_lstNumericVariables);
+		lstNumericVariables.setData("Disvalidate");
+		btnResponseVariable = new Button(cmpModel, SWT.NONE);
+		GridData gd_btnResponseVariable = new GridData(SWT.CENTER, SWT.CENTER,
+				true, true, 1, 1);
+		gd_btnResponseVariable.minimumWidth = 73;
+		gd_btnResponseVariable.minimumHeight = 26;
+		gd_btnResponseVariable.heightHint = 25;
+		gd_btnResponseVariable.widthHint = 90;
+		btnResponseVariable.setLayoutData(gd_btnResponseVariable);
+		btnResponseVariable.setText("Add");
+
+		lstResponse = new List(cmpModel, SWT.BORDER | SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstResponse = new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1);
+		gd_lstResponse.widthHint = 145;
+		gd_lstResponse.heightHint = 18;
+		lstResponse.setLayoutData(gd_lstResponse);
+		new Label(cmpModel, SWT.NONE);
+		new Label(cmpModel, SWT.NONE);
+		new Label(cmpModel, SWT.NONE);
+
+		btnMove = new Button(cmpModel, SWT.NONE);
+		GridData gd_btnMove = new GridData(SWT.CENTER, SWT.CENTER, false,
+				false, 1, 1);
+		gd_btnMove.minimumHeight = 26;
+		gd_btnMove.minimumWidth = 66;
+		gd_btnMove.widthHint = 110;
+		btnMove.setLayoutData(gd_btnMove);
+		btnMove.setText("Set to Factor");
+		new Label(cmpModel, SWT.NONE);
+		new Label(cmpModel, SWT.NONE);
+		
+				Label lblFactors = new Label(cmpModel, SWT.NONE);
+				GridData gd_lblFactors = new GridData(SWT.FILL, SWT.CENTER, true,
+						false, 1, 1);
+				gd_lblFactors.widthHint = 56;
+				lblFactors.setLayoutData(gd_lblFactors);
+				lblFactors.setText("Factor(s)");
+		new Label(cmpModel, SWT.NONE);
+		new Label(cmpModel, SWT.NONE);
+		new Label(cmpModel, SWT.NONE);
+
+		lstFactorVariables = new List(cmpModel, SWT.BORDER | SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstFactorVariables = new GridData(SWT.FILL, SWT.FILL, true,
+				true, 2, 9);
+		gd_lstFactorVariables.widthHint = 79;
+		gd_lstFactorVariables.heightHint = 20;
+		lstFactorVariables.setLayoutData(gd_lstFactorVariables);
+		lstFactorVariables.setData("Disvalidate");
+
+		Group group = new Group(cmpModel, SWT.NONE);
+		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		group.setText("Set");
+		group.setLayout(new GridLayout(2, false));
+
+		btnPerformSet = new Button(group, SWT.RADIO);
+		btnPerformSet.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				true, 2, 1));
+		btnPerformSet.setText("Perform Analysis Per Set");
+		btnPerformSet.setSelection(true);
+		
+
+		btnPerformCombined = new Button(group, SWT.RADIO);
+		btnPerformCombined.setLayoutData(new GridData(SWT.FILL, SWT.CENTER,
+				true, false, 2, 1));
+			btnPerformCombined.setText("Perform Combined Analysis");
+		btnPerformCombined.addSelectionListener(new SelectionListener(){
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				btnDisplay3.setEnabled(!btnPerformCombined.getSelection());
+				if(btnPerformCombined.getSelection()) btnDisplay3.setSelection(false);
+				
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}});
+
+		btnAddCombinedAnalysis = new Button(group, SWT.NONE);
+		btnAddCombinedAnalysis.setEnabled(true);
+		GridData gd_btnAddCombinedAnalysis = new GridData(SWT.CENTER,
+				SWT.CENTER, true, false, 1, 1);
+		gd_btnAddCombinedAnalysis.heightHint = 26;
+		gd_btnAddCombinedAnalysis.widthHint = 90;
+		gd_btnAddCombinedAnalysis.horizontalIndent = 8;
+		btnAddCombinedAnalysis.setLayoutData(gd_btnAddCombinedAnalysis);
+		btnAddCombinedAnalysis.setText("Add");
+
+		txtCombinedAnalysis = new Text(group, SWT.BORDER);
+		txtCombinedAnalysis.setBackground(SWTResourceManager
+				.getColor(SWT.COLOR_WHITE));
+		txtCombinedAnalysis.setEditable(false);
+		GridData gd_txtCombinedAnalysis = new GridData(SWT.FILL, SWT.CENTER,
+				true, false, 1, 1);
+		gd_txtCombinedAnalysis.heightHint = 15;
+		gd_txtCombinedAnalysis.widthHint = 160;
+		txtCombinedAnalysis.setLayoutData(gd_txtCombinedAnalysis);
+		new Label(cmpModel, SWT.NONE);
+
+		Label lblFactors_1 = new Label(cmpModel, SWT.NONE);
+		lblFactors_1.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
+				false, 1, 1));
+		lblFactors_1.setText("Vertical Factor(s)");
+		System.out.println(filePath);
+		btnVertical = new Button(cmpModel, SWT.NONE);
+		GridData gd_btnVertical = new GridData(SWT.CENTER, SWT.CENTER, true,
+				true, 1, 1);
+		gd_btnVertical.minimumWidth = 73;
+		gd_btnVertical.minimumHeight = 26;
+		gd_btnVertical.heightHint = 26;
+		gd_btnVertical.widthHint = 90;
+		btnVertical.setLayoutData(gd_btnVertical);
+		btnVertical.setText("Add");
+
+		lstFactors = new List(cmpModel, SWT.BORDER | SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstVertical = new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1);
+		gd_lstVertical.heightHint = 25;
+		lstFactors.setLayoutData(gd_lstVertical);
+		new Label(cmpModel, SWT.NONE);
+
+		Label lblSubPlotFactors = new Label(cmpModel, SWT.NONE);
+		lblSubPlotFactors.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
+				false, 1, 1));
+		lblSubPlotFactors.setText("Horizontal Factor(s)");
+
+		TabItem tbtmOption = new TabItem(tabFolder, SWT.NONE);
+		tbtmOption.setText("Options");
+
+		Composite composite_1 = new Composite(tabFolder, SWT.NONE);
+		tbtmOption.setControl(composite_1);
+		composite_1.setLayout(new GridLayout(3, false));
+
+		Group grpDisplay = new Group(composite_1, SWT.NONE);
+		grpDisplay.setText("Display");
+		grpDisplay.setLayout(new GridLayout(1, false));
+		GridData gd_grpDisplay = new GridData(SWT.FILL, SWT.FILL, true, true,
+				3, 1);
+		gd_grpDisplay.minimumHeight = 94;
+		gd_grpDisplay.heightHint = 89;
+		grpDisplay.setLayoutData(gd_grpDisplay);
+
+		btnDisplay1 = new Button(grpDisplay, SWT.CHECK);
+		btnDisplay1.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1));
+		btnDisplay1.setText("Descriptive Statistics of the Response Variable");
+
+		btnDisplay2 = new Button(grpDisplay, SWT.CHECK);
+		btnDisplay2.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1));
+		btnDisplay2.setText("Shapiro-Wilk Test for Normality of Residuals");
+
+		btnDisplay3 = new Button(grpDisplay, SWT.CHECK);
+		btnDisplay3.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1));
+		btnDisplay3.setEnabled(true);
+	btnDisplay3.setText("Bartlett's Test for Homogeneity of Variances");
+
+		Label lblSignificantLevel = new Label(composite_1, SWT.NONE);
+		GridData gd_lblSignificantLevel = new GridData(SWT.LEFT, SWT.CENTER,
+				true, true, 1, 1);
+		gd_lblSignificantLevel.widthHint = 376;
+		lblSignificantLevel.setLayoutData(gd_lblSignificantLevel);
+		lblSignificantLevel.setText("Significance Level:");
+
+		txtSignificantLevel = new Spinner(composite_1, SWT.BORDER);
+		txtSignificantLevel.setMaximum(10);
+		txtSignificantLevel.setMinimum(1);
+		txtSignificantLevel.setSelection(5);
+		txtSignificantLevel.setDigits(2);
+
+		Label lblNewLabel_1 = new Label(composite_1, SWT.NONE);
+		GridData gd_lblNewLabel_1 = new GridData(SWT.FILL, SWT.FILL, true,
+				true, 1, 1);
+		gd_lblNewLabel_1.widthHint = 477;
+		lblNewLabel_1.setLayoutData(gd_lblNewLabel_1);
+
+		Label lblNewLabel = new Label(composite_1, SWT.NONE);
+		GridData gd_lblNewLabel = new GridData(SWT.FILL, SWT.FILL, true, true,
+				1, 1);
+		gd_lblNewLabel.heightHint = 299;
+		lblNewLabel.setLayoutData(gd_lblNewLabel);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+
+		btnHorizontal = new Button(cmpModel, SWT.NONE);
+		GridData gd_btnHorizontal = new GridData(SWT.CENTER, SWT.CENTER, true,
+				true, 1, 1);
+		gd_btnHorizontal.minimumWidth = 76;
+		gd_btnHorizontal.minimumHeight = 26;
+		gd_btnHorizontal.widthHint = 90;
+		gd_btnHorizontal.heightHint = 26;
+		btnHorizontal.setLayoutData(gd_btnHorizontal);
+		btnHorizontal.setText("Add");
+
+		lstHorizontal = new List(cmpModel, SWT.BORDER | SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstHorizontal = new GridData(SWT.FILL, SWT.FILL, true,
+				true, 1, 1);
+		gd_lstHorizontal.heightHint = 25;
+		lstHorizontal.setLayoutData(gd_lstHorizontal);
+		new Label(cmpModel, SWT.NONE);
+
+		Label lblSubsubPlotFactors = new Label(cmpModel, SWT.NONE);
+		lblSubsubPlotFactors.setLayoutData(new GridData(SWT.FILL, SWT.FILL,
+				true, false, 1, 1));
+		lblSubsubPlotFactors.setText("Subplot Factor(s)");
+
+		btnSubSubPlot = new Button(cmpModel, SWT.NONE);
+		GridData gd_btnSubSubPlot = new GridData(SWT.CENTER, SWT.CENTER, true,
+				true, 1, 1);
+		gd_btnSubSubPlot.minimumWidth = 73;
+		gd_btnSubSubPlot.minimumHeight = 26;
+		gd_btnSubSubPlot.heightHint = 26;
+		gd_btnSubSubPlot.widthHint = 90;
+		btnSubSubPlot.setLayoutData(gd_btnSubSubPlot);
+		btnSubSubPlot.setText("Add");
+
+		lstSubSubPlot = new List(cmpModel, SWT.BORDER | SWT.H_SCROLL
+				| SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstSubSubPlot = new GridData(SWT.FILL, SWT.FILL, true,
+				true, 1, 1);
+		gd_lstSubSubPlot.heightHint = 25;
+		lstSubSubPlot.setLayoutData(gd_lstSubSubPlot);
+		new Label(cmpModel, SWT.NONE);
+
+		Label lblColumnBlock = new Label(cmpModel, SWT.NONE);
+		lblColumnBlock.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true,
+				true, 1, 1));
+		lblColumnBlock.setText("Block");
+
+		btnBlock = new Button(cmpModel, SWT.NONE);
+		GridData gd_btnBlock = new GridData(SWT.CENTER, SWT.CENTER, true, true,
+				1, 1);
+		gd_btnBlock.minimumWidth = 73;
+		gd_btnBlock.minimumHeight = 26;
+		gd_btnBlock.heightHint = 26;
+		gd_btnBlock.widthHint = 90;
+		btnBlock.setLayoutData(gd_btnBlock);
+		btnBlock.setText("Add");
+
+		txtBlock = new Text(cmpModel, SWT.BORDER);
+		txtBlock.setEditable(false);
+		txtBlock.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		GridData gd_txtBlock = new GridData(SWT.FILL, SWT.CENTER, true, true,
+				1, 1);
+		gd_txtBlock.heightHint = 18;
+		txtBlock.setLayoutData(gd_txtBlock);
+		initDialogContents();
+
+		listManager.initializeSingleButtonList(lstNumericVariables,
+				lstResponse, btnResponseVariable);
+		SelectionListener sListener = new SelectionListener() {
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				// When User modified anything, reset process
+				
+				btnDisplay3.setEnabled(!btnPerformCombined.getSelection());
+				preHocResult = null;
+				isContrastReady = false;
+				postHocVar = null;
+				postHocOpts = null;
+				outputFolderPath = null;
+				btnPostHoc.setEnabled(false);
+				btnContrast.setEnabled(false);
+				if (dlgPostHoc != null)
+					dlgPostHoc.getShell().dispose();
+				if (dlgContrast != null)
+					dlgContrast.getShell().dispose();
+
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+
+		};
+		for (int i = 0; i < cmpModel.getChildren().length; i++) {
+			if (cmpModel.getChildren()[i] instanceof Button) {
+				((Button) cmpModel.getChildren()[i])
+						.addSelectionListener(sListener);
+			}
+
+		}
+
+				btnPerformSet.addSelectionListener(sListener);
+		btnPerformCombined.addSelectionListener(sListener);
+		btnAddCombinedAnalysis.addSelectionListener(sListener);
+		btnDisplay1.addSelectionListener(sListener);
+		btnDisplay2.addSelectionListener(sListener);
+		btnDisplay3.addSelectionListener(sListener);
+
+		txtSignificantLevel.addModifyListener(new ModifyListener() {
+
+			@Override
+			public void modifyText(ModifyEvent e) {
+				// When User modified anything, reset process
+				preHocResult = null;
+				isContrastReady = false;
+				postHocVar = null;
+				postHocOpts = null;
+				outputFolderPath = null;
+				btnPostHoc.setEnabled(false);
+				btnContrast.setEnabled(false);
+				if (dlgPostHoc != null)
+					dlgPostHoc.getShell().dispose();
+				if (dlgContrast != null)
+					dlgContrast.getShell().dispose();
+			}
+
+		});
+
+		listManager.initializeVariableMoveList(lstNumericVariables,
+				lstFactorVariables, btnMove, filePath);
+
+		listManager.initializeSingleButtonList(lstFactorVariables, lstFactors,
+				btnVertical);
+		listManager.initializeSingleButtonList(lstFactorVariables,
+				lstHorizontal, btnHorizontal);
+		listManager.initializeSingleButtonList(lstFactorVariables,
+				lstSubSubPlot, btnSubSubPlot);
+
+		listManager.initializeSingleSelectionList(lstFactorVariables, txtBlock,
+				btnBlock);
+		listManager.initializeSingleSelectionList(lstFactorVariables,
+				txtCombinedAnalysis, btnAddCombinedAnalysis);
+		
+		
+
+		// ANOVA Dialogs
+		return container;
+
+	}
+
+		private boolean validateCmpModel() {
+		if(btnPerformCombined.getSelection() && txtCombinedAnalysis.getText().isEmpty()) return false;
+
+		for (int i = 0; i < cmpModel.getChildren().length; i++) {
+
+			if (cmpModel.getChildren()[i] instanceof List
+					&& cmpModel.getChildren()[i] != lstFactorVariables
+					&& cmpModel.getChildren()[i] != lstNumericVariables)
+				if (((List) cmpModel.getChildren()[i]).getItemCount() == 0)
+					return false;
+			if (cmpModel.getChildren()[i] instanceof Text)
+				if (((Text) cmpModel.getChildren()[i]).getText().equals(""))
+					return false;
+
+		}
+
+		return true;
+	}
+
+	private void initDialogContents() {
+		// call this function to Init the content of the dialog
+		listManager.initializeNumericList(lstNumericVariables, filePath);
+		listManager.initializeFactorList(lstFactorVariables, filePath);
+
+	}
+
+	@Override
+	protected void buttonPressed(int buttonId) {
+		if (IDialogConstants.OK_ID == buttonId) {
+			okPressed();
+		} else if (IDialogConstants.RETRY_ID == buttonId) {
+			for (int i = 0; i < cmpModel.getChildren().length; i++) {
+				if (cmpModel.getChildren()[i] instanceof List) {
+					((List) cmpModel.getChildren()[i]).removeAll();
+
+				} else if (cmpModel.getChildren()[i] instanceof Text)
+					((Text) cmpModel.getChildren()[i]).setText("");
+				else if (cmpModel.getChildren()[i] instanceof Button) {
+					if (!((Button) cmpModel.getChildren()[i]).getText().equals(
+							"To Factor")
+							&& !((Button) cmpModel.getChildren()[i]).getText()
+									.equals("To Numeric"))
+						((Button) cmpModel.getChildren()[i]).setText("Add");
+				}
+			}
+			// For Options Tab
+			if (dlgPostHoc != null)
+				dlgPostHoc.getShell().dispose();
+			if (dlgContrast != null)
+				dlgContrast.getShell().dispose();
+
+			isContrastReady = false;
+			btnOk.setEnabled(true);
+			preHocResult = null;
+			postHocVar = null;
+			postHocOpts = null;
+			outputFolderPath = null;
+			btnPostHoc.setEnabled(false);
+			btnContrast.setEnabled(false);
+			btnDisplay1.setSelection(false);
+			btnDisplay2.setSelection(false);
+			btnDisplay3.setSelection(false);
+
+			txtSignificantLevel.setSelection(5);
+			initDialogContents();
+			
+			btnMove.setText("Set to Factor");
+			btnMove.setEnabled(false);
+			btnResponseVariable.setText("Add");
+			btnResponseVariable.setEnabled(false);
+			btnAddCombinedAnalysis.setText("Add");
+			btnAddCombinedAnalysis.setEnabled(false);
+			txtCombinedAnalysis.setText("");
+			btnBlock.setEnabled(false);
+			btnBlock.setText("Add");		
+			btnVertical.setEnabled(false);
+			btnVertical.setText("Add");
+			btnHorizontal.setEnabled(false);
+			btnHorizontal.setText("Add");
+			btnSubSubPlot.setText("Add");
+			btnSubSubPlot.setEnabled(false);
+
+		} else if (IDialogConstants.NEXT_ID == buttonId) {
+			if (dlgPostHoc == null || dlgPostHoc.getShell().isDisposed()) {
+				dlgPostHoc = new PostHocDialog(this.getShell(), preHocResult,
+						outputFolderPath,
+						(double) txtSignificantLevel.getSelection() / 100,
+						design, btnPerformCombined.getSelection());
+				dlgPostHoc.open();
+
+			} else {
+				dlgPostHoc.getShell().setVisible(true);
+			}
+			postHocVar = PostHocDialog.getPostHocVar();
+			postHocOpts = PostHocDialog.getPostHocOpt();
+
+		} else if (IDialogConstants.PROCEED_ID == buttonId) {
+			if (dlgContrast == null || dlgContrast.getShell().isDisposed()) {
+				dlgContrast = new ContrastDialog(getShell(),
+						GeneralUtility.arrayConcatAll(lstFactors.getItems(),
+								lstSubSubPlot.getItems(),
+								lstHorizontal.getItems()), filePath,
+						outputFolderPath, lstResponse.getItems(),
+						btnPerformCombined.getSelection());
+				dlgContrast.open();
+				isContrastReady = dlgContrast.contrastReady();
+			} else {
+				dlgContrast.getShell().setVisible(true);
+			}
+			isContrastReady = true;
+		} else if (IDialogConstants.CANCEL_ID == buttonId) {
+			cancelPressed();
+		}
+	}
+
+	@Override
+	protected void okPressed() {
+		if (btnPostHoc.getEnabled() && dlgPostHoc != null
+				&& !dlgPostHoc.getShell().isDisposed()) {
+			postHocVar = PostHocDialog.getPostHocVar();
+			postHocOpts = PostHocDialog.getPostHocOpt();
+		}
+
+		if (validateCmpModel()) {
+			OperationProgressDialog rInfo = new OperationProgressDialog(
+					getShell(), 
+					"Performing Analysis of Variance");
+			rInfo.open();
+
+			String set = txtCombinedAnalysis.getText();
+			if (set.equals(""))	set = null;
+
+			btnOk.setEnabled(false);
+
+			if (outputFolderPath == null)
+				outputFolderPath = StarAnalysisUtilities.createOutputFolder(
+						filePath, design);
+			try {
+
+				//Do Anova
+				if(btnPerformCombined.getSelection())
+
+					preHocResult = ProjectExplorerView.rJavaManager
+							.getSTARAnalysisManager()
+							.doANOVACombined(
+								filePath.replace(File.separator, "/"),
+								outputFolderPath.replace(File.separator, "/"),
+								design,
+								lstResponse.getItems(),
+								lstFactors.getItems(),
+								lstHorizontal.getItems(),
+								lstSubSubPlot.getItems(),
+								null,
+								txtBlock.getText(),
+								null,
+								set,
+								btnDisplay1.getSelection(),
+								btnDisplay2.getSelection(),
+								btnDisplay3.getSelection(),
+
+								postHocOpts,
+								postHocVar,
+								isContrastReady,
+								(double) txtSignificantLevel.getSelection() / 100);
+				else{
+
+					preHocResult = ProjectExplorerView.rJavaManager
+							.getSTARAnalysisManager()
+							.doANOVA(
+								filePath.replace(File.separator, "/"),
+								outputFolderPath.replace(File.separator, "/"),
+								design,
+								lstResponse.getItems(),
+								lstFactors.getItems(),
+								lstHorizontal.getItems(),
+								lstSubSubPlot.getItems(),
+								null,
+								txtBlock.getText(),
+								null,
+								set,
+								btnDisplay1.getSelection(),
+								btnDisplay2.getSelection(),
+								btnDisplay3.getSelection(),
+
+								postHocOpts,
+								postHocVar,
+								isContrastReady,
+								(double) txtSignificantLevel.getSelection() / 100);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				preHocResult = null;
+			}
+
+			if (preHocResult != null)
+				btnPostHoc.setEnabled(true);
+			btnContrast
+					.setEnabled(StarAnalysisUtilities.factorsHasLevels(
+							GeneralUtility.arrayConcatAll(
+									lstFactors.getItems(),
+									lstSubSubPlot.getItems(),
+									lstHorizontal.getItems()), filePath));
+
+			rInfo.close();
+			this.getShell().setMinimized(true);
+			StarAnalysisUtilities.openAndRefreshFolder(outputFolderPath);
+			btnOk.setEnabled(true);
+		} else {
+			MessageDialog
+					.openError(
+							this.getShell(),
+							"Error",
+							"Could not perform the analysis. \n\n Reason: Incomplete requirements. Make sure to fill up all the required fields");
+		}
+	}
+
+	/**
+	 * Create contents of the button bar.
+	 * 
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		btnContrast = createButton(parent, IDialogConstants.PROCEED_ID,
+				"Contrast", false);
+		btnContrast.setEnabled(false);
+		btnPostHoc = createButton(parent, IDialogConstants.NEXT_ID, "Post Hoc",
+				false);
+		btnPostHoc.setEnabled(false);
+		createButton(parent, IDialogConstants.RETRY_ID, "Reset", false);
+		btnOk = createButton(parent, IDialogConstants.OK_ID,
+				IDialogConstants.OK_LABEL, true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(706, 584);
+	}
+}

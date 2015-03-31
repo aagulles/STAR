@@ -1,0 +1,857 @@
+package org.irri.breedingtool.star.analysis.dialog;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.regex.Pattern;
+
+import javax.inject.Named;
+
+import org.eclipse.e4.core.di.annotations.Execute;
+import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
+import org.eclipse.e4.ui.services.IServiceConstants;
+import org.eclipse.e4.ui.workbench.modeling.EModelService;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Group;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.application.model.ProjectExplorerTreeNodeModel;
+import org.irri.breedingtool.datamanipulation.dialog.OperationProgressDialog;
+import org.irri.breedingtool.manager.impl.DataManipulationManager;
+import org.irri.breedingtool.manager.impl.ProjectExplorerManager;
+import org.irri.breedingtool.pbtools.analysis.environment.dialog.SpecifyRowColDialog;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.rjava.utilities.InputTransform;
+import org.irri.breedingtool.star.design.dialog.IncompleteBlockAlphaLatticeDesignDialog;
+import org.irri.breedingtool.utility.DialogFormUtility;
+import org.irri.breedingtool.utility.DialogListValidator;
+import org.irri.breedingtool.utility.StarAnalysisUtilities;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.FocusAdapter;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.widgets.Combo;
+
+public class AugmentedLSIncompleteBlockDialog  extends Dialog {
+	//private static final int RESET = IDialogConstants.CLIENT_ID + 1111;
+
+
+	private DialogFormUtility  listManager = new DialogFormUtility();
+	private String filePath = PartStackHandler.getActiveElementID(); 
+	private Button btnOk;
+	private List lstVariables;
+	private ArrayList<Composite>  groups = new ArrayList<Composite>();
+	private Button btnAddTrt;
+	private Button btnAddSingleVariable;
+	private Button btnSetToFactor;
+	private List lstNumericVariables;
+	private List lstFactorVariables;
+	private Text txtAnalysisPerSet;
+	private Text txtTrt;
+	private Text txtRow;
+	private Text txtSigLevel;
+	private Button btnVarComponents;
+	private Button btnStatistics;
+	private Button btnBoxplot;
+	private Button btnHistogram;
+	private Button btnHeatmap;
+	private Button btnSpecifyRowCol;
+	private Button btnDiagnosticplots;
+	private List lstControls;
+	private List lstLevelsofFactor;
+	private Button btnAddLevelsofFactor;
+	private Button btnAddRow;
+	private Button btnAddSet;
+
+	
+	private DataManipulationManager dataManipulationManager  = new DataManipulationManager();
+	private ArrayList<String> varInfo;
+	private String[] numericVariables;
+	private String[] factorVariables;
+	private File file;
+	private String heatmapRow;
+	private String heatmapColumn;
+	private boolean selectedHeatMapVars;
+	private Button btnPerformPairwiseMean;
+	private Button btnAllComparisons;
+	private Button btnCompareWithControl;
+	private Label lblLevelOfSignificance;
+	private String pairwiseAlpha = "0.05";
+	private boolean satisfiedAllConditions = true;
+	private boolean compareControl = true;
+	private boolean performAllPairwise = false;
+	private String[] factorLevels = {"1", "2", "3", "4", "5", "6", "7", "8"};
+	private String[] controlLevels = {"1", "2", "3"};
+	private Label lblSpecifyControl;
+	private Label lblLevelsofFactor;
+	private Label lblControls;
+	private Label lblRow;
+	private Button btnAddCol;
+	private Label lblColumn;
+	private Text txtCol;
+
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+	public AugmentedLSIncompleteBlockDialog(Shell parentShell) {
+		super(parentShell);
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
+	}
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText("Augmented Latin Square: " + new File(filePath).getName());
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite container = (Composite) super.createDialogArea(parent);
+		GridLayout gridLayout = (GridLayout) container.getLayout();
+		gridLayout.marginHeight = 10;
+		GridLayout gl_container = new GridLayout(1, false);
+		gl_container.marginWidth = 10;
+		container.setLayout(gl_container);
+
+		TabFolder tabFolder = new TabFolder(container, SWT.NONE);
+		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
+		TabItem tbtmVariableDescription = new TabItem(tabFolder, SWT.NONE);
+		tbtmVariableDescription.setText("Model Specifications");
+
+		Composite composite = new Composite(tabFolder, SWT.NONE);
+		tbtmVariableDescription.setControl(composite);
+		composite.setLayout(new GridLayout(4, false));
+		
+				Label lblNumericVariables = new Label(composite, SWT.NONE);
+				lblNumericVariables.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+				lblNumericVariables.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+				lblNumericVariables.setText("Numeric Variable(s):");
+		new Label(composite, SWT.NONE);
+		
+				Label lblResponseVariables = new Label(composite, SWT.NONE);
+				lblResponseVariables.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+				lblResponseVariables.setText("Response Variable(s):");
+				lblResponseVariables.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+		
+				lstNumericVariables = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+				GridData gd_lstNumericVariables_1 = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+				gd_lstNumericVariables_1.heightHint = 80;
+				gd_lstNumericVariables_1.widthHint = 150;
+				lstNumericVariables.setLayoutData(gd_lstNumericVariables_1);
+		
+				btnAddSingleVariable = new Button(composite, SWT.NONE);
+				GridData gd_btnAddSingleVariable = new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1);
+				gd_btnAddSingleVariable.widthHint = 60;
+				btnAddSingleVariable.setLayoutData(gd_btnAddSingleVariable);
+				
+						btnAddSingleVariable.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+						
+								btnAddSingleVariable.setText("Add");
+				
+						lstVariables = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+						GridData gd_lstVariables = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+						gd_lstVariables.widthHint = 150;
+						gd_lstVariables.heightHint = 80;
+						lstVariables.setLayoutData(gd_lstVariables);
+
+		btnSetToFactor = new Button(composite, SWT.NONE);
+		GridData gd_btnSetToFactor = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
+		gd_btnSetToFactor.widthHint = 90;
+		gd_btnSetToFactor.minimumHeight = 25;
+		gd_btnSetToFactor.minimumWidth = 30;
+		gd_btnSetToFactor.heightHint = 24;
+		btnSetToFactor.setLayoutData(gd_btnSetToFactor);
+		btnSetToFactor.setText("Set to Factor");
+						new Label(composite, SWT.NONE);
+						new Label(composite, SWT.NONE);
+						new Label(composite, SWT.NONE);
+				
+						Label lblFactors = new Label(composite, SWT.NONE);
+						GridData gd_lblFactors = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+						gd_lblFactors.heightHint = 15;
+						lblFactors.setLayoutData(gd_lblFactors);
+						lblFactors.setText("Factor(s):");
+						lblFactors.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+						new Label(composite, SWT.NONE);
+						new Label(composite, SWT.NONE);
+						new Label(composite, SWT.NONE);
+				
+						lstFactorVariables = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+						GridData gd_lstFactorVariables = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 4);
+						gd_lstFactorVariables.widthHint = 200;
+						gd_lstFactorVariables.heightHint = 100;
+						lstFactorVariables.setLayoutData(gd_lstFactorVariables);
+				
+				Group grpSet = new Group(composite, SWT.NONE);
+				grpSet.setLayout(new GridLayout(2, false));
+				GridData gd_grpSet = new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1);
+				gd_grpSet.widthHint = 267;
+				grpSet.setLayoutData(gd_grpSet);
+				grpSet.setText("Set");
+				
+				Button btnAnalysisPerSet = new Button(grpSet, SWT.RADIO);
+				btnAnalysisPerSet.setSelection(true);
+				btnAnalysisPerSet.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+				btnAnalysisPerSet.setText("Perform Analysis Per Set");
+				
+				Button btnCombinedAnalysis = new Button(grpSet, SWT.RADIO);
+				btnCombinedAnalysis.setEnabled(false);
+				btnCombinedAnalysis.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+				btnCombinedAnalysis.setText("Perform Combined Analysis");
+				
+				btnAddSet = new Button(grpSet, SWT.NONE);
+				GridData gd_btnAddSet = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+				gd_btnAddSet.widthHint = 60;
+				btnAddSet.setLayoutData(gd_btnAddSet);
+				btnAddSet.setText("Add");
+				
+				txtAnalysisPerSet = new Text(grpSet, SWT.BORDER);
+				GridData gd_txtAnalysisPerSet = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
+				gd_txtAnalysisPerSet.heightHint = 15;
+				gd_txtAnalysisPerSet.widthHint = 155;
+				txtAnalysisPerSet.setLayoutData(gd_txtAnalysisPerSet);
+		
+				btnAddTrt = new Button(composite, SWT.NONE);
+				GridData gd_btnAddTrt = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+				gd_btnAddTrt.widthHint = 60;
+				btnAddTrt.setLayoutData(gd_btnAddTrt);
+				btnAddTrt.setText("Add");
+				btnAddTrt.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+		
+		Label lblTreatment = new Label(composite, SWT.NONE);
+		lblTreatment.setText("Treatment:");
+		
+		txtTrt = new Text(composite, SWT.BORDER);
+		GridData gd_txtTrt = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+		gd_txtTrt.heightHint = 15;
+		gd_txtTrt.widthHint = 150;
+		txtTrt.setLayoutData(gd_txtTrt);
+		
+		btnAddRow = new Button(composite, SWT.NONE);
+		GridData gd_btnAddRow = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_btnAddRow.widthHint = 60;
+		btnAddRow.setLayoutData(gd_btnAddRow);
+		btnAddRow.setText("Add");
+		btnAddRow.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+				
+				lblRow = new Label(composite, SWT.NONE);
+				lblRow.setText("Row:");
+				
+				txtRow = new Text(composite, SWT.BORDER);
+				GridData gd_txtRow = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+				gd_txtRow.heightHint = 15;
+				gd_txtRow.widthHint = 150;
+				txtRow.setLayoutData(gd_txtRow);
+				
+				btnAddCol = new Button(composite, SWT.NONE);
+				GridData gd_btnAddCol = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+				gd_btnAddCol.widthHint = 60;
+				btnAddCol.setLayoutData(gd_btnAddCol);
+				btnAddCol.setText("Add");
+				btnAddCol.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+				
+				lblColumn = new Label(composite, SWT.NONE);
+				lblColumn.setText("Column:");
+				
+				txtCol = new Text(composite, SWT.BORDER);
+				txtCol.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
+		TabItem tbtmStatistics = new TabItem(tabFolder, SWT.NONE);
+		tbtmStatistics.setText("Options");
+
+		Composite cmpStatistics = new Composite(tabFolder, SWT.NONE);
+		tbtmStatistics.setControl(cmpStatistics);
+		cmpStatistics.setLayout(new GridLayout(3, false));
+		
+		btnPerformPairwiseMean = new Button(cmpStatistics, SWT.CHECK);
+		btnPerformPairwiseMean.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(btnPerformPairwiseMean.getSelection()){//if checked
+					activatePerformPairwiseOptions(true);
+					if(btnCompareWithControl.getSelection()) activateLevelOfConrolsOptions(true);
+				}
+				else{//if unchecked
+					activatePerformPairwiseOptions(false);
+					
+				}
+			}
+		});
+		btnPerformPairwiseMean.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		btnPerformPairwiseMean.setText("Perform Pairwise Mean Comparison");
+		
+		lblLevelOfSignificance = new Label(cmpStatistics, SWT.NONE);
+		lblLevelOfSignificance.setEnabled(false);
+		lblLevelOfSignificance.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblLevelOfSignificance.setText("Level of Significance:");
+		
+		txtSigLevel = new Text(cmpStatistics, SWT.BORDER);
+		txtSigLevel.setEnabled(false);
+		txtSigLevel.setText("0.05");
+		GridData gd_txtSigLevel = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_txtSigLevel.widthHint = 33;
+		txtSigLevel.setLayoutData(gd_txtSigLevel);
+		
+		btnAllComparisons = new Button(cmpStatistics, SWT.RADIO);
+		btnAllComparisons.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				activateLevelOfConrolsOptions(false);
+			}
+		});
+		btnAllComparisons.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		btnAllComparisons.setText("Perform all comparisons");
+		btnAllComparisons.setEnabled(false);
+		new Label(cmpStatistics, SWT.NONE);
+		new Label(cmpStatistics, SWT.NONE);
+		
+		btnCompareWithControl = new Button(cmpStatistics, SWT.RADIO);
+		btnCompareWithControl.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(btnCompareWithControl.getSelection()){//if selected
+					activateLevelOfConrolsOptions(true);
+				}
+				else{
+					
+				}
+			}
+		});
+		btnCompareWithControl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		btnCompareWithControl.setText("Compare with control(s)");
+		btnCompareWithControl.setEnabled(false);
+		new Label(cmpStatistics, SWT.NONE);
+		new Label(cmpStatistics, SWT.NONE);
+		
+		lblSpecifyControl = new Label(cmpStatistics, SWT.NONE);
+		lblSpecifyControl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		lblSpecifyControl.setText("Specify Control(s)");
+		lblSpecifyControl.setEnabled(false);
+		new Label(cmpStatistics, SWT.NONE);
+		new Label(cmpStatistics, SWT.NONE);
+		
+		lblLevelsofFactor = new Label(cmpStatistics, SWT.NONE);
+		lblLevelsofFactor.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		lblLevelsofFactor.setText("Treatment Levels:");
+		lblLevelsofFactor.setEnabled(false);
+		new Label(cmpStatistics, SWT.NONE);
+		
+		lblControls = new Label(cmpStatistics, SWT.NONE);
+		lblControls.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		lblControls.setText("Control(s):");
+		lblControls.setEnabled(false);
+		
+		lstLevelsofFactor = new List(cmpStatistics, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		lstLevelsofFactor.setEnabled(false);
+		GridData gd_lstLevelsofFactor = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_lstLevelsofFactor.heightHint = 80;
+		gd_lstLevelsofFactor.widthHint = 190;
+		lstLevelsofFactor.setLayoutData(gd_lstLevelsofFactor);
+		lstLevelsofFactor.addMouseListener(new MouseListener(){
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				// TODO Auto-generated method stub
+				//				List list=(List) e.getSource();
+				dataManipulationManager.moveSelectedStringFromTo( lstLevelsofFactor, lstControls);
+				btnAddLevelsofFactor.setEnabled(false);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				// TODO Auto-generated method stub
+				if(lstLevelsofFactor.getSelectionIndex()>-1){
+					btnAddLevelsofFactor.setEnabled(true);
+					lstControls.setSelection(-1);
+					String[] s=lstLevelsofFactor.getSelection();
+					btnAddLevelsofFactor.setText("Add");
+					btnAddLevelsofFactor.setEnabled(true);
+				}
+			}
+
+			@Override
+			public void mouseUp(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+		btnAddLevelsofFactor = new Button(cmpStatistics, SWT.NONE);
+		btnAddLevelsofFactor.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(lstLevelsofFactor.getSelectionCount()>0) {//if the purpose is to add
+					String selectedNumVars[] = lstLevelsofFactor.getSelection();
+					for(int i=0; i< selectedNumVars.length; i++){
+						lstControls.add(selectedNumVars[i]);
+					}
+					lstLevelsofFactor.remove(lstLevelsofFactor.getSelectionIndices());
+					btnAddLevelsofFactor.setEnabled(false);
+				}
+				else{//if the purpose is to remove
+					String selectedNumVars[] = lstControls.getSelection();
+					for(int i=0; i< selectedNumVars.length; i++){
+						lstLevelsofFactor.add(selectedNumVars[i]);
+					}
+					lstControls.remove(lstControls.getSelectionIndices());
+				}
+				btnAddLevelsofFactor.setEnabled(false);
+			}
+		});
+		GridData gd_btnAddLevelsofFactor = new GridData(SWT.CENTER, SWT.CENTER, false, true, 1, 1);
+		gd_btnAddLevelsofFactor.widthHint = 60;
+		btnAddLevelsofFactor.setLayoutData(gd_btnAddLevelsofFactor);
+		btnAddLevelsofFactor.setText("Add");
+		btnAddLevelsofFactor.setEnabled(false);
+		
+		lstControls = new List(cmpStatistics, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		lstControls.setEnabled(false);
+		GridData gd_lstControls = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_lstControls.heightHint = 80;
+		gd_lstControls.widthHint = 185;
+		lstControls.setLayoutData(gd_lstControls);
+		lstControls.addMouseListener(new MouseListener(){
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				// TODO Auto-generated method stub
+				//				List list=(List) e.getSource();
+				dataManipulationManager.moveSelectedStringFromTo( lstControls, lstLevelsofFactor);
+				btnAddLevelsofFactor.setEnabled(false);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				// TODO Auto-generated method stub
+				if(lstControls.getSelectionIndex()>-1){
+					btnAddLevelsofFactor.setEnabled(true);
+					lstLevelsofFactor.setSelection(-1);
+					String[] s=lstControls.getSelection();
+					btnAddLevelsofFactor.setText("Remove");
+					btnAddLevelsofFactor.setEnabled(true);
+				}
+			}
+
+			@Override
+			public void mouseUp(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+		
+		Group grpGraph = new Group(cmpStatistics, SWT.NONE);
+		grpGraph.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+		grpGraph.setText("Graph");
+		grpGraph.setLayout(new GridLayout(3, false));
+		
+		btnBoxplot = new Button(grpGraph, SWT.CHECK);
+		btnBoxplot.setText("Boxplot of the raw data");
+		new Label(grpGraph, SWT.NONE);
+		new Label(grpGraph, SWT.NONE);
+		
+		btnHistogram = new Button(grpGraph, SWT.CHECK);
+		btnHistogram.setText("Histogram of the raw data");
+		new Label(grpGraph, SWT.NONE);
+		new Label(grpGraph, SWT.NONE);
+		
+		btnHeatmap = new Button(grpGraph, SWT.CHECK);
+		btnHeatmap.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(!btnHeatmap.getSelection()){
+					btnSpecifyRowCol.setEnabled(false);
+					resetHeatMap();
+				}else{
+					btnSpecifyRowCol.setEnabled(true);
+				}
+					
+			}
+		});
+		btnHeatmap.setText("Heatmap of the residuals");
+		new Label(grpGraph, SWT.NONE);
+		
+		btnSpecifyRowCol = new Button(grpGraph, SWT.NONE);
+		btnSpecifyRowCol.setEnabled(false);
+		btnSpecifyRowCol.addSelectionListener(new SelectionAdapter() {
+			
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ArrayList<String> varInfo = dataManipulationManager.getVarInfoFromFile(filePath);
+				SpecifyRowColDialog rowColDialog = new SpecifyRowColDialog(getShell(), dataManipulationManager.getListItems(varInfo));
+				rowColDialog.open();
+				if(rowColDialog.getReturnCode()==0){
+					heatmapRow = rowColDialog.getHeatRow();
+					heatmapColumn = rowColDialog.getHeatColumn();
+					selectedHeatMapVars=true;
+				}
+				else selectedHeatMapVars=false;
+			}
+		});
+		btnSpecifyRowCol.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, false, false, 1, 1));
+		btnSpecifyRowCol.setText("Specify Row/Column");
+		
+		btnDiagnosticplots = new Button(grpGraph, SWT.CHECK);
+		btnDiagnosticplots.setText("Diagnostic plots");
+		new Label(grpGraph, SWT.NONE);
+		new Label(grpGraph, SWT.NONE);
+		
+		Group grpDisplay = new Group(cmpStatistics, SWT.NONE);
+		grpDisplay.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		grpDisplay.setText("Display");
+		grpDisplay.setLayout(new GridLayout(1, false));
+		
+		btnStatistics = new Button(grpDisplay, SWT.CHECK);
+		btnStatistics.setText("Descriptive Statistics");
+		
+		btnVarComponents = new Button(grpDisplay, SWT.CHECK);
+		btnVarComponents.setText("Variance Components");
+
+		initializeList();
+		return container;
+	}
+
+	
+	protected void resetGenotypeControls() {
+		// TODO Auto-generated method stub
+		lstLevelsofFactor.removeAll();
+		lstControls.removeAll();
+	}
+	
+	protected void activateFixedOptions(boolean state) {
+		// TODO Auto-generated method stub
+	
+		btnPerformPairwiseMean.setEnabled(state);
+		activatePerformPairwiseOptions(state);
+		if(state) btnPerformPairwiseMean.setSelection(state);
+	
+	}
+
+	protected void activatePerformPairwiseOptions(boolean state) {
+		// TODO Auto-generated method stub
+		btnCompareWithControl.setEnabled(state);
+		txtSigLevel.setEnabled(state);
+		lblLevelOfSignificance.setEnabled(state);
+		btnCompareWithControl.setSelection(state);
+		btnAllComparisons.setEnabled(state);
+		if(state){
+			if(factorLevels.length>15){
+				btnCompareWithControl.setSelection(true);
+				activateLevelOfConrolsOptions(true);
+				btnAllComparisons.setSelection(false);
+				btnAllComparisons.setEnabled(false);
+			}
+			else{
+				btnAllComparisons.setEnabled(true);
+			}
+		}
+	}
+
+	protected void activateRandomOptions(boolean state) {
+		// TODO Auto-generated method stub
+	
+	}
+
+	protected void activateLevelOfConrolsOptions(boolean state) {
+		// TODO Auto-generated method stub
+		lblSpecifyControl.setEnabled(state);
+		lblLevelsofFactor.setEnabled(state);
+		lblControls.setEnabled(state);
+		lstLevelsofFactor.setEnabled(state);
+		lstControls.setEnabled(state);
+	}
+
+	protected void resetHeatMap() {
+		// TODO Auto-generated method stub
+		heatmapRow = null;
+		heatmapColumn = null;
+		selectedHeatMapVars=false;
+	}
+	
+	@Override
+	protected void buttonPressed(int ID){
+		if(ID == IDialogConstants.OK_ID){
+			okPressed();
+		}
+		else if(ID == IDialogConstants.CANCEL_ID){
+			cancelPressed();
+		}
+		else if (ID == IDialogConstants.RETRY_ID){
+			resetDialog();
+		}
+	}
+		
+	void resetDialog(){
+		lstFactorVariables.removeAll();
+		lstNumericVariables.removeAll();
+		lstVariables.removeAll();
+		txtRow.setText("");
+		txtTrt.setText("");
+		txtCol.setText("");
+		txtAnalysisPerSet.setText("");
+		btnAddSet.setText("Add");
+		btnAddRow.setText("Add");
+		btnAddTrt.setText("Add");
+		btnAddCol.setText("Add");
+		btnAddSet.setEnabled(false);
+		btnAddRow.setEnabled(false);
+		btnAddTrt.setEnabled(false);
+		btnAddCol.setEnabled(false);
+		btnAddSingleVariable.setEnabled(false);
+		lstLevelsofFactor.removeAll();
+		lstLevelsofFactor.setEnabled(false);
+		lstControls.removeAll();
+		lstControls.setEnabled(false);
+		btnPerformPairwiseMean.setSelection(false);
+		btnAllComparisons.setEnabled(false);
+		btnAllComparisons.setSelection(false);
+		btnCompareWithControl.setEnabled(false);
+		lblSpecifyControl.setEnabled(false);
+		lblLevelsofFactor.setEnabled(false);
+		lblControls.setEnabled(false);
+		lblLevelOfSignificance.setEnabled(false);
+		txtSigLevel.setEnabled(false);
+		btnBoxplot.setSelection(false);
+		btnHistogram.setSelection(false);
+		btnHeatmap.setSelection(false);
+		btnDiagnosticplots.setSelection(false);
+		btnSpecifyRowCol.setEnabled(false);
+		btnStatistics.setSelection(false);
+		btnVarComponents.setSelection(false);
+		
+		listManager.initializeFactorList(lstFactorVariables, filePath);
+		listManager.initializeNumericList(lstNumericVariables, filePath);
+	}
+	
+	@Override
+	protected void okPressed(){
+		
+
+		String dataFileName = filePath.replace(Pattern.quote(File.separator), "/");
+		String resultFolderPath = StarAnalysisUtilities.createOutputFolder(filePath, "BalancedIncompleteBlockDesign");
+		String design = "AugLS";
+		String environment =  (txtAnalysisPerSet.getText().isEmpty()) ? null : txtAnalysisPerSet.getText();
+		String factor = txtTrt.getText();
+		String block = null;
+		String rep = null;
+		String row = txtRow.getText();
+		String column = txtCol.getText();
+		String performPairwise = null;
+		String heatmapRow = null;
+		String heatmapColumn = null;
+		String[] control = lstControls.getItems();
+		String[] respvars = lstVariables.getItems();
+		boolean descriptiveStat = btnStatistics.getSelection(); 
+		boolean varianceComponents = btnVarComponents.getSelection();
+		boolean boxplotRawData = btnBoxplot.getSelection();
+		boolean histogramRawData = btnHistogram.getSelection();
+		boolean heatmapResiduals = btnHeatmap.getSelection();
+		boolean diagnosticPlot = btnDiagnosticplots.getSelection();
+		double levelSig = Double.parseDouble(txtSigLevel.getText());
+		satisfiedAllConditions=true;
+		
+		if(lstVariables.getItemCount()<1){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a response variable.");
+		}
+		else if(txtTrt.getText().isEmpty()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a treatment variable.");
+		}
+		else if(txtRow.getText().isEmpty()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a Row variable.");
+		}
+		else if(txtCol.getText().isEmpty()){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a Column variable.");
+		}
+		else if(heatmapResiduals && !selectedHeatMapVars){
+			MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please specify the heatmap rows/colums.");
+		}
+		
+		else{
+		if(btnPerformPairwiseMean.getSelection()){
+			if(btnCompareWithControl.getSelection()){
+				performPairwise = "control";
+			}
+			else{
+				performPairwise = "all";						
+			}
+		}
+		else{
+			performPairwise = "null";
+		}
+		if(btnPerformPairwiseMean.getSelection()){
+			pairwiseAlpha = txtSigLevel.getText();
+			if(pairwiseAlpha.equals("")){
+				MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please enter a value for the pairwise level of significance.");
+				satisfiedAllConditions=false;
+			}
+			else{
+				compareControl = btnCompareWithControl.getSelection();
+				performAllPairwise = btnPerformPairwiseMean.getSelection();
+				if(compareControl){
+					controlLevels = lstControls.getItems();
+					if(controlLevels.length<1){
+						MessageDialog.openWarning(getShell(), "Enter Required Fields", "Please specify control variables from the factor levels.");
+						satisfiedAllConditions=false;
+					}
+				}
+			}
+		}
+		
+		if(satisfiedAllConditions){
+		OperationProgressDialog rInfo = new OperationProgressDialog(
+				getShell(), "Star Analysis");
+		rInfo.open();
+		btnOk.setEnabled(false);
+		
+		ProjectExplorerView.rJavaManager.getSTARAnalysisManager().doUnbalancedAnalysis(
+				dataFileName, 
+				resultFolderPath.replace(Pattern.quote(File.separator), "/"), 
+				design, 
+				respvars, 
+				environment, 
+				factor,
+				block, 
+				rep, 
+				row, 
+				column, 
+				descriptiveStat, 
+				varianceComponents, 
+				performPairwise, 
+				levelSig, 
+				control, 
+				boxplotRawData, 
+				histogramRawData, 
+				heatmapResiduals, 
+				heatmapRow, 
+				heatmapColumn, 
+				diagnosticPlot);
+		
+		StarAnalysisUtilities.testVarArgs(
+				dataFileName, 
+				resultFolderPath.replace(Pattern.quote(File.separator), "/"), 
+				design, 
+				respvars, 
+				environment, 
+				factor,
+				block, 
+				rep, 
+				row, 
+				column, 
+				descriptiveStat, 
+				varianceComponents, 
+				performPairwise, 
+				levelSig, 
+				control, 
+				boxplotRawData, 
+				histogramRawData, 
+				heatmapResiduals, 
+				heatmapRow, 
+				heatmapColumn, 
+				diagnosticPlot);
+
+		this.getShell().setMinimized(true);
+		StarAnalysisUtilities.openAndRefreshFolder(resultFolderPath);
+		btnOk.setEnabled(true);
+		rInfo.close();
+		}
+		}
+	}
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.RETRY_ID, "Reset", false);
+		btnOk = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+
+	private void initializeList(){
+
+		listManager.initializeSingleButtonList(lstNumericVariables, lstVariables, btnAddSingleVariable);
+		listManager.initializeFactorList(lstFactorVariables, filePath);
+		listManager.initializeNumericList(lstNumericVariables, filePath);
+		listManager.initializeVariableMoveList(lstNumericVariables, lstFactorVariables, btnSetToFactor, filePath);
+		listManager.initializeSingleSelectionList(lstFactorVariables, txtAnalysisPerSet, btnAddSet);
+		listManager.initializeSingleSelectionList(lstFactorVariables, txtTrt, btnAddTrt, new TreatmentListValidator(lstFactorVariables));
+		listManager.initializeSingleSelectionList(lstFactorVariables, txtRow, btnAddRow);
+		listManager.initializeSingleSelectionList(lstFactorVariables, txtCol, btnAddCol);
+		
+	}
+
+	@Override
+	protected Point getInitialSize() {
+		return new Point(582, 564);
+	}
+	
+	public class TreatmentListValidator extends DialogListValidator{
+		private List factorList;
+		private DialogFormUtility dlgHelper = new DialogFormUtility();
+		public TreatmentListValidator(List factorList){
+			super();
+			this.factorList = factorList;
+		}
+		
+		@Override
+		public boolean performAddProcess(){
+			String selectedStrings[] = factorList.getSelection();
+			factorLevels = DataManipulationManager.getEnvtLevels(selectedStrings[0], new File(filePath));
+			lstLevelsofFactor.add(factorList.getSelection()[0]);
+					
+			lstLevelsofFactor.setItems(factorLevels);
+			activatePerformPairwiseOptions(btnPerformPairwiseMean.getSelection());
+			return true;
+		}
+		@Override
+		public void performRemoveProcess(){
+			lstLevelsofFactor.removeAll();
+			lstControls.removeAll();
+			resetGenotypeControls();
+		}
+		
+		@Override
+		public boolean validate(){
+			if(dlgHelper.getVariableLevels(filePath, factorList.getSelection()[0]) > 1){				
+				return true;
+			}
+			else{
+				return false;
+			}			
+		}
+	}
+}

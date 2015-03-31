@@ -1,0 +1,152 @@
+package org.irri.breedingtool.utility;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Arrays;
+
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.widgets.Display;
+import org.mozilla.universalchardet.UniversalDetector;
+
+public class GeneralUtility {
+	
+
+	
+	public static String replaceLast(String string, String toReplace, String replacement) {
+	    int pos = string.lastIndexOf(toReplace);
+	    if (pos > -1) {
+	        return string.substring(0, pos)
+	             + replacement
+	             + string.substring(pos + toReplace.length(), string.length());
+	    } else {
+	        return string;
+	    }
+	}
+	
+	public static boolean isFileValidData(String filePath){
+		
+		
+		if(filePath == null) return false;
+		if(!filePath.endsWith(".csv")) return false;
+		return true;
+			
+	}
+
+	public static 	boolean validateFileName(String value){
+	
+		char[] charSet = value.toCharArray() ;
+		
+		if(!Character.isLetter(charSet[0])) return false;
+		
+		for(int i = 1; i < charSet.length; i++){
+			if( !Character.isLetterOrDigit(charSet[i]) && charSet[i]!= '.'  && charSet[i]!= '_'  && charSet[i]!= ' '   && charSet[i]!= '-'  ){
+			
+				return false;
+			}
+			if(i == charSet.length - 1 && !Character.isLetterOrDigit(charSet[i])) return false;
+		}
+		return true;
+	}	
+	 public static String getFileExtension(String fullPath) {
+		    int dot = fullPath.lastIndexOf('.');
+		    return fullPath.substring(dot + 1);
+		  }
+	 public static boolean isClipboardEmpty(){
+			Clipboard clipboard = new Clipboard(Display.getCurrent());
+
+			String[] data = (String[]) clipboard.getContents(FileTransfer.getInstance());
+			if(data == null) return true;
+			return false;
+			
+	 }
+	public static String combineArrayOfString(String[] s, String glue)
+	 {
+	   int k=s.length;
+	   if (k==0)
+	     return null;
+	   StringBuilder out=new StringBuilder();
+	   out.append(s[0]);
+	   for (int x=1;x<k;++x)
+	     out.append(glue).append(s[x]);
+	   return out.toString();
+	 }
+	
+	public static boolean isDirectoryWritable(String folderPath){
+	
+		if(true) return true;
+		String fileName = System.currentTimeMillis() + ".tmp";
+		File tempFile = new File(folderPath, fileName);
+	
+		try {
+			new FileOutputStream(tempFile);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			System.out.println(e.getMessage());
+			return false;
+		}
+		finally{
+			tempFile.delete();
+			return true;
+			
+		}
+	}
+	
+	public static <T> T[] arrayConcatAll(T[] first, T[]... rest) {
+		  int totalLength = first.length;
+		  for (T[] array : rest) {
+		    totalLength += array.length;
+		  }
+		  T[] result = Arrays.copyOf(first, totalLength);
+		  int offset = first.length;
+		  for (T[] array : rest) {
+		    System.arraycopy(array, 0, result, offset, array.length);
+		    offset += array.length;
+		  }
+		  return result;
+		}
+	
+	public static String getFileEncoding(String filePath){
+		 byte[] buf = new byte[4096];
+		    String fileName = filePath;
+		    java.io.FileInputStream fis = null;
+			try {
+				fis = new java.io.FileInputStream(fileName);
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		    // (1)
+		    UniversalDetector detector = new UniversalDetector(null);
+
+		    // (2)
+		    int nread;
+		    try {
+				while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+				  detector.handleData(buf, 0, nread);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		    // (3)
+		    detector.dataEnd();
+
+		    // (4)
+		    String encoding = detector.getDetectedCharset();
+		    if (encoding != null) {
+		      System.out.println("Detected encoding = " + encoding);
+		      return encoding;
+		    } else {
+		      System.out.println("No encoding detected.");
+		      return null;
+		      
+		    }
+
+		    // (5)
+	}
+
+}

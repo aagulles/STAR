@@ -1,0 +1,80 @@
+Statistical Tool for Agricultural Research (STAR)
+Wed May 08 13:37:50 2013
+
+Summary Information
+------------------------------------ 
+FACTOR  NO. OF LEVELS  LEVELS       
+------------------------------------ 
+Gen     8              1, 2, ..., 8 
+Blk     4              1, 2, 3, 4   
+------------------------------------ 
+Number of Observations: 64 
+
+
+DESCRIPTIVE STATISTICS
+--------------------------------------------- 
+Variable   N_Obs    Min    Max   Mean  StdDev
+--------------------------------------------- 
+Y1            64  29.80  57.30  42.74    6.22
+Y2            64  15.20  25.80  20.16    3.25
+--------------------------------------------- 
+
+
+CORRELATION ANALYSIS 
+
+Pearson's product-moment correlation, Prob > |r|
+
+                     Y1        Y2
+Y1   coef          1.00      0.11
+     p-value               0.4037
+     n               64        64
+Y2   coef          0.11      1.00
+     p-value     0.4037          
+     n               64        64
+
+
+
+
+BOX'S M TEST FOR HOMOGENEITY OF COVARIANCE MATRICES
+---------------------------------------------------
+ Box M   F      df1 df2   Prob  
+ 14.9457 0.6278 21  11240 0.9020
+
+
+BARTLETT'S SPHERICITY TEST
+--------------------------
+ Statistic  Value  Df Prob  
+ Chi-Square 0.6972 1  0.4037
+
+
+SUM OF SQUARES AND PRODUCTS FOR THE HYPOTHESIS 
+----------------------------------------------
+
+TERM: Gen 
+
+         Y1       Y2
+Y1 1317.499 -191.648
+Y2 -191.648  329.170
+
+TERM: Blk 
+
+        Y1     Y2
+Y1 218.557 -7.495
+Y2  -7.495  1.205
+
+
+SUM OF SQUARES AND PRODUCTS FOR ERROR
+-------------------------------------
+        Y1      Y2
+Y1 897.658 334.340
+Y2 334.340 335.895
+
+
+MULTIVARIATE ANALYSIS OF VARIANCE IN RCBD
+-----------------------------------------
+          Df Pillai approx F num Df den Df   Pr(>F)    
+Gen        7 1.1426   10.090     14    106 5.44e-14 ***
+Blk        3 0.2966    3.076      6    106  0.00814 ** 
+Residuals 53                                           
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 

@@ -1,0 +1,857 @@
+package org.irri.breedingtool.datamanipulation.data.view;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
+import java.util.regex.Pattern;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+
+import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.e4.ui.di.Persist;
+import org.eclipse.e4.ui.di.PersistState;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.workbench.modeling.EPartService;
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
+import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.wb.swt.ResourceManager;
+import org.irri.breedingtool.application.handler.DialogHandler;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.application.model.ProjectExplorerTreeNodeModel;
+import org.irri.breedingtool.datamanipulation.dialog.EditVariableInfoDialog;
+import org.irri.breedingtool.datamanipulation.handler.AggregateHandler;
+import org.irri.breedingtool.datamanipulation.handler.AppendHandler;
+import org.irri.breedingtool.datamanipulation.handler.CreateNewVariableHandler;
+import org.irri.breedingtool.datamanipulation.handler.DeleteColumnMenuHandler;
+import org.irri.breedingtool.datamanipulation.handler.DeleteRowMenuHandler;
+import org.irri.breedingtool.datamanipulation.handler.InsertColumnMenuHandler;
+import org.irri.breedingtool.datamanipulation.handler.InsertRowMenuHandler;
+import org.irri.breedingtool.datamanipulation.handler.MergeHandler;
+import org.irri.breedingtool.datamanipulation.handler.ReshapeToLongHandler;
+import org.irri.breedingtool.datamanipulation.handler.ReshapeToWideHandler;
+import org.irri.breedingtool.datamanipulation.handler.SaveAsFileHandler;
+import org.irri.breedingtool.datamanipulation.handler.SortHandler;
+import org.irri.breedingtool.datamanipulation.handler.SubsetHandler;
+import org.irri.breedingtool.manager.impl.DataManipulationManager;
+import org.irri.breedingtool.manager.impl.FileNameValidator;
+import org.irri.breedingtool.manager.impl.ProjectExplorerManager;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.projectexplorer.view.RJavaManagerInitializer;
+import org.irri.breedingtool.utility.WindowDialogControlUtil;
+
+import swing2swt.layout.BorderLayout;
+//import org.mozilla.universalchardet.UniversalDetector;
+public class FileTableViewer {
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	public static boolean invalidDataDetected=false;
+	static File openedFile;
+	static ArrayList<String> s;
+	private boolean needToSave = false;
+	static ProjectExplorerTreeNodeModel openedFileModel;
+	private ProjectExplorerTreeNodeModel fileModel;
+	private int columnSize;
+	private int selColumn;
+	private int selRow;
+	private String[] columnHeaderNames;
+	private String[] columnType;
+	private Text text;
+	private String delimiter, fileType;
+	private static String newFileType, newDelimiter;
+	private static int newfileFormat;
+	private File tableFile;
+	private Table table;
+	private TableItem selectedItem;
+	private	TableColumn selectedColumn;
+	private Listener columnHeaderListener;
+	private DataManipulationManager dataManipulationManager;
+	private Shell parentShell;
+	private ToolBar toolBarDataManipulation;
+	private ToolItem toolItemDeleteColumn;
+	private ToolItem toolItemSave;
+	private ToolItem toolItemSaveAs;
+	private ToolItem toolItemInsertColumn;
+	private ToolItem toolItemInsertRow;
+	private ToolItem toolItemDeleteRow;
+	private ToolItem toolItemSort;
+	private ToolItem toolItemMerge;
+	private ToolItem toolItemAppend;
+	private ToolItem toolItemSubset;
+	private ToolItem toolItemAggregate;
+	private ToolItem toolItemCreateNewVariable;
+	private ArrayList<String> varInfo;
+	private ToolItem tltmEditvarinfo;
+	private ToolItem tltmTolong;
+	private ToolItem tltmTowide;
+	protected int fileFormat;
+	private ArrayList<String> tableData = new ArrayList<String>();
+	private ProjectExplorerManager projectExplorerManager;
+	private ToolItem tltmConvertToCsv;
+	private ProjectExplorerManager projExpMan =  new ProjectExplorerManager();
+	private Clipboard clipboard;
+	private MenuItem mntmCopy;
+	private MenuItem mntmPaste;
+	private MenuItem mntmSelectAll;
+	private long lastModified;
+	@Inject
+	public FileTableViewer(final Composite parent) {
+		this.parentShell = parent.getShell();
+		this.fileType = newFileType;
+		this.varInfo = s;
+		invalidDataDetected=false;
+		delimiter=newDelimiter;
+		fileFormat = newfileFormat;
+		fileModel = openedFileModel;
+		dataManipulationManager= new DataManipulationManager();
+
+		Composite composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(new BorderLayout(0, 10));
+
+		parent.getShell().addShellListener(new ShellAdapter(){
+			@Override
+			public void shellActivated(ShellEvent e) {
+				// TODO Auto-generated method stub
+				WindowDialogControlUtil.hideAllWindowDialog();
+				// dataManipulationManager.removeTable(table);
+			}
+		});
+
+		table = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.VIRTUAL);
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+
+		columnHeaderListener = new Listener() {
+			public void handleEvent(Event e) {
+				table.deselectAll();
+				try{
+					selectedColumn.setImage(null);
+				}
+				catch (NullPointerException npe){}//if there's no selected column yet
+				catch (SWTException swr){}//if widget disposed
+				selectedColumn = (TableColumn) e.widget;
+				//				selectedColumn.setImage(new Image(Display.getDefault(), getClass().getResourceAsStream("/image/selected.png")));System.getProperty ("user.dir") + "\\Projects\\SampleProject"
+				selectedColumn.setImage(new Image(Display.getDefault(), System.getProperty ("user.dir") + File.separator + "icons" + File.separator +"selected.png"));
+				columnHeaderNames = dataManipulationManager.updateColHeaderNames(table, columnHeaderNames);
+				for(int i=1; i<table.getColumnCount();i++){
+					System.out.println(columnHeaderNames[i-1] +"index" + Integer.toString(i));
+					if(columnHeaderNames[i-1].equals(selectedColumn.getText())) selectedColumn.setData("index", i);
+				}
+				table.setData("selectedColumn", selectedColumn);
+			}
+		};
+
+		//New: Get all the TableData and load it into a ArrayList
+		try {
+			tableData.addAll(Arrays.asList(
+					TxtFileViewer.readFileAsString(openedFileModel.getProjectFile().getAbsolutePath(),null).split(System.getProperty("line.separator") )
+					));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		//New: Set the table's itemCount
+		table.setData("columnHeaderListener", columnHeaderListener);
+		table.setItemCount(tableData.size() - 1);
+		table.setData("ID",fileModel.getProjectFile().getAbsolutePath());
+		table.setData("fileFormat",fileFormat);
+		table.setData("selectedColumn", selectedColumn);
+		table.setData("delimiter",delimiter);
+		table.setData("tableData",tableData);
+		DataManipulationManager.addTable(table);
+
+		String[] columnString =tableData.get(0).replaceAll("\"","").split(delimiter);
+		TableColumn tblColumn = new TableColumn(table, SWT.RIGHT);
+		tblColumn.setResizable(false);
+		tblColumn.setWidth(50);
+		boolean columnNameHadSpaces=false;
+		if(!dataManipulationManager.isMatchColumnHeaders(columnString, varInfo)){
+			columnString = dataManipulationManager.getListItems(varInfo);
+			columnNameHadSpaces = true;
+			dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+		}
+
+		columnHeaderNames = columnString;
+		table.setData("columnHeaderNames", columnHeaderNames);
+		for(int i = 0; i < columnString.length; i++){
+			tblColumn = new TableColumn(table, SWT.NONE);
+			tblColumn.setWidth(100);
+			tblColumn.setData("index",i + 1);
+			tblColumn.setText(columnString[i]);
+			tblColumn.addListener(SWT.Selection, columnHeaderListener);
+		}
+
+		if(columnNameHadSpaces){
+			MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Invalid column names detected.", "The column names were modified.\n\nYou can change the column names using: Data -> Edit Variable Information. ");
+		}
+
+		final int PAGE_SIZE = 64;
+		tableData.remove(0);
+
+		table.addListener (SWT.SetData, new Listener () {
+			public void handleEvent (Event event) {
+				TableItem item = (TableItem) event.item;
+				int index = table.indexOf (item);
+				int start = index / PAGE_SIZE * PAGE_SIZE;
+				int end = Math.min (start + PAGE_SIZE, table.getItemCount ());
+
+				for (int i = start; i < end; i++) {
+					item = table.getItem (i);
+					item.setBackground(0, table.getShell().getBackground());
+					ArrayList<String> tableRow = new ArrayList<String>();
+					tableRow.add(String.valueOf(i + 1));//the row number
+					List<String> parseRowData = Arrays.asList(parseString(tableData.get(i).split(delimiter)));
+//					if(parseRowData.size()==table.getColumnCount()-1){
+					tableRow.addAll(parseRowData);
+					item.setText(tableRow.toArray(new String[tableRow.size()]));	
+//					}
+//					else{
+//						MessageDialog.openError(parent.getShell(), "Invalid Data", "Cannot open file.\n\n" +
+//								"An error was detected at row "+Integer.toString(i+1)+".\n\n" +
+//								"Please check your original file.");
+//						invalidDataDetected=true;
+//					}
+				}
+//				dataManipulationManager.updateRowNumberColumn(table);
+			}
+
+			private String[] parseString(String[] split){
+				// TODO Auto-generated method stub
+				//				System.out.println("parsing row data...");
+				ArrayList<String> parsedRowData = new ArrayList<String>();
+				String accumulatedString="";
+				for(String s: split){
+					if(s.contains("\"")){
+						accumulatedString=accumulatedString+s;
+						if(s.charAt(0)=='"' && !s.endsWith("\"")){
+							System.out.println("s: "+s);
+							accumulatedString=accumulatedString+",";
+//														System.out.println("accumulatedString: "+accumulatedString);
+						}
+						else{//reached end of String
+							parsedRowData.add(accumulatedString.replaceAll("\"",""));
+//														System.out.println("accumulatedString: "+accumulatedString);
+							accumulatedString="";
+						}
+					}
+					else if(accumulatedString.equals("")){//ibig sabihin, walang hinahanap na partner yung ""
+//												System.out.println(s+"does not contain \"");
+						parsedRowData.add(s);
+					}
+					else{//kasama pa din sya sa accumulated String baka pinagitnaan lang ng comma.
+						accumulatedString=accumulatedString+s+",";
+					}
+				}
+				return parsedRowData.toArray(new String[parsedRowData.size()]);
+			}
+		});
+		table.getColumn(0).setAlignment(SWT.RIGHT);
+		final TableEditor editor = new TableEditor(table);
+
+//		if(!invalidDataDetected){
+			dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+			dataManipulationManager.saveOriginal(fileModel.getProjectFile(), table, delimiter); //create original file
+//		}
+		Menu copyPasteMenu = new Menu(table);
+		table.setMenu(copyPasteMenu);
+		mntmCopy = new MenuItem(copyPasteMenu, SWT.NONE);
+		mntmCopy.setText("Copy");
+		mntmCopy.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				if(table.getSelectionCount()>0){
+					String selectedText = getSelectedDataFrom(table);
+					copySelectedTableDataToClipboard(selectedText);
+				}else{
+					MessageDialog.openWarning(parent.getShell(), "No selected Items to copy.", "Please select the rows from the table that you want to copy!");
+				}
+			}
+		});
+
+		mntmPaste = new MenuItem(copyPasteMenu, SWT.NONE);
+		mntmPaste.setText("paste");
+		mntmPaste.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				if(table.getSelectionCount()<1) table.select(0);
+				String clipboardText = getTextFromClipBoard();
+				pasteClipBoardTextTo(table, clipboardText);
+			}
+		});
+
+		mntmSelectAll = new MenuItem(copyPasteMenu, SWT.NONE);
+		mntmSelectAll.setText("Select All");
+		mntmSelectAll.addListener(SWT.Selection, new Listener() {
+			public void handleEvent(Event event) {
+				table.setSelection(table.getItems());
+			}
+		});
+
+		toolBarDataManipulation = new ToolBar(composite, SWT.RIGHT | SWT.SHADOW_OUT);
+		toolBarDataManipulation.setLayoutData(BorderLayout.NORTH);
+
+		tableInfoLabel = new Label(composite, SWT.NONE);
+		tableInfoLabel.setLayoutData(BorderLayout.SOUTH);
+		tableInfoLabel.setText("Column(s): "+Integer.toString(table.getColumnCount()-1)+"   Row(s): "+Integer.toString(table.getItemCount()));
+		table.setData("tableInfoLabel", tableInfoLabel);
+
+		if(fileModel.getProjectFile().getAbsolutePath().toString().endsWith("csv")){
+			toolItemSave = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemSave.setSelection(true);
+			toolItemSave.setEnabled(false);
+			toolItemSave.setImage(ResourceManager.getPluginImage("Star", "icons/save_edit.gif"));
+			toolItemSave.setToolTipText("Save Changes");
+			toolItemSave.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					dataManipulationManager.saveOriginal(fileModel.getProjectFile(), table, delimiter);
+					PartStackHandler.setPartSaved(fileModel.getProjectFile().getAbsolutePath());
+					toolItemSave.setEnabled(false);
+				}
+			});
+
+			table.setData("saveBtn",toolItemSave);
+
+			toolItemSaveAs = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemSaveAs.setImage(ResourceManager.getPluginImage("Star", "icons/saveas.png"));
+			toolItemSaveAs.setToolTipText("Save File as...");
+			toolItemSaveAs.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					SaveAsFileHandler.execute(fileModel, table);
+					//					refreshExplorer();
+				}
+			});
+
+			toolItemCreateNewVariable = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemCreateNewVariable.setImage(ResourceManager.getPluginImage("Star", "icons/new_var.png"));
+			toolItemCreateNewVariable.setToolTipText("Create New Variable");
+			toolItemCreateNewVariable.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					CreateNewVariableHandler.execute(fileModel, fileFormat, delimiter);
+				}
+			});
+
+			tltmEditvarinfo = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			tltmEditvarinfo.setImage(ResourceManager.getPluginImage("Star", "icons/edit_var.png"));
+			tltmEditvarinfo.setToolTipText("Edit Variable Info");
+			tltmEditvarinfo.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					EditVariableInfoDialog newVarDlg = new EditVariableInfoDialog(parent.getShell(), varInfo, fileModel);
+					newVarDlg.open();
+					varInfo = newVarDlg.getVarInfo();//edit this part to save info to tmp file
+				}
+			});
+
+			toolItemInsertColumn = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemInsertColumn.setToolTipText("Insert Column");
+			toolItemInsertColumn.setImage(ResourceManager.getPluginImage("Star", "icons/table-insert-column-icon.png"));
+			toolItemInsertColumn.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					InsertColumnMenuHandler.execute(fileModel.getProjectFile(), table);
+				}// end-of-widget-selected
+			});
+
+			toolItemDeleteColumn = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemDeleteColumn.setToolTipText("Delete Column");
+			toolItemDeleteColumn.setImage(ResourceManager.getPluginImage("Star", "icons/table-delete-column-icon.png"));
+			toolItemDeleteColumn.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					DeleteColumnMenuHandler.execute(fileModel.getProjectFile(), table);
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+				}
+			});
+
+			toolItemInsertRow = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemInsertRow.setImage(ResourceManager.getPluginImage("Star", "icons/table-insert-row-icon.png"));
+			toolItemInsertRow.setToolTipText("Insert Row");
+			toolItemInsertRow.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					InsertRowMenuHandler.execute(table);
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+				}
+			});
+
+			toolItemDeleteRow = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemDeleteRow.setImage(ResourceManager.getPluginImage("Star", "icons/table-delete-row-icon.png"));
+			toolItemDeleteRow.setToolTipText("Delete Row");
+			toolItemDeleteRow.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					DeleteRowMenuHandler.execute(table);
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+				}
+			});
+
+			toolItemSort = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemSort.setToolTipText("Sort Data");
+			toolItemSort.setImage(ResourceManager.getPluginImage("Star", "icons/sort.png"));
+			toolItemSort.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					SortHandler.execute(fileModel, fileFormat, delimiter);
+				}
+			});
+
+			toolItemMerge = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemMerge.setToolTipText("Merge Data");
+			toolItemMerge.setImage(ResourceManager.getPluginImage("Star", "icons/merge.png"));
+			toolItemMerge.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					MergeHandler.execute(fileModel, fileFormat, delimiter);
+				}
+			});
+
+			toolItemAppend = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemAppend.setImage(ResourceManager.getPluginImage("Star", "icons/append.png"));
+			toolItemAppend.setToolTipText("Append Data");
+			toolItemAppend.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					AppendHandler.execute(fileModel, fileFormat, delimiter);
+				}
+			});
+
+			toolItemSubset = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemSubset.setToolTipText("Create Data Subset");
+			toolItemSubset.setImage(ResourceManager.getPluginImage("Star", "icons/subset.png"));
+			toolItemSubset.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					SubsetHandler.execute(fileModel, fileFormat, delimiter);
+				}
+			});
+
+			toolItemAggregate = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			toolItemAggregate.setImage(ResourceManager.getPluginImage("Star", "icons/aggreagate.png"));
+			toolItemAggregate.setToolTipText("Aggregate Data");
+			toolItemAggregate.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					AggregateHandler.execute(fileModel, fileFormat, delimiter);
+				}
+			});
+
+			tltmTolong = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			tltmTolong.setToolTipText("Reshape: to Long");
+			tltmTolong.setImage(ResourceManager.getPluginImage("Star", "icons/to_long.png"));
+			tltmTolong.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					ReshapeToLongHandler.execute(fileModel, fileFormat, delimiter);
+				}
+			});
+
+			tltmTowide = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			tltmTowide.setImage(ResourceManager.getPluginImage("Star", "icons/to_wide.png"));
+			tltmTowide.setToolTipText("Reshape: to Wide");
+			tltmTowide.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+					ReshapeToWideHandler.execute(fileModel, fileFormat, delimiter);
+				}
+			});		
+			//The editor must have the same size as the cell and must
+			//not be any smaller than 50 pixels.
+			editor.horizontalAlignment = SWT.LEFT;
+			editor.grabHorizontal = true;
+			editor.minimumWidth = 50;
+
+			table.addListener(SWT.MouseDown, new Listener() {
+				@Override
+				public void handleEvent(Event event) {
+
+					try{ selectedColumn.setImage(null); }catch (NullPointerException npe){}catch (SWTException se){}//unselect the selected column if there's any
+					//				if(fileModel.getProjectFile().getAbsolutePath().toString().endsWith(".csv"))toolItemSave.setEnabled(true);
+					Rectangle clientArea = table.getClientArea();
+					Point pt = new Point(event.x, event.y);
+					int index = table.getTopIndex();
+					while (index < table.getItemCount()) {
+						boolean visible = false;
+						selectedItem = table.getItem(index);
+						for (int i = 1; i < table.getColumnCount(); i++) {
+							Rectangle rect = selectedItem.getBounds(i);
+							if (rect.contains(pt)) {
+								final int column = i;
+								selRow = index;
+								selColumn = i;
+
+								text = new Text(table, SWT.NONE);
+								Listener textListener = new Listener() {
+									public void handleEvent(final Event e) {
+										switch (e.type) {
+										case SWT.FocusOut:
+											selectedItem.setText(column, text.getText());
+											//System.out.println("Select: " + table.getItem(table.getSelectionIndex()).getText());
+											ArrayList<String> newData = new ArrayList<String>();
+											for(int i = 1; i < table.getColumnCount(); i++){
+												newData.add(table.getItem(table.getSelectionIndex()).getText(i));
+											}
+											tableData.set(table.getSelectionIndex(), implode(newData.toArray(new String[newData.size()]),delimiter));
+											text.dispose();
+											break;
+										case SWT.Traverse:
+											switch (e.detail) {
+											case SWT.TRAVERSE_RETURN:
+											case SWT.TRAVERSE_ESCAPE:
+												selectedItem.setText(column, text.getText());
+												text.dispose();
+												e.doit = false;
+												break;
+											}
+										case SWT.KeyDown:
+											//										int n = Integer.parseInt(selectedItem.getText(i));
+											if(fileModel.getProjectFile().getAbsolutePath().toString().endsWith(".csv"))toolItemSave.setEnabled(true);
+											break;
+										case SWT.KeyUp:
+											PartStackHandler.setPartModified(fileModel.getProjectFile().getAbsolutePath());
+											System.out.println(text.getText());
+											try{
+												Double n=Double.parseDouble(text.getText());
+											}catch(NumberFormatException nfe){
+												dataManipulationManager.editVariableType(fileModel.getProjectFile().getAbsolutePath(), dataManipulationManager.getVarInfoFromFile(fileModel.getProjectFile().getAbsolutePath()), table.getColumn(column).getText(), "Factor");
+											}
+											toolItemSave.setEnabled(true);
+											selectedItem.setText(column, text.getText());
+											dataManipulationManager.saveFileChanges(fileModel.getProjectFile(), table, delimiter);
+										}
+									}
+								};
+								text.addListener(SWT.FocusOut, textListener);
+								text.addListener(SWT.Traverse, textListener);
+								text.addListener(SWT.KeyDown, textListener);
+								text.addListener(SWT.KeyUp, textListener);
+								editor.setEditor(text, selectedItem, i);
+								text.setText(selectedItem.getText(i));
+								text.selectAll();
+								text.setFocus();
+								return;
+							}
+							if (!visible && rect.intersects(clientArea)) {
+								visible = true;
+							}
+						}
+						if (!visible)
+							return;
+						index++;
+					}
+				}
+			});
+		}//end of if-csv
+		else{
+			tltmConvertToCsv = new ToolItem(toolBarDataManipulation, SWT.NONE);
+			tltmConvertToCsv.setImage(ResourceManager.getPluginImage("Star", "icons/convert.png"));
+			tltmConvertToCsv.setHotImage(null);
+			tltmConvertToCsv.setToolTipText("Convert to CSV");
+			tltmConvertToCsv.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					String selectedFile = fileModel.getProjectFile().getAbsolutePath();
+					File currFile = new File(selectedFile);
+					String newFileName = selectedFile.replaceAll(".txt", ".csv");
+					ProjectExplorerTreeNodeModel newFileModel;
+
+					if(! new File(newFileName).exists()){
+						dataManipulationManager.convertTxtToCsv(selectedFile, newFileName, delimiter);
+						refreshExplorer();
+						newFileModel = projExpMan.getTreeNodeModelbyFilePath(newFileName);
+						PartStackHandler.execute(newFileModel);
+						MessageDialog.openInformation(parent.getShell(), "Converted .txt to .csv", "Successfully created '"+new File(newFileName).getName()+"'!");
+					}
+					else{
+						InputDialog id = new InputDialog(Display.getCurrent().getActiveShell(),
+								"'"+new File(newFileName).getName()+"' already exist.", "Enter a different file name", "copyOf"+new File(newFileName).getName(), new FileNameValidator(currFile));
+						id.open();
+						String selectedNewFileName = currFile.getParentFile().getAbsolutePath()+File.separator+id.getValue();
+
+						if(id.getReturnCode()==0){
+							dataManipulationManager.convertTxtToCsv(selectedFile, selectedNewFileName, delimiter);
+							refreshExplorer();
+							newFileModel = projExpMan.getTreeNodeModelbyFilePath(selectedNewFileName);
+							MessageDialog.openInformation(parent.getShell(), "Converted .txt to .csv", "Successfully created '"+new File(selectedNewFileName).getName()+"'!");
+							PartStackHandler.execute(newFileModel); 
+						}
+					}
+				}
+			});
+		}
+	}
+
+
+	protected void pasteClipBoardTextTo(Table table2, String clipboardText) {
+		// TODO Auto-generated method stub
+		int offsetRow = table.getSelectionIndices()[0];
+		int offsetColumn = selColumn;
+		String lineSeparator = System.getProperty("line.separator");
+		Boolean canCopy = true;
+		String[] textPerRow = clipboardText.split(lineSeparator);
+		int columnSpace = table.getColumnCount()-offsetColumn;
+		int rowSpace = table.getItemCount()-offsetRow;
+		if(textPerRow.length>rowSpace){
+			MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Cannot paste data to table", "Data on the clipboard is larger than the size of the selected area.");
+			//Data on the clipboard does not match the length of the selected area.\n
+			canCopy=false;
+		}
+		if(canCopy){
+			table.setSelection(-1);
+			int rowNumber = offsetRow;
+			ArrayList<TableItem> tableItems = new ArrayList<TableItem>();
+			for(String line: textPerRow){
+				String words[] = line.split("\t");
+				int colNumber = 1;
+				for(String word: words){
+					TableItem tableItem = table.getItem(rowNumber);
+					tableItem.setText(colNumber, word);
+					tableItems.add(tableItem);
+					colNumber++;
+				}
+				rowNumber++;
+			}
+			table.setSelection(tableItems.toArray(new TableItem[tableItems.size()]));
+			PartStackHandler.setPartModified(fileModel.getProjectFile().getAbsolutePath());
+			toolItemSave.setEnabled(true);
+		}
+	}
+
+	protected String getTextFromClipBoard() {
+		// TODO Auto-generated method stub
+		Clipboard clipboard = new Clipboard(Display.getCurrent());
+		TransferData[] transferDatas = clipboard.getAvailableTypes();
+		String plainText = (String)clipboard.getContents(TextTransfer.getInstance());
+		clipboard.dispose();
+		return plainText;
+	}
+
+	protected String getSelectedDataFrom(Table table2) {
+		// TODO Auto-generated method stub
+		StringBuilder sb = new StringBuilder();
+		int[] SelectionIndices=table2.getSelectionIndices();
+		String lineSeparator = System.getProperty("line.separator");
+
+		int numRows = SelectionIndices.length;
+		int numCols = table.getColumnCount();
+		for (int rowCount = 0; rowCount < numRows; rowCount++) {
+			for (int colCount = 1; colCount < numCols; colCount++) {
+				sb.append(table.getItem(SelectionIndices[rowCount]).getText(colCount));
+				if (colCount != numCols - 1) {
+					sb.append("\t");
+				}
+			}
+			if (rowCount != numRows - 1) {
+				sb.append(lineSeparator);
+			}
+		}
+
+		return sb.toString();
+	}
+
+
+	protected void copySelectedTableDataToClipboard(String selectedTableData) {
+		// TODO Auto-generated method stub
+		Clipboard clipboard = new Clipboard(Display.getCurrent());
+		TextTransfer textTransfer = TextTransfer.getInstance();
+		clipboard.setContents(new String[]{selectedTableData}, new Transfer[]{textTransfer});
+		clipboard.dispose();
+	}
+
+
+	private static void write(ArrayList<String> records, Writer writer) throws IOException {
+		long start = System.currentTimeMillis();
+		for (String record: records) {
+			writer.write(record + System.getProperty("line.separator"));
+		}
+		writer.flush();
+		writer.close();
+		long end = System.currentTimeMillis();
+		System.out.println((end - start) / 1000f + " seconds");
+	}
+
+	public static void refreshExplorer() {
+		// TODO Auto-generated method stub
+		//refresh project explorer
+		ProjectExplorerTreeNodeModel model = openedFileModel;
+		ProjectExplorerManager	projectExplorerManager = new ProjectExplorerManager();
+
+		try{
+			projectExplorerManager.refreshFolder((ProjectExplorerTreeNodeModel) model.getParentTreeItem().getData());
+		}catch(SWTException swte){}
+	}
+	public static String implode(String[] array, String separator) {
+		StringBuffer out = new StringBuffer();
+		boolean first = true;
+		for (String v : array) {
+			if (first)
+				first = false;
+			else
+				out.append(separator);
+			out.append(v);
+		}
+		return out.toString();
+	}
+	public static void openFile(ProjectExplorerTreeNodeModel fileM, String fileType, String delimiter) {
+		openedFile = new File(fileM.getProjectFile().getAbsolutePath());
+		openedFileModel = fileM;
+		newFileType = fileType;
+		newDelimiter = delimiter;
+		newfileFormat = 1;// change to 2 for txt file
+		String separator = "NULL";
+		DataManipulationManager dataManager = new DataManipulationManager();
+
+		String fileName=openedFile.toString().replace("\\", "/");
+		if(fileName.endsWith(".txt"))newfileFormat=2;
+		Scanner openedFileScanner = null;
+		try {
+			openedFileScanner = new Scanner(openedFile);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// open file and populate table...
+		// Read each line and separate each item via the chosen delimiter
+		String[] fileColumnHeaders = openedFileScanner.nextLine().split(delimiter);
+		openedFileScanner.close();
+		String tmpFile=null;
+
+		if(fileName.endsWith(".csv")){
+			tmpFile= fileName.replaceAll(".csv", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION);
+		}else{
+			tmpFile= fileName.replaceAll(".txt", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION);
+		}
+
+		try {
+			Scanner newScanner = new Scanner(new File(tmpFile));//If the tmpFile already exist
+			s = dataManager.getVarInfoFromFile(fileM.getProjectFile().getAbsolutePath());//tmpFile
+			if(!dataManager.isMatchColumnHeaders(fileColumnHeaders, s)){
+				s=ProjectExplorerView.rJavaManager.getRJavaDataManipulationManager().getVariableInfo(fileName, tmpFile, newfileFormat, delimiter);
+				System.out.println("overwrite column headers");
+			}
+			else System.out.println("same column headers");
+			newScanner.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			s=ProjectExplorerView.rJavaManager.getRJavaDataManipulationManager().getVariableInfo(fileName, tmpFile, newfileFormat, delimiter);
+			System.out.println("created new tmp file");
+		}
+
+	}
+	@Inject private EPartService partService;
+	private Label tableInfoLabel;
+	@Persist
+	public void saveData(MPart part){
+
+		System.out.println(part.getElementId() + " THIS");
+		ProjectExplorerManager projMan = new ProjectExplorerManager();
+		String elemId = part.getElementId();
+
+		Table table = DataManipulationManager.getActiveTable(elemId);
+		DataManipulationManager.removeTable(table);
+
+		// TODO Auto-generated catch block
+		//MessageDialog.openWarning(Display.getCurrent().getActiveShell(), "Oh no!", "table disposed");
+
+		WindowDialogControlUtil.closeAllWindowDialogOfFile(((MPart) part).getElementId());
+
+		String originalTmpFilepath=((MPart) part).getElementId().replaceAll(".csv", RJavaManagerInitializer.VARINFO_ORIGINALFILE_EXTENSION);
+		projMan.deleteFile(originalTmpFilepath);
+		part.setDirty(false);
+	}
+	@PersistState
+	public void disposeData(MPart part){
+		String elemId = part.getElementId();
+	if(part.isDirty()){
+			dataManipulationManager.keepOriginalFile(new File(elemId));
+		}
+		Table table2;
+		WindowDialogControlUtil.closeAllWindowDialogOfFile(((MPart) part).getElementId());
+		try {
+			table2 = DataManipulationManager.getActiveTable(elemId);
+			DataManipulationManager.removeTable(table2);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			//	MessageDialog.openWarning(Display.getCurrent().getActiveShell(), "Oh no!", "table disposed");
+		}
+	}
+
+		@PreDestroy
+		public void predispose(MPart part){
+
+			DialogHandler.closeAllPartDialogs(part.getElementId());
+			//MessageDialog.openWarning(Display.getCurrent().getActiveShell(), "Oh no!", "STOP! :(");
+		}
+	@PostConstruct
+	 void onClassActivation(MPart part){
+		File activeDataFile = new File(part.getElementId());
+		lastModified = activeDataFile.lastModified();
+
+	}
+	@Focus
+	public void onFocus(MPart part){
+		DialogHandler.setPartDialogMaximized(PartStackHandler.getActiveElementID());
+		
+		if(true) return;
+		File activeDataFile = new File(part.getElementId());
+		if(lastModified != activeDataFile.lastModified()){
+			if(MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Data Modification Detected", "This data has been modified outside the editor. Do you want to refresh the data?")){
+				ProjectExplorerManager projectMan = new ProjectExplorerManager();
+
+				PartStackHandler.reOpenPart(projectMan.getTreeNodeModelbyFilePath(part.getElementId()));
+
+
+			}
+		}
+
+		lastModified = activeDataFile.lastModified();
+
+	}
+}

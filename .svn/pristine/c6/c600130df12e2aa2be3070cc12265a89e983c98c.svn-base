@@ -1,0 +1,1099 @@
+package org.irri.breedingtool.graphs.dialog;
+
+import java.io.File;
+import java.util.ArrayList;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.irri.breedingtool.datamanipulation.dialog.OperationProgressDialog;
+import org.irri.breedingtool.manager.impl.DataManipulationManager;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.utility.DialogFormUtility;
+import org.irri.breedingtool.utility.GraphsUtilities;
+import org.irri.breedingtool.utility.TextVarValidator;
+import org.irri.breedingtool.utility.WindowDialogControlUtil;
+import org.eclipse.swt.events.MouseAdapter;
+
+public class ScatterPlotGraphDialog extends Dialog {
+
+//	private ProjectExplorerTreeNodeModel fileModel;
+	private ArrayList<String> varInfo;
+	private List numVarList;
+	private List factorVarList;
+	private List xVarList;
+	private Button addXBtn;
+	private Button moveBtn;
+	private String[] numericVariables;
+	private String[] factorVariables;
+	private File file;
+	private DataManipulationManager dataManipulationManager = new DataManipulationManager();
+	private DialogFormUtility dlgManager = new DialogFormUtility();
+	//specify parameters
+	private String[] xVar = null; 		//but should be provided by user 
+	private String[] yVar = null; 		//but should be provided by user
+	private String mTitle = null; 
+	private String[] xAxisLab = null; //If erased, should be "" for each x-variable}
+	private String[] yAxisLab = null; //If erased, should be "" for each y-variable}
+	private String[] xMinValue = null;
+	private String[] xMaxValue = null;
+	private String[] yMinValue = null;
+	private String[] yMaxValue = null;
+	private String dispLine = "FALSE";
+	private String byVar = null; 
+	private String pointCol = "rgb(0,0,0, max = 255)"; 
+	private int pointChar = 1;  		//possible values 0 to 25 - see diagram};
+	private double pointCharSize = 1; 	//possible values 0.5 to 3, increment: 0.1};
+	private int lineType = 1; 		//possible values 1 to 6 - see diagram};
+	private String lineCol = "rgb(0,0,0, max = 255)"; 
+	private double lineWidth = 1; 		//possible values 0.5 to 3, increment: 0.5};
+	private String dispR2P = "FALSE";
+	private String r2PPos = "bottomright";
+	private String boxed = "FALSE";
+	private String multGraphs = "FALSE";
+	private int numRowsGraphs = 1;
+	private int numColsGraphs = 1;
+	private String orientGraphs = "top-bottom";
+	private int axisLabelStyle = 1;
+
+	private String analysisType;
+	private Button addYBtn;
+	private Button addPlotsBtn;
+	private List yVarList;
+//	private List plotsVarList;
+	private Table table;
+	private TabItem tbtmDisplay;
+	private Button btnDrawBoxAround;
+	private Text mainTitleText;
+	private Button btnDisplayMultipleGraphs;
+	private Text colorText;
+	private CCombo r2pposCombo;
+	private Button btndispR2PButton;
+	private Label regressionLineColor;
+	private Spinner lineWidthSpinner;
+	private Label typeLabel;
+	private Button regressionLineTypeBtn;
+	private Button button_1;
+	private Label label;
+	private Button regressionColorBtn;
+	private Spinner sizeSpinner;
+	private Label lblFormat;
+	private Label lblType;
+	private Label lblWidth;
+	private Label lblColor_1;
+	private Label lblPosition;
+	private Button btnPlotRegressionLine;
+	private Label lblNewLabel;
+	private Spinner numRowsSpinner;
+	private Label lblNumberOfColumns;
+	private Spinner numColsSpinner;
+	private Label lblOrientation;
+	private CCombo orientGraphsCombo;
+	private Composite composite;
+	private Shell parentShell;
+	private Label lblAxisLabelOrientation;
+	private CCombo cmboAxisOrientation;
+	private Label lblCreatePlotsBy;
+	private List plotsVarList;
+
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+
+	public ScatterPlotGraphDialog(Shell parentShell, String analysisType, File file) {
+		super(parentShell);
+		setShellStyle(SWT.BORDER | SWT.CLOSE | SWT.MIN | SWT.RESIZE);
+		setBlockOnOpen(false);
+		this.parentShell = parentShell;
+		this.analysisType = analysisType;
+		this.file=file;
+		setFactors();
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		getShell().setData("analysis", analysisType);
+		getShell().setData("filePathID",file.getAbsolutePath());
+		WindowDialogControlUtil.addWindowDialogToList(getShell());
+
+		parent.addDisposeListener(new DisposeListener(){
+			@Override
+			public void widgetDisposed(DisposeEvent e) {
+				// TODO Auto-generated method stub
+				WindowDialogControlUtil.removeWindowDialogToList(getShell());
+			}
+
+		});
+
+		parent.getShell().setText("Scatter Plot Graph: "+dataManipulationManager.getDisplayFileName(file.getAbsolutePath()));
+		Composite container = (Composite) super.createDialogArea(parent);
+
+		TabFolder tabFolder = new TabFolder(container, SWT.NONE);
+		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
+		TabItem tbtmModelSpecifications_1 = new TabItem(tabFolder, SWT.NONE);
+		tbtmModelSpecifications_1.setText("Variable Definition");
+
+		Composite modelComposite = new Composite(tabFolder, SWT.NONE);
+		tbtmModelSpecifications_1.setControl(modelComposite);
+		modelComposite.setLayout(new GridLayout(5, false));
+
+		Label lblNumericVariables = new Label(modelComposite, SWT.NONE);
+		lblNumericVariables.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		lblNumericVariables.setText("Numeric Variables:");
+		new Label(modelComposite, SWT.NONE);
+				new Label(modelComposite, SWT.NONE);
+		
+				Label lblYVariables = new Label(modelComposite, SWT.NONE);
+				lblYVariables.setText("Y Variable(s):");
+
+		numVarList = new List(modelComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_numVarList = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 3);
+		gd_numVarList.heightHint = 95;
+		gd_numVarList.widthHint = 126;
+		numVarList.setLayoutData(gd_numVarList);
+		numVarList.setItems(numericVariables);
+		numVarList.addMouseListener(new MouseListener(){
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				// TODO Auto-generated method stub
+				//				List list=(List) e.getSource();
+//				String selectedNumVars[] = numVarList.getSelection();
+//				addItemToVarTable(selectedNumVars[0], xVarList);
+//				dataManipulationManager.moveSelectedStringFromTo( numVarList, xVarList);
+//				numVarList.remove(numVarList.getSelectionIndices());
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				// TODO Auto-generated method stub
+				if(numVarList.getSelectionCount()>0){
+					moveBtn.setEnabled(true);
+					factorVarList.setSelection(-1);
+					xVarList.setSelection(-1);
+					addXBtn.setText("Add");
+					addYBtn.setText("Add");
+					moveBtn.setText("Set to Factor");
+					enableFactorButtons(false);
+					enableNumericButtons(true);
+				}
+			}
+
+			@Override
+			public void mouseUp(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+				
+						addYBtn = new Button(modelComposite, SWT.NONE);
+						addYBtn.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								if(numVarList.getSelectionCount()>0) {//if the purpose is to add
+									for(int i=0; i< numVarList.getSelectionCount(); i++){
+										addItemToVarTable(numVarList.getSelection()[i], yVarList);
+									}
+									dataManipulationManager.moveSelectedStringFromTo( numVarList, yVarList,moveBtn);
+								}
+								else{//if the purpose is to remove
+									for(int i=0; i< yVarList.getSelectionCount(); i++){
+										removeItemFromVarTable(yVarList.getSelection()[i]);
+									}
+									dataManipulationManager.moveSelectedStringFromTo( yVarList, numVarList,moveBtn);
+								}
+								enableNumericButtons(false);
+							}
+						});
+						GridData gd_addYBtn = new GridData(SWT.LEFT, SWT.CENTER, false, true, 2, 1);
+						gd_addYBtn.widthHint = 52;
+						addYBtn.setLayoutData(gd_addYBtn);
+						addYBtn.setText("Add");
+						addYBtn.setEnabled(false);
+		
+				yVarList = new List(modelComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+				yVarList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+				yVarList.addMouseListener(new MouseListener(){
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						// TODO Auto-generated method stub
+						for(int i=0; i< yVarList.getSelectionCount(); i++){
+							removeItemFromVarTable(yVarList.getSelection()[i]);
+						}
+						dataManipulationManager.moveSelectedStringFromTo( yVarList, numVarList, moveBtn);
+						addYBtn.setEnabled(false);
+					}
+
+					@Override
+					public void mouseDown(MouseEvent e) {
+						// TODO Auto-generated method stub
+						if(yVarList.getSelectionCount()>0){
+							numVarList.setSelection(-1);
+							addYBtn.setText("Remove");
+							addYBtn.setEnabled(true);
+						}
+					}
+
+					@Override
+					public void mouseUp(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+				});
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		
+				Label lblResponseVariables = new Label(modelComposite, SWT.NONE);
+				lblResponseVariables.setText("X Variable(s):");
+				
+						addXBtn = new Button(modelComposite, SWT.NONE);
+						addXBtn.addSelectionListener(new SelectionAdapter() {
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								if(numVarList.getSelectionCount()>0) {//if the purpose is to add
+									String selectedNumVars[] = numVarList.getSelection();
+									for(int i=0; i< selectedNumVars.length; i++){
+										addItemToVarTable(selectedNumVars[i], xVarList);
+										xVarList.add(selectedNumVars[i]);
+									}
+									numVarList.remove(numVarList.getSelectionIndices());
+								}
+								else{//if the purpose is to remove
+									String selectedNumVars[] = xVarList.getSelection();
+									for(int i=0; i< selectedNumVars.length; i++){
+										removeItemFromVarTable(selectedNumVars[i]);
+										numVarList.add(selectedNumVars[i]);
+									}
+									xVarList.remove(xVarList.getSelectionIndices());
+								}
+								enableNumericButtons(false);
+							}
+						});
+						addXBtn.setEnabled(false);
+						GridData gd_addXBtn = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
+						gd_addXBtn.widthHint = 52;
+						addXBtn.setLayoutData(gd_addXBtn);
+						addXBtn.setText("Add");
+		
+				xVarList = new List(modelComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+				GridData gd_xVarList = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+				gd_xVarList.widthHint = 111;
+				xVarList.setLayoutData(gd_xVarList);
+				xVarList.addMouseListener(new MouseListener(){
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						// TODO Auto-generated method stub
+						for(int i=0; i< xVarList.getSelectionCount(); i++){
+							removeItemFromVarTable(xVarList.getSelection()[i]);
+						}
+						dataManipulationManager.moveSelectedStringFromTo( xVarList, numVarList, moveBtn);
+						xVarList.remove(xVarList.getSelectionIndices());
+					}
+
+					@Override
+					public void mouseDown(MouseEvent e) {
+						// TODO Auto-generated method stub
+						if(xVarList.getSelectionCount()>0){
+							numVarList.setSelection(-1);
+							addXBtn.setText("Remove");
+							addXBtn.setEnabled(true);
+							moveBtn.setEnabled(false);
+					enableFactorButtons(false);
+						}
+					}
+
+					@Override
+					public void mouseUp(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+				});
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+
+		moveBtn = new Button(modelComposite, SWT.NONE);
+		moveBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e){
+				if(numVarList.getSelectionCount()>0){//if move Down
+					String selectedNumVars[] = numVarList.getSelection();
+					for(int i=0; i< selectedNumVars.length; i++){
+						factorVarList.add(selectedNumVars[i]);
+						dataManipulationManager.editVariableType(file.getAbsolutePath(),varInfo, selectedNumVars[i],"Factor");
+					}
+					numVarList.remove(numVarList.getSelectionIndices());
+					enableNumericButtons(false);
+				}
+				else{// move up
+					String selectedNumVars[] = factorVarList.getSelection();
+					for(int i=0; i< selectedNumVars.length; i++){
+						numVarList.add(selectedNumVars[i]);
+						dataManipulationManager.editVariableType(file.getAbsolutePath(),varInfo, selectedNumVars[i],"Numeric");
+					}
+					factorVarList.remove(factorVarList.getSelectionIndices());
+
+					enableFactorButtons(false);
+				}
+			}
+		});
+		moveBtn.setEnabled(false);
+		GridData gd_moveBtn = new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1);
+		gd_moveBtn.heightHint = 24;
+		gd_moveBtn.widthHint = 90;
+		moveBtn.setLayoutData(gd_moveBtn);
+		moveBtn.setText("Set to Factor");
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		
+				Label lblFactors = new Label(modelComposite, SWT.NONE);
+				lblFactors.setText("Factors:");
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		
+				lblCreatePlotsBy = new Label(modelComposite, SWT.NONE);
+				lblCreatePlotsBy.setText("Group by:");
+		
+				factorVarList = new List(modelComposite, SWT.BORDER | SWT.V_SCROLL);
+				factorVarList.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+				GridData gd_factorVarList = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 2);
+				gd_factorVarList.widthHint = 65;
+				factorVarList.setLayoutData(gd_factorVarList);
+				factorVarList.setItems(factorVariables);
+				factorVarList.addMouseListener(new MouseListener(){
+					@Override
+					public void mouseDoubleClick(MouseEvent e) {
+						// TODO Auto-generated method stub
+						dataManipulationManager.moveSelectedStringFromTo( factorVarList, plotsVarList);
+						moveBtn.setEnabled(false);
+					}
+
+					@Override
+					public void mouseDown(MouseEvent e) {
+						// TODO Auto-generated method stub
+						if(factorVarList.getSelectionCount()>0){
+							plotsVarList.setSelection(-1);
+							addPlotsBtn.setText("Remove");
+							addPlotsBtn.setEnabled(true);
+						}
+					}
+
+					@Override
+					public void mouseUp(MouseEvent e) {
+						// TODO Auto-generated method stub
+
+					}
+				});
+				factorVarList.addListener(SWT.MouseDown, new Listener(){
+
+					@Override
+					public void handleEvent(Event event) {
+						if(factorVarList.getSelectionIndex()>-1){
+							enableNumericButtons(false);
+					enableFactorButtons(false);
+							numVarList.setSelection(-1);
+							String[] s=factorVarList.getSelection();
+							String isNumeric = dataManipulationManager.isNumeric(file.getAbsolutePath().replaceAll("\\\\","/"), s[0]);
+							if(isNumeric.equals("TRUE")){
+								moveBtn.setText("Set to Numeric");
+								moveBtn.setEnabled(true);
+							}
+							else moveBtn.setEnabled(false);
+					enableFactorButtons(true);
+
+						}
+					}
+				});
+
+		addPlotsBtn = new Button(modelComposite, SWT.NONE);
+		addPlotsBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(factorVarList.getSelectionCount()>0) {//if the purpose is to add
+					dataManipulationManager.moveSelectedStringFromTo( factorVarList, plotsVarList, moveBtn);
+				}
+				else{//if the purpose is to remove
+					dataManipulationManager.moveSelectedStringFromTo( plotsVarList, factorVarList, moveBtn);
+				}
+				enableFactorButtons(false);
+			}
+		});
+		GridData gd_addPlotsBtn = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
+		gd_addPlotsBtn.widthHint = 52;
+		addPlotsBtn.setLayoutData(gd_addPlotsBtn);
+		addPlotsBtn.setText("Add");
+		addPlotsBtn.setEnabled(false);
+		
+		plotsVarList = new List(modelComposite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_plotsVarList = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
+		gd_plotsVarList.heightHint = 5;
+		plotsVarList.setLayoutData(gd_plotsVarList);
+		plotsVarList.addMouseListener(new MouseListener(){
+			@Override
+			public void mouseDoubleClick(MouseEvent e) {
+				// TODO Auto-generated method stub
+				dataManipulationManager.moveSelectedStringFromTo( plotsVarList, factorVarList);
+				moveBtn.setEnabled(false);
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				// TODO Auto-generated method stub
+				if(plotsVarList.getSelectionCount()>0){
+					factorVarList.setSelection(-1);
+					addPlotsBtn.setText("Remove");
+					addPlotsBtn.setEnabled(true);
+				}
+			}
+
+			@Override
+			public void mouseUp(MouseEvent e) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		new Label(modelComposite, SWT.NONE);
+		TabItem tbtmBars = new TabItem(tabFolder, SWT.NONE);
+		tbtmBars.setText("Display Options");
+
+		composite = new Composite(tabFolder, SWT.NONE);
+		tbtmBars.setControl(composite);
+		composite.setLayout(new GridLayout(8, false));
+
+		Label labelMainTitle = new Label(composite, SWT.NONE);
+		labelMainTitle.setText("Main Title:");
+
+		mainTitleText = new Text(composite, SWT.BORDER);
+		int maxLen =45;
+		mainTitleText.setTextLimit(maxLen);
+		mainTitleText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 7, 1));
+
+		Label lblPlot = new Label(composite, SWT.NONE);
+		lblPlot.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 8, 1));
+		lblPlot.setText("Format Axes:");
+
+		table = new Table(composite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI);
+		table.setLinesVisible(true);
+		table.setHeaderVisible(true);
+		table.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 8, 1));
+
+		TableColumn tableColumn_1 = new TableColumn(table, SWT.NONE);
+		tableColumn_1.setWidth(85);
+		tableColumn_1.setText("Variable");
+
+		TableColumn tblclmnType = new TableColumn(table, SWT.NONE);
+		tblclmnType.setWidth(83);
+		tblclmnType.setText("Axis Label");
+
+		TableColumn tblclmnLoewrLabel = new TableColumn(table, SWT.NONE);
+		tblclmnLoewrLabel.setText("Lower Limit");
+		tblclmnLoewrLabel.setWidth(87);
+
+		TableColumn tblclmnUpperLimit = new TableColumn(table, SWT.NONE);
+		tblclmnUpperLimit.setWidth(72);
+		tblclmnUpperLimit.setText("Upper Limit");
+		
+		lblAxisLabelOrientation = new Label(composite, SWT.NONE);
+		lblAxisLabelOrientation.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblAxisLabelOrientation.setText("Axis Label Orientation:");
+		
+		cmboAxisOrientation = new CCombo(composite, SWT.BORDER | SWT.READ_ONLY);
+		cmboAxisOrientation.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		cmboAxisOrientation.setItems(new String[] {"parallel to axis", "horizontal", "vertical", "perpendicular to axis"});
+		cmboAxisOrientation.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		cmboAxisOrientation.select(0);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+
+		Label lblFormatPoints = new Label(composite, SWT.NONE);
+		lblFormatPoints.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 8, 1));
+		lblFormatPoints.setText("Format Points:");
+
+		Label lblSymbols = new Label(composite, SWT.NONE);
+		lblSymbols.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblSymbols.setText("Symbol:");
+
+		label = new Label(composite, SWT.BORDER | SWT.CENTER);
+		label.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		label.setText(" ");
+		label.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_BACKGROUND));
+		label.setImage(ResourceManager.getPluginImage("Star", "icons/plotsymbol1.png"));
+		GridData gd_label = new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1);
+		gd_label.heightHint = 25;
+		gd_label.widthHint = 25;
+		label.setLayoutData(gd_label);
+
+		button_1 = new Button(composite, SWT.NONE);
+		button_1.setImage(ResourceManager.getPluginImage("Star", "icons/ellipsis.png"));
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				ChoosePlotSymbolsDialog choosePlotDlg = new ChoosePlotSymbolsDialog(getShell());
+				choosePlotDlg.open();
+				if(choosePlotDlg.getReturnCode()==0){
+					pointChar = Integer.parseInt(choosePlotDlg.getChosenSymbol());
+					label.setImage(ResourceManager.getPluginImage("Star", "icons/plotsymbol"+choosePlotDlg.getChosenSymbol()+".png"));
+				}
+			}
+		});
+
+		Label lblSize = new Label(composite, SWT.NONE);
+		lblSize.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblSize.setText("Size:");
+
+		sizeSpinner = new Spinner(composite, SWT.BORDER | SWT.READ_ONLY);
+		sizeSpinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		sizeSpinner.setPageIncrement(1);
+		sizeSpinner.setMaximum(30);
+		sizeSpinner.setMinimum(5);
+		sizeSpinner.setSelection(10);
+		sizeSpinner.setDigits(1);
+
+		final Label lblColor = new Label(composite, SWT.NONE);
+		lblColor.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
+		lblColor.setText("Color:");
+
+		colorText = new Text(composite, SWT.BORDER);
+		colorText.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+		colorText.setEditable(false);
+		colorText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+
+		Button button = new Button(composite, SWT.NONE);
+		button.setImage(ResourceManager.getPluginImage("Star", "icons/ellipsis.png"));
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				pointCol = "rgb(0,0,0, max = 255)"; 
+				try{
+					RGB rgbColor = GraphsUtilities.chooseColor();
+					colorText.setBackground(new Color(Display.getCurrent(), rgbColor));
+					String color = GraphsUtilities.convertToRrgbFormat(rgbColor.toString());
+					pointCol = color;
+				}catch(Exception ex){
+					pointCol = "rgb(0,0,0, max = 255)"; 
+					System.out.println("Exception at RGB choose color");
+				}
+			}
+		});
+
+		btnDrawBoxAround = new Button(composite, SWT.CHECK);
+		btnDrawBoxAround.setSelection(true);
+		btnDrawBoxAround.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 8, 1));
+		btnDrawBoxAround.setText("Draw box around plot");
+
+		btnDisplayMultipleGraphs = new Button(composite, SWT.CHECK);
+		btnDisplayMultipleGraphs.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(btnDisplayMultipleGraphs.getSelection()) displayMultipleGraphs(true);
+				else displayMultipleGraphs(false);
+			}
+		});
+		btnDisplayMultipleGraphs.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 8, 1));
+		btnDisplayMultipleGraphs.setText("Display multiple graphs in a page");
+		new Label(composite, SWT.NONE);
+
+		lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setEnabled(false);
+		lblNewLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		lblNewLabel.setText("Number of rows:");
+
+		numRowsSpinner = new Spinner(composite, SWT.BORDER | SWT.READ_ONLY);
+		numRowsSpinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		GridData gd_numRowsSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_numRowsSpinner.widthHint = 10;
+		numRowsSpinner.setLayoutData(gd_numRowsSpinner);
+		numRowsSpinner.setEnabled(false);
+		numRowsSpinner.setMaximum(5);
+		numRowsSpinner.setMinimum(1);
+		numRowsSpinner.setSelection(2);
+
+		lblNumberOfColumns = new Label(composite, SWT.NONE);
+		lblNumberOfColumns.setEnabled(false);
+		lblNumberOfColumns.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		lblNumberOfColumns.setText("Number of columns:");
+
+		numColsSpinner = new Spinner(composite, SWT.BORDER | SWT.READ_ONLY);
+		numColsSpinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		GridData gd_numColsSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_numColsSpinner.widthHint = 10;
+		numColsSpinner.setLayoutData(gd_numColsSpinner);
+		numColsSpinner.setEnabled(false);
+		numColsSpinner.setMaximum(5);
+		numColsSpinner.setMinimum(1);
+		numColsSpinner.setSelection(1);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+
+		lblOrientation = new Label(composite, SWT.NONE);
+		lblOrientation.setEnabled(false);
+		lblOrientation.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1));
+		lblOrientation.setText("Orientation:");
+
+		orientGraphsCombo = new CCombo(composite, SWT.BORDER | SWT.READ_ONLY);
+		orientGraphsCombo.setItems(new String[] {"Left-to-right", "Top-to-bottom"});
+		orientGraphsCombo.setEnabled(false);
+		orientGraphsCombo.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		orientGraphsCombo.setEditable(false);
+		orientGraphsCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 5, 1));
+		orientGraphsCombo.select(0);
+		tbtmDisplay = new TabItem(tabFolder, SWT.NONE);
+		tbtmDisplay.setText("Other Options");
+
+		Composite composite_1 = new Composite(tabFolder, SWT.NONE);
+		tbtmDisplay.setControl(composite_1);
+		composite_1.setLayout(new GridLayout(5, false));
+
+		btnPlotRegressionLine = new Button(composite_1, SWT.CHECK);
+		btnPlotRegressionLine.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(btnPlotRegressionLine.getSelection()) enablePlotRegerssionLine(true);
+				else enablePlotRegerssionLine(false);
+
+			}
+		});
+		btnPlotRegressionLine.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 5, 1));
+		btnPlotRegressionLine.setText("Plot regression line");
+		new Label(composite_1, SWT.NONE);
+
+		lblFormat = new Label(composite_1, SWT.NONE);
+		lblFormat.setEnabled(false);
+		lblFormat.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+		lblFormat.setText("Format:");
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+
+		lblType = new Label(composite_1, SWT.NONE);
+		lblType.setEnabled(false);
+		lblType.setText("Type:");
+
+		typeLabel = new Label(composite_1, SWT.BORDER);
+		typeLabel.setEnabled(false);
+		typeLabel.setAlignment(SWT.CENTER);
+		typeLabel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		typeLabel.setImage(ResourceManager.getPluginImage("Star", "icons/line1.png"));
+
+		regressionLineTypeBtn = new Button(composite_1, SWT.NONE);
+		regressionLineTypeBtn.setImage(ResourceManager.getPluginImage("Star", "icons/ellipsis.png"));
+		regressionLineTypeBtn.setEnabled(false);
+		regressionLineTypeBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				lineType = 1;
+				ChooseLineTypesDialog chooseLineDlg = new ChooseLineTypesDialog(getShell());
+				chooseLineDlg.open();
+				if(chooseLineDlg.getReturnCode()==0){
+					lineType = Integer.parseInt(chooseLineDlg.getChosenPattern());
+					typeLabel.setImage(ResourceManager.getPluginImage("Star", "icons/line"+chooseLineDlg.getChosenPattern()+".png"));
+				}
+			}
+		});
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+
+		lblWidth = new Label(composite_1, SWT.NONE);
+		lblWidth.setEnabled(false);
+		lblWidth.setText("Width:");
+
+		lineWidthSpinner = new Spinner(composite_1, SWT.BORDER | SWT.READ_ONLY);
+		lineWidthSpinner.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		lineWidthSpinner.setEnabled(false);
+		lineWidthSpinner.setMaximum(30);
+		lineWidthSpinner.setDigits(1);
+		lineWidthSpinner.setMinimum(5);
+		lineWidthSpinner.setSelection(10);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+
+		lblColor_1 = new Label(composite_1, SWT.NONE);
+		lblColor_1.setEnabled(false);
+		lblColor_1.setText("Color:");
+
+		regressionLineColor = new Label(composite_1, SWT.BORDER);
+		regressionLineColor.setEnabled(false);
+		regressionLineColor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 1, 1));
+		regressionLineColor.setBackground(SWTResourceManager.getColor(SWT.COLOR_BLACK));
+		regressionLineColor.setText(" ");
+
+		regressionColorBtn = new Button(composite_1, SWT.NONE);
+		regressionColorBtn.setImage(ResourceManager.getPluginImage("Star", "icons/ellipsis.png"));
+		regressionColorBtn.setEnabled(false);
+		regressionColorBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				lineCol = "rgb(0,0,0, max = 255)"; 
+				try{
+					RGB rgbColor = GraphsUtilities.chooseColor();
+					regressionLineColor.setBackground(new Color(Display.getCurrent(), rgbColor));
+					String color = GraphsUtilities.convertToRrgbFormat(rgbColor.toString());
+					lineCol = color; 
+				}catch(Exception ex){
+					lineCol = "rgb(0,0,0, max = 255)"; 
+					System.out.println("Exception at RGB choose color");
+				}
+			}
+		});
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+
+		btndispR2PButton = new Button(composite_1, SWT.CHECK);
+		btndispR2PButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(btndispR2PButton.getSelection()) enableRSquaredPValue(true);
+				else enableRSquaredPValue(false);
+			}
+		});
+		btndispR2PButton.setEnabled(false);
+		btndispR2PButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+		btndispR2PButton.setText("Print R-squared and p-value");
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+
+		lblPosition = new Label(composite_1, SWT.NONE);
+		lblPosition.setEnabled(false);
+		lblPosition.setText("Position:");
+
+		r2pposCombo = new CCombo(composite_1, SWT.BORDER | SWT.READ_ONLY);
+		r2pposCombo.setEnabled(false);
+		r2pposCombo.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		r2pposCombo.setEditable(false);
+		r2pposCombo.setItems(new String[] {"bottom", "bottom-left", "bottom-right", "center", "left", "right", "top", "top-left", "top-right"});
+		r2pposCombo.setText("bottom-right");
+		new Label(composite_1, SWT.NONE);
+
+//		initializeForm();
+		return container;
+
+	}
+
+//	void initializeForm(){
+//
+//		dlgManager.initializeSingleSelectionList(factorVarList, plotsVarTxt, moveBtn, addPlotsBtn, new TextVarValidator(plotsVarTxt, lblCreatePlotsBy));
+//
+//
+//	}
+	
+	
+	protected void displayMultipleGraphs(boolean state) {
+		// TODO Auto-generated method stub
+		orientGraphsCombo.setEnabled(state);
+		lblOrientation.setEnabled(state);
+		lblNewLabel.setEnabled(state);
+		numRowsSpinner.setEnabled(state);
+		lblNumberOfColumns.setEnabled(state);
+		numColsSpinner.setEnabled(state);
+	}
+
+	protected void enableRSquaredPValue(boolean state) {
+		// TODO Auto-generated method stub
+		lblPosition.setEnabled(state);
+		r2pposCombo.setEnabled(state);
+
+	}
+
+	protected void enablePlotRegerssionLine(boolean state) {
+		// TODO Auto-generated method stub
+		lblFormat.setEnabled(state);
+		lblType.setEnabled(state);
+		typeLabel.setEnabled(state);
+		regressionLineTypeBtn.setEnabled(state);
+		lblWidth.setEnabled(state);
+		lineWidthSpinner.setEnabled(state);
+		lblColor_1.setEnabled(state);
+		regressionLineColor.setEnabled(state);
+		regressionColorBtn.setEnabled(state);
+		btndispR2PButton.setEnabled(state);
+		if(btndispR2PButton.getSelection()) enableRSquaredPValue(state);
+	}
+
+	protected void removeItemFromVarTable(String varName) {
+		// TODO Auto-generated method stub
+		int item=0;	
+		for(int i=0;i<table.getItemCount(); i++){
+			if(varName.equals(table.getItem(i).getText(0)))item = i;
+		}
+		System.out.println(varName+"'s index is: "+Integer.toString(item));
+		TableItem tableItem = table.getItem(item);
+		TableEditor[] editors = (TableEditor[])tableItem.getData("Editors");
+		for(TableEditor te : editors){
+			te.getEditor().dispose();
+		}
+		table.remove(item);
+		table.pack();
+		composite.pack();
+	}
+
+	protected void addItemToVarTable(String varName, List varList) {
+		// TODO Auto-generated method stub
+		int ctr=table.getItemCount();
+		if(varList.equals(xVarList)) ctr=varList.getItemCount();
+		
+		final TableItem tableItem = new TableItem( table, SWT.CENTER, ctr);
+		tableItem.setText(0, varName);
+		System.out.println("set tableItem name: "+varName);
+		tableItem.setData("index",ctr);
+		TableEditor[] tableEditors = new TableEditor[3];
+
+		tableEditors[0] = new TableEditor(table);//color chooser button
+		tableEditors[1] = new TableEditor(table);//color chooser button
+		tableEditors[2] = new TableEditor(table);//lineType chooser button
+
+		Text newEditor = new Text(table, SWT.NONE);
+		newEditor.setText(varName);
+		Text lowerLimitEditor = new Text(table, SWT.NONE);
+		lowerLimitEditor.setText("Auto");
+		GraphsUtilities.addTextModifyListener(lowerLimitEditor);
+
+		Text upperLimitEditor = new Text(table, SWT.NONE);
+		upperLimitEditor.setText("Auto");
+		GraphsUtilities.addTextModifyListener(upperLimitEditor);
+
+		tableEditors[0].grabHorizontal = true;
+		tableEditors[1].grabHorizontal = true;
+		tableEditors[2].grabHorizontal = true;
+
+		tableEditors[0].setEditor(newEditor, tableItem, 1);
+		tableEditors[1].setEditor(lowerLimitEditor, tableItem, 2);
+		tableEditors[2].setEditor(upperLimitEditor, tableItem, 3);
+
+		tableItem.setData("Editors", tableEditors);
+		table.pack();
+		composite.pack();
+		
+		
+	}
+
+	protected void setFactors() {
+		// TODO Auto-generated method stub
+		varInfo=dataManipulationManager.getVarInfoFromFile(file.getAbsolutePath());
+		numericVariables=dataManipulationManager.getNumericVars(varInfo);
+		factorVariables=dataManipulationManager.getFactorVars(varInfo);
+	}
+
+	public void enableFactorButtons(boolean state){
+		plotsVarList.setSelection(-1);
+
+		addPlotsBtn.setEnabled(state);
+		if(state){
+			addPlotsBtn.setText("Add");
+			if(plotsVarList.getItemCount()>0)addPlotsBtn.setEnabled(false);
+		}
+	}
+
+	public void enableNumericButtons(boolean state){
+		addXBtn.setEnabled(state);
+		addYBtn.setEnabled(state);
+		moveBtn.setEnabled(state);
+	}
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.DESELECT_ALL_ID, "Reset", true);
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	@Override
+	protected void buttonPressed(int buttonId) { //when Reset button is pressed
+		if (buttonId == IDialogConstants.DESELECT_ALL_ID) {
+			System.out.println("graph type: " + analysisType);
+			ScatterPlotGraphDialog graph = new ScatterPlotGraphDialog(parentShell,analysisType,file);
+			close();
+			graph.open();
+		}
+		super.buttonPressed(buttonId);
+	}
+	
+	@Override
+	protected void okPressed(){
+		if(xVarList.getItemCount()<1) MessageDialog.openError(getShell(), "Error", "Please add an x-variable from the numeric variables list.");
+		else if(yVarList.getItemCount()<1) MessageDialog.openError(getShell(), "Error", "Please add a y-variable from the numeric variables list.");
+		else{//if all conditions are satisfied
+			xVar = xVarList.getItems();
+			yVar = yVarList.getItems();
+
+			xAxisLab = new String[xVar.length];
+			xMinValue = new String[xVar.length];
+			xMaxValue = new String[xVar.length];
+			yAxisLab =  new String[yVar.length];
+			yMinValue = new String[yVar.length];
+			yMaxValue = new String[yVar.length];
+
+			int ctr=0;
+			for(TableItem tableItem : table.getItems()){
+				TableEditor[] editors = (TableEditor[]) tableItem.getData("Editors");
+				if(ctr<xVar.length){
+					//					System.out.println("Still X.");
+					xAxisLab[ctr] = ((Text)editors[0].getEditor()).getText();
+					xMinValue[ctr] = GraphsUtilities.checkIfAutoOrNumeric(((Text)editors[1].getEditor()).getText());
+					xMaxValue[ctr] = GraphsUtilities.checkIfAutoOrNumeric(((Text)editors[2].getEditor()).getText());
+				}else{
+					System.out.println("Now Y: "+ Integer.toString(ctr-xVar.length));
+					yAxisLab[ctr-xVar.length] = ((Text)editors[0].getEditor()).getText();
+					yMinValue[ctr-xVar.length] = GraphsUtilities.checkIfAutoOrNumeric(((Text)editors[1].getEditor()).getText());
+					yMaxValue[ctr-xVar.length] = GraphsUtilities.checkIfAutoOrNumeric(((Text)editors[2].getEditor()).getText());
+				}
+				ctr++;
+			}
+
+
+			mTitle = mainTitleText.getText(); //null; //
+			if(plotsVarList.getItemCount()<1)byVar = null;
+			else byVar = plotsVarList.getItem(0);
+
+			
+//			mTitle = mainTitleText.getText(); //null; //
+//			if(plotsVarList.getText().isEmpty())byVar = null;
+//			else byVar = plotsVarList.getText();
+			
+			if(btnDrawBoxAround.getSelection()) boxed = "TRUE"; //
+			else boxed = "FALSE"; //"TRUE"; //
+
+			pointCharSize = dataManipulationManager.convertInttoDouble(sizeSpinner.getSelection(), 1);
+			lineWidth = dataManipulationManager.convertInttoDouble(lineWidthSpinner.getSelection(), 1);
+
+			if(btndispR2PButton.getSelection()) dispR2P = "TRUE";
+			else dispR2P = "FALSE";
+
+			r2PPos = r2pposCombo.getText().replaceAll("-", "").toLowerCase();
+
+			if(btnDrawBoxAround.getSelection()) boxed = "TRUE";
+			else boxed = "FALSE";
+			
+			axisLabelStyle = cmboAxisOrientation.getSelectionIndex();
+			
+			if(btnDisplayMultipleGraphs.getSelection()){
+				multGraphs = "TRUE";
+				numRowsGraphs = numRowsSpinner.getSelection();
+				numColsGraphs = numColsSpinner.getSelection();
+				orientGraphs = orientGraphsCombo.getText().replace("to-", "").toLowerCase();
+			}
+			else{
+				multGraphs = "FALSE";
+				numRowsGraphs = 1;
+				numColsGraphs = 1;
+				orientGraphs = "top-bottom";
+			}
+			if(btnPlotRegressionLine.getSelection()) dispLine = "TRUE";
+			else dispLine = "FALSE";
+
+			File outputFolder = GraphsUtilities.createOutputFolder(file.getName(),analysisType);
+			if(!outputFolder.exists()) outputFolder.mkdir();
+
+			String dataFileName = file.getAbsolutePath().replaceAll("\\\\", "/");
+
+			OperationProgressDialog rInfo = new OperationProgressDialog(getShell(), "Creating Scatter Plot");
+			rInfo.open();		
+			
+			//insert rjavamanager call here
+			ProjectExplorerView.rJavaManager.getRJavaGraphManager().createGraphScatterplot(
+					outputFolder.getAbsolutePath().replaceAll("\\\\", "/")+"/", 
+					dataFileName, 
+					xVar, 
+					yVar, 
+					mTitle, 
+					xAxisLab, 
+					yAxisLab,  
+					xMinValue, 
+					xMaxValue, 
+					yMinValue, 
+					yMaxValue,
+					axisLabelStyle,
+					byVar, 
+					pointCol, 
+					pointChar,
+					pointCharSize,
+					dispLine, 
+					lineType, 
+					lineCol, 
+					lineWidth, 
+					dispR2P, 
+					r2PPos, 
+					boxed,
+					multGraphs, 
+					numRowsGraphs,
+					numColsGraphs, 
+					orientGraphs);
+			rInfo.close();
+			WindowDialogControlUtil.hideAllWindowDialog();
+			GraphsUtilities.openFolder(outputFolder);
+		}
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(648, 580);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected boolean isResizable() {
+		return true;
+	}
+}

@@ -1,0 +1,225 @@
+package org.irri.breedingtool.pbtools.randomization.dialog;
+
+import java.io.File;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.datamanipulation.dialog.OperationProgressDialog;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.utility.StarRandomizationUtilities;
+import org.eclipse.swt.widgets.Text;
+
+public class IncompleteBlockAlphaLatticeDesignDialog extends Dialog {
+
+	private Spinner txtTotalTreatments;
+	private Spinner txtTotalReplicates;
+	private Spinner txtTotalBlockSize;
+	private Spinner txtTotalTrials;
+	private Text txtFileName;
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+	public IncompleteBlockAlphaLatticeDesignDialog(Shell parentShell) {
+		super(parentShell);
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
+	}
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText("Randomization");
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite container = (Composite) super.createDialogArea(parent);
+		Label lblFactorialDesign = new Label(container, SWT.NONE);
+		lblFactorialDesign.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		lblFactorialDesign.setFont(SWTResourceManager.getFont("Tahoma", 10, SWT.BOLD));
+		lblFactorialDesign.setText("Alpha Lattice Design");
+
+		Label lblLbldialogtitle = new Label(container, SWT.NONE);
+		lblLbldialogtitle.setFont(SWTResourceManager.getFont("Tahoma", 9, SWT.NORMAL));
+		lblLbldialogtitle.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		lblLbldialogtitle.setText("Incomplete Block Design");
+
+		Label label_1 = new Label(container, SWT.SEPARATOR | SWT.HORIZONTAL);
+		label_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
+		Group grpDesignParameters = new Group(container, SWT.NONE);
+		grpDesignParameters.setLayout(new GridLayout(1, false));
+		GridData gd_grpDesignParameters = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_grpDesignParameters.heightHint = 100;
+		grpDesignParameters.setLayoutData(gd_grpDesignParameters);
+		grpDesignParameters.setText("Design Parameters");
+
+		Composite composite_1 = new Composite(grpDesignParameters, SWT.NONE);
+		composite_1.setLayout(new GridLayout(2, false));
+		GridData gd_composite_1 = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_composite_1.widthHint = 163;
+		gd_composite_1.heightHint = 49;
+		composite_1.setLayoutData(gd_composite_1);
+
+		Label lblNumberOfReplicated = new Label(composite_1, SWT.NONE);
+		lblNumberOfReplicated.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+		lblNumberOfReplicated.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblNumberOfReplicated.setText("Number of Treatments");
+
+		txtTotalTreatments = new Spinner(composite_1, SWT.BORDER);
+		GridData gd_txtTotalTreatments = new GridData(SWT.RIGHT, SWT.CENTER, true, true, 1, 1);
+		gd_txtTotalTreatments.widthHint = 50;
+		txtTotalTreatments.setLayoutData(gd_txtTotalTreatments);
+		txtTotalTreatments.setMaximum(100000);
+		txtTotalTreatments.setMinimum(2);
+
+		Label lblNumberOfReplicates = new Label(composite_1, SWT.NONE);
+		lblNumberOfReplicates.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+		lblNumberOfReplicates.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblNumberOfReplicates.setText("Number of Replicates");
+
+		txtTotalReplicates = new Spinner(composite_1, SWT.BORDER);
+		GridData gd_txtTotalReplicates = new GridData(SWT.RIGHT, SWT.CENTER, true, true, 1, 1);
+		gd_txtTotalReplicates.widthHint = 50;
+		txtTotalReplicates.setLayoutData(gd_txtTotalReplicates);
+		txtTotalReplicates.setMaximum(4);
+		txtTotalReplicates.setMinimum(2);
+
+		Label label = new Label(composite_1, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		label.setText("Plots per Block (block size)");
+		label.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+
+		txtTotalBlockSize = new Spinner(composite_1, SWT.BORDER);
+		GridData gd_txtTotalBlockSize = new GridData(SWT.RIGHT, SWT.CENTER, true, true, 1, 1);
+		gd_txtTotalBlockSize.widthHint = 50;
+		txtTotalBlockSize.setLayoutData(gd_txtTotalBlockSize);
+		txtTotalBlockSize.setMinimum(2);
+
+		Label lblNumberOfTrials = new Label(composite_1, SWT.NONE);
+		lblNumberOfTrials.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+		lblNumberOfTrials.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true, 1, 1));
+		lblNumberOfTrials.setText("Number of Trials");
+
+		txtTotalTrials = new Spinner(composite_1, SWT.BORDER);
+		GridData gd_txtTotalTrials = new GridData(SWT.RIGHT, SWT.CENTER, true, true, 1, 1);
+		gd_txtTotalTrials.widthHint = 50;
+		txtTotalTrials.setLayoutData(gd_txtTotalTrials);
+		txtTotalTrials.setMinimum(1);
+
+		Group grpFieldBookFilename = new Group(container, SWT.NONE);
+		grpFieldBookFilename.setLayout(new GridLayout(1, false));
+		GridData gd_grpFieldBookFilename = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
+		gd_grpFieldBookFilename.heightHint = 35;
+		grpFieldBookFilename.setLayoutData(gd_grpFieldBookFilename);
+		grpFieldBookFilename.setText("Field Book Filename");
+		
+		txtFileName = new Text(grpFieldBookFilename, SWT.BORDER);
+		txtFileName.setText("fieldbookAlpha");
+		txtFileName.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
+
+
+		return container;
+	}
+
+	@Override
+	protected void okPressed(){ 
+		if(txtFileName.getText().equals(""))  { 
+		MessageDialog.openError(getShell(), "Validation Error", "Field Filename must not be empty."); 
+		return ;
+		} 
+		double s = (double) txtTotalTreatments.getSelection() / txtTotalBlockSize.getSelection();
+		double k =  txtTotalBlockSize.getSelection();
+		double r = txtTotalReplicates.getSelection();
+		if(txtTotalTreatments.getSelection() % txtTotalBlockSize.getSelection() != 0){
+			MessageDialog.openError(getShell(), "Validation Error", "Treatments must be multiple of block size"); 
+			return ; 	
+		}
+		if(r == 2){
+			if(k > s){
+				MessageDialog.openError(getShell(), "Validation Error", "Total Block Size should be less than or equal Total Treatments / Total Block Size "); 
+			
+	
+		return ; 	
+			}else{
+				System.out.println("k: " +  k);
+				System.out.println("s: " +  s);
+				System.out.println("r: " +  r);
+			}
+			
+		}
+		else if(r == 3){
+
+			System.out.println("3");
+			if(s % 2 == 0){
+				if(k > s - 1){
+					MessageDialog.openError(getShell(), "Validation Error", "Total Block Size should be less than or equal Total Treatments / Total Block Size ");
+					return;
+				}
+			}
+			else{
+				if(k > s ){
+					MessageDialog.openError(getShell(), "Validation Error", "Total Block Size should be less than or equal Total Treatments / Total Block Size ");
+					return;
+				}
+			}
+		}
+		else if(r == 4){
+
+			System.out.println("4");
+			if(s % 2 == 0 || s % 3 == 0 || k > s ){
+				MessageDialog.openError(getShell(), "Validation Error", "Total Block Size should be odd, not multiple of 3 and less than or equal Total Treatments / Total Block Size ");
+				return;
+			}
+			
+		}
+		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(),  "Star Randomization");
+		rInfo.open();
+
+		String outputFile = StarRandomizationUtilities.createOutputFile("AlphaLatticeIBD", txtFileName.getText());
+		String outputFileTxt = outputFile + ".txt";
+		String outputFileCsv = outputFile + ".csv";
+		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignAlpha(outputFileCsv.replace("\\", "/"), outputFileTxt.replace("\\", "/"),
+				txtTotalTreatments.getSelection(), txtTotalBlockSize.getSelection(), txtTotalReplicates.getSelection(), txtTotalTrials.getSelection());
+		rInfo.close();
+		this.getShell().setMinimized(true);
+		StarRandomizationUtilities.openAndRefreshFileFolder(outputFile);
+		
+	}
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(364, 457);
+	}
+
+}

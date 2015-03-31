@@ -1,0 +1,58 @@
+Statistical Tool for Agricultural Research (STAR)
+Thu May 09 10:44:26 2013
+
+Summary Information
+------------------------------------ 
+FACTOR  NO. OF LEVELS  LEVELS       
+------------------------------------ 
+Gen     8              1, 2, ..., 8 
+Blk     4              1, 2, 3, 4   
+------------------------------------ 
+Number of Observations: 64 
+
+
+
+
+BOX'S M TEST FOR HOMOGENEITY OF COVARIANCE MATRICES
+---------------------------------------------------
+ Box M   F      df1 df2   Prob  
+ 14.9457 0.6278 21  11240 0.9020
+
+
+BARTLETT'S SPHERICITY TEST
+--------------------------
+ Statistic  Value  Df Prob  
+ Chi-Square 0.6972 1  0.4037
+
+
+SUM OF SQUARES AND PRODUCTS FOR THE HYPOTHESIS 
+----------------------------------------------
+
+TERM: Gen 
+
+          Y1        Y2
+Y1 1317.4994 -191.6475
+Y2 -191.6475  329.1700
+
+TERM: Blk 
+
+         Y1     Y2
+Y1 218.5569 -7.495
+Y2  -7.4950  1.205
+
+
+SUM OF SQUARES AND PRODUCTS FOR ERROR
+-------------------------------------
+         Y1      Y2
+Y1 897.6581 334.340
+Y2 334.3400 335.895
+
+
+MULTIVARIATE ANALYSIS OF VARIANCE IN RCBD
+-----------------------------------------
+          Df    Roy approx F num Df den Df    Pr(>F)    
+Gen        7 4.0484  30.6520      7     53 < 2.2e-16 ***
+Blk        3 0.4164   7.3566      3     53 0.0003278 ***
+Residuals 53                                            
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 

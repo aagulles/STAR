@@ -1,0 +1,219 @@
+package org.irri.breedingtool.pbtools.analysis.environment.dialog;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.TableColumn;
+import org.irri.breedingtool.manager.impl.DataManipulationManager;
+
+public class TwoStageMseRepsDialog extends Dialog {
+	private Table table;
+	private String indexFactorName;
+	private String[] reshapeVariableNames;
+	private String targetVariable;
+	private String[] variableLevels;
+	private DataManipulationManager dataManipulationManager;
+	private String[] mseValues;
+	private String[] repsValues;
+
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 * @param targetVariables 
+	 */
+	public TwoStageMseRepsDialog(Shell parentShell, String[] reshapeVariableNames) {
+		super(parentShell);
+		this.reshapeVariableNames= reshapeVariableNames;
+		dataManipulationManager = new DataManipulationManager();
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		parent.getShell().setText("Ammi and Stability Analysis");
+		Composite container = (Composite) super.createDialogArea(parent);
+		
+		Label lblTheVariablesYou = new Label(container, SWT.NONE);
+		lblTheVariablesYou.setText("The variables you specified were incomplete.");
+		
+		Label lblToPerformAmmi = new Label(container, SWT.WRAP);
+		GridData gd_lblToPerformAmmi = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
+		gd_lblToPerformAmmi.heightHint = 44;
+		lblToPerformAmmi.setLayoutData(gd_lblToPerformAmmi);
+		lblToPerformAmmi.setText("To perform AMMI and Stability Analysis only, please specify the no. of Reps and MSE for each response variable.");
+		
+//		Label lblDefineLevelsOf = new Label(container, SWT.NONE);
+//		lblDefineLevelsOf.setText("Define MSE and No.  Of "+ indexFactorName+":");
+		
+		table = new Table(container, SWT.BORDER | SWT.FULL_SELECTION);
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+		
+		TableColumn targetVarNameCol = new TableColumn(table, SWT.NONE);
+		targetVarNameCol.setWidth(124);
+		targetVarNameCol.setText("Response Variable");
+		
+		TableColumn mseCol = new TableColumn(table, SWT.NONE);
+		mseCol.setWidth(155);
+		mseCol.setText("MSE:");
+		
+		TableColumn repsCol = new TableColumn(table, SWT.NONE);
+		repsCol.setWidth(155);
+		repsCol.setText("No. of Reps:");
+		
+		for(String s: reshapeVariableNames){
+			final TableItem tableItem= new TableItem(table, SWT.CENTER);
+			tableItem.setText(0, s);
+			TableEditor editor = new TableEditor(table);
+			TableEditor editor2 = new TableEditor(table);
+			final Text varLevel = new Text(table, SWT.NONE);
+			varLevel.setText(Integer.toString(0));
+			Listener textListener = new Listener() {
+				public void handleEvent(final Event e) {
+					switch (e.type) {
+					case SWT.FocusOut:
+						tableItem.setText(1, varLevel.getText()); 
+						break;
+					}
+				}
+			};
+			varLevel.addListener(SWT.FocusOut, textListener);
+			varLevel.addListener(SWT.Traverse, textListener);
+			varLevel.addListener(SWT.KeyDown, textListener);
+			
+			final Text varLeve2 = new Text(table, SWT.NONE);
+			varLeve2.setText(Integer.toString(1));
+			Listener textListener2 = new Listener() {
+				public void handleEvent(final Event e) {
+					switch (e.type) {
+					case SWT.FocusOut:
+						tableItem.setText(1, varLeve2.getText());
+						break;
+					}
+				}
+			};
+			varLeve2.addListener(SWT.FocusOut, textListener2);
+			varLeve2.addListener(SWT.Traverse, textListener2);
+			varLeve2.addListener(SWT.KeyDown, textListener2);
+			
+			editor.grabHorizontal = true;
+			editor2.grabHorizontal = true;
+			
+			editor.setEditor(varLevel, tableItem, 1);
+			editor2.setEditor(varLeve2, tableItem, 2);
+			
+			tableItem.setData("mse",varLevel);
+			tableItem.setData("reps", varLeve2);
+		}
+		return container;
+	}
+
+	@Override
+	protected void okPressed() {
+		variableLevels = getCurrentLevels();
+		try{
+		if(variableLevels.length==reshapeVariableNames.length) close();
+		} catch(Exception e){}
+	}
+	
+	public String[] getCurrentLevels(){
+		mseValues = new String[reshapeVariableNames.length];
+		repsValues = new String[reshapeVariableNames.length];
+		String[] empty = null;
+		int ctr=0;
+
+		for(String s: reshapeVariableNames){
+			TableItem tableItem= table.getItem(ctr);
+			Text mseText = (Text) tableItem.getData("mse");
+			Text repsText = (Text) tableItem.getData("reps");
+			System.out.println(tableItem.getText(1) + "is the value of table Item index 1");
+				if(mseText.getText().equals("")){//if there's no level indicated for this variable
+					MessageDialog.openWarning(getShell(), "Invalid Input", "Please indicate an MSE for "+ s +".");
+					return empty;
+				}
+				else if(repsText.getText().equals("")){//if there's no level indicated for this variable
+					MessageDialog.openWarning(getShell(), "Invalid Input", "Please indicate the no. of reps for "+ s +".");
+					return empty;
+				}
+				else if(checkLevelsNameIfNotNumeric(mseText.getText())){
+					MessageDialog.openWarning(getShell(), "Invalid Input at "+s, "MSE should have a positive numeric value.");
+					return empty;
+				}
+				else if(checkLevelsNameIfNotNumeric(repsText.getText())){
+					MessageDialog.openWarning(getShell(), "Invalid Input at "+s, "The no. of reps should have a positive numeric value.");
+					return empty;
+				}
+				else{
+					mseValues[ctr] = mseText.getText();
+					repsValues[ctr] = repsText.getText();
+				}
+			ctr++;
+		}
+		return mseValues;
+	}
+	
+	public String[] getLevels(){
+		return variableLevels;
+	}
+	
+	public boolean checkLevelsNameIfNotNumeric(String value) {
+		// TODO Auto-generated method stub
+		try{
+			Double d = Double.parseDouble(value);
+			if(d<0) return true;
+		}catch(Exception ex){
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				"Back", false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(470, 298);
+	}
+
+	public String[] getMseValues() {
+		// TODO Auto-generated method stub
+		return mseValues;
+	}
+	
+	public String[] getRepsValues() {
+		// TODO Auto-generated method stub
+		return repsValues;
+	}
+	
+	
+
+}

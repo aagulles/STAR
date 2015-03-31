@@ -1,0 +1,377 @@
+package org.irri.breedingtool.star.analysis.dialog;
+
+import java.util.ArrayList;
+
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.utility.DialogFormUtility;
+import org.irri.breedingtool.utility.StarAnalysisUtilities;
+import org.eclipse.wb.swt.ResourceManager;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+
+public class NonLinearRegressionAnalysisModelSpecDialog extends Dialog {
+
+	private Button btnOk;
+	private String filePath = PartStackHandler.getActiveElementID();
+	private DialogFormUtility listManager = new DialogFormUtility();
+	private ArrayList<String> tableData = new ArrayList<String>();
+	private Composite composite;
+	private Label lblIndependentVariable;
+	private List lstIndependentVar;
+	private Button btnParameter;
+	private List lstParameter;
+	private Label lblRighthandExpression;
+	private List lstRightHand;
+	private Label lblOperators;
+	private Composite composite_1;
+	private Button btn1;
+	private Button btn2;
+	private Button btn3;
+	private Button btn4;
+	private Button btn5;
+	private Button btn6;
+	private Button btn7;
+	private Button btn8;
+	private Button btn9;
+	private Button btn0;
+	private Button btnDot;
+	private Button btnAddition;
+	private Button btnMinus;
+	private Button btnMultiply;
+	private Button btnDivide;
+	private Button btnParenthesis;
+	private Label lblFunction;
+	private List cmboFunctions;
+	private Button btnDel;
+	private Button btnCaret;
+	private Button button;
+	private Button button_1;
+	private Button button_2;
+	private String returnVal;
+	public String getReturnVal() {
+		return returnVal;
+	}
+	public void setReturnVal(String returnVal) {
+		this.returnVal = returnVal;
+	}
+	
+	/**
+	 * Create the dialog.
+	 * @param parentShell
+	 */
+	public NonLinearRegressionAnalysisModelSpecDialog(Shell parentShell) {
+		super(parentShell);
+		setShellStyle(SWT.DIALOG_TRIM | SWT.MIN | SWT.RESIZE);
+	}
+	protected void configureShell(Shell shell) {
+		super.configureShell(shell);
+		shell.setText("Nonlinear Regression: Expression Building");
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 * @param parent
+	 */
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite container = (Composite) super.createDialogArea(parent);
+		FillLayout fl_container = new FillLayout(SWT.HORIZONTAL);
+		fl_container.marginHeight = 8;
+		fl_container.marginWidth = 8;
+		container.setLayout(fl_container);
+		
+		composite = new Composite(container, SWT.NONE);
+		composite.setLayout(new GridLayout(5, false));
+		
+		lblRighthandExpression = new Label(composite, SWT.NONE);
+		lblRighthandExpression.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 2, 1));
+		lblRighthandExpression.setText("Right-hand Expression:");
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		
+		lstRightHand = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstRightHand = new GridData(SWT.FILL, SWT.FILL, true, true, 5, 1);
+		gd_lstRightHand.heightHint = 48;
+		gd_lstRightHand.widthHint = 400;
+		lstRightHand.setLayoutData(gd_lstRightHand);
+		lstRightHand.setItems(new String[] {});
+		
+		lblIndependentVariable = new Label(composite, SWT.NONE);
+		lblIndependentVariable.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, true, false, 1, 1));
+		lblIndependentVariable.setText("Independent Variable:");
+		
+		button = new Button(composite, SWT.NONE);
+		button.setImage(ResourceManager.getPluginImage("Star", "icons/play1.PNG"));
+		button.setFont(SWTResourceManager.getFont("Wingdings 3", 9, SWT.NORMAL));
+		new Label(composite, SWT.NONE);
+		
+		lblOperators = new Label(composite, SWT.NONE);
+		lblOperators.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, true, false, 1, 1));
+		lblOperators.setText("Operators/Constants:");
+		new Label(composite, SWT.NONE);
+		
+		lstIndependentVar = new List(composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.MULTI);
+		GridData gd_lstIndependentVar = new GridData(SWT.FILL, SWT.TOP, true, true, 2, 1);
+		gd_lstIndependentVar.heightHint = 5;
+		gd_lstIndependentVar.widthHint = 180;
+		lstIndependentVar.setLayoutData(gd_lstIndependentVar);
+		new Label(composite, SWT.NONE);
+		
+		composite_1 = new Composite(composite, SWT.BORDER);
+		GridData gd_composite_1 = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 4);
+		gd_composite_1.widthHint = 187;
+		gd_composite_1.heightHint = 92;
+		composite_1.setLayoutData(gd_composite_1);
+		composite_1.setLayout(new GridLayout(7, false));
+		
+		btn1 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn1 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn1.widthHint = 25;
+		gd_btn1.heightHint = 25;
+		btn1.setLayoutData(gd_btn1);
+		btn1.setText("1");
+		
+		btn2 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn2 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn2.widthHint = 25;
+		gd_btn2.heightHint = 25;
+		btn2.setLayoutData(gd_btn2);
+		btn2.setText("2");
+		
+		btn3 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn3 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn3.widthHint = 25;
+		gd_btn3.heightHint = 25;
+		btn3.setLayoutData(gd_btn3);
+		btn3.setText("3");
+		
+		btn4 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn4 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn4.widthHint = 25;
+		gd_btn4.heightHint = 25;
+		btn4.setLayoutData(gd_btn4);
+		btn4.setText("4");
+		
+		btnAddition = new Button(composite_1, SWT.NONE);
+		GridData gd_btnAddition = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnAddition.widthHint = 25;
+		btnAddition.setLayoutData(gd_btnAddition);
+		btnAddition.setText("+");
+		
+		btnMinus = new Button(composite_1, SWT.NONE);
+		GridData gd_btnMinus = new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1);
+		gd_btnMinus.widthHint = 25;
+		btnMinus.setLayoutData(gd_btnMinus);
+		btnMinus.setText("-");
+		new Label(composite_1, SWT.NONE);
+		
+		btn5 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn5 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn5.widthHint = 25;
+		gd_btn5.heightHint = 25;
+		btn5.setLayoutData(gd_btn5);
+		btn5.setText("5");
+		
+		btn6 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn6 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn6.widthHint = 25;
+		btn6.setLayoutData(gd_btn6);
+		btn6.setText("6");
+		
+		btn7 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn7 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn7.widthHint = 25;
+		btn7.setLayoutData(gd_btn7);
+		btn7.setText("7");
+		
+		btn8 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn8 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn8.widthHint = 25;
+		btn8.setLayoutData(gd_btn8);
+		btn8.setText("8");
+		
+		btnMultiply = new Button(composite_1, SWT.NONE);
+		GridData gd_btnMultiply = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnMultiply.widthHint = 25;
+		btnMultiply.setLayoutData(gd_btnMultiply);
+		btnMultiply.setText("*");
+		
+		btnDivide = new Button(composite_1, SWT.NONE);
+		GridData gd_btnDivide = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnDivide.widthHint = 25;
+		btnDivide.setLayoutData(gd_btnDivide);
+		btnDivide.setText("/");
+		new Label(composite_1, SWT.NONE);
+		
+		btn9 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn9 = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btn9.widthHint = 25;
+		btn9.setLayoutData(gd_btn9);
+		btn9.setText("9");
+		
+		btn0 = new Button(composite_1, SWT.NONE);
+		GridData gd_btn0 = new GridData(SWT.LEFT, SWT.TOP, false, false, 1, 1);
+		gd_btn0.widthHint = 25;
+		btn0.setLayoutData(gd_btn0);
+		btn0.setText("0");
+		
+		btnDot = new Button(composite_1, SWT.NONE);
+		GridData gd_btnDot = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnDot.widthHint = 25;
+		btnDot.setLayoutData(gd_btnDot);
+		btnDot.setText(".");
+		
+		btnCaret = new Button(composite_1, SWT.NONE);
+		GridData gd_btnCaret = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnCaret.widthHint = 24;
+		btnCaret.setLayoutData(gd_btnCaret);
+		btnCaret.setText("^");
+		
+		btnParenthesis = new Button(composite_1, SWT.NONE);
+		GridData gd_btnParenthesis = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+		gd_btnParenthesis.widthHint = 27;
+		btnParenthesis.setLayoutData(gd_btnParenthesis);
+		btnParenthesis.setText("( )");
+		
+		btnDel = new Button(composite_1, SWT.NONE);
+		GridData gd_btnDel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2, 1);
+		gd_btnDel.widthHint = 27;
+		btnDel.setLayoutData(gd_btnDel);
+		btnDel.setText("Del");
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		
+		btnParameter = new Button(composite, SWT.NONE);
+		btnParameter.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				NonLinearRegressionAnalysisParameters dlgParam = new NonLinearRegressionAnalysisParameters(getShell());
+				dlgParam.open();
+				if(dlgParam.getReturnCode() == Dialog.OK){
+				   	dlgParam.getReturnVal();
+				}
+			}
+		});
+		btnParameter.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+		btnParameter.setText("Parameters:");
+		
+		button_1 = new Button(composite, SWT.NONE);
+		button_1.setImage(ResourceManager.getPluginImage("Star", "icons/play1.PNG"));
+		button_1.setFont(SWTResourceManager.getFont("Wingdings 3", 9, SWT.NORMAL));
+		new Label(composite, SWT.NONE);
+		
+		lstParameter = new List(composite, SWT.BORDER | SWT.FULL_SELECTION);
+		GridData gd_lstParameter = new GridData(SWT.FILL, SWT.FILL, true, false, 2, 3);
+		gd_lstParameter.heightHint = 96;
+		gd_lstParameter.widthHint = 199;
+		lstParameter.setLayoutData(gd_lstParameter);
+		new Label(composite, SWT.NONE);
+		new Label(composite, SWT.NONE);
+		
+		lblFunction = new Label(composite, SWT.NONE);
+		lblFunction.setLayoutData(new GridData(SWT.LEFT, SWT.BOTTOM, true, false, 1, 1));
+		lblFunction.setText("Functions:");
+		
+		button_2 = new Button(composite, SWT.NONE);
+		button_2.setImage(ResourceManager.getPluginImage("Star", "icons/play1.PNG"));
+		button_2.setFont(SWTResourceManager.getFont("Wingdings 3", 9, SWT.NORMAL));
+		new Label(composite, SWT.NONE);
+		
+		cmboFunctions = new List(composite, SWT.BORDER | SWT.V_SCROLL);
+		cmboFunctions.setItems(new String[] {"abs", "acos", "asin", "atan", "cos", "exp", "log", "log10", "sin", "sqrt", "tan"});
+		GridData gd_cmboFunctions = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		gd_cmboFunctions.heightHint = 48;
+		gd_cmboFunctions.widthHint = 166;
+		cmboFunctions.setLayoutData(gd_cmboFunctions);
+		cmboFunctions.select(0);
+//		listManager.initializeSingleButtonList(lstAvailableData, lstDependentVariables, btnAddDependentVariable);
+//		listManager.initializeSingleButtonList(lstAvailableData, lstIndependentVariables, btnAddIndependentVariable);
+//
+//		
+//		listManager.initializeNumericList(lstAvailableData, filePath);
+		
+		return container;
+	}
+@Override
+//	protected void buttonPressed(int buttonID){
+//		if(buttonID == IDialogConstants.OK_ID) okPressed();
+//		else if(buttonID == IDialogConstants.RETRY_ID){
+//			listManager.setCheckBoxesToBoolean(new Composite[]{grpDisplay,grpSave,grpNormalityTest,grpTestForHeteroskedasticity}, false);
+//			btnCoefficientInterval.setSelection(selected)(false);
+//			btnCovarienceMatrix.setEnabled(true);
+//			btnIncludeConstantEquation.setSelection(true);
+//			txtConfidenceInterval.setSelection(95);
+//			lstAvailableData.removeAll();
+//			lstDependentVariables.removeAll();
+//			lstIndependentVariables.removeAll();
+//			listManager.initializeNumericList(lstAvailableData, filePath);
+//			txtConfidenceInterval.setEnabled(false);
+//			
+//		}
+//		else this.close();
+//	}
+	
+protected void	okPressed(){
+	
+	btnOk.setEnabled(false);
+	
+
+	String outputFolder = StarAnalysisUtilities.createOutputFolder(filePath,"NonLinearRegression") + "\\";
+	
+//	ProjectExplorerView.rJavaManager.getSTARAnalysisManager().doLinearReg(			
+//			filePath.replace("\\", "/"),
+//			outputFolder.replace("\\", "/") ,
+//			lstDependentVariables.getItems(), 
+//			lstIndependentVariables.getItems(),
+//			btnIncludeConstantEquation.getSelection(),
+//			btnCoefficientInterval.getSelection(),
+//			txtConfidenceInterval.getSelection(),
+//			btnCovarienceMatrix.getSelection(),
+//			btnVarianceInflationFactors.getSelection(),
+//			btnDurbinwatson.getSelection(),
+//			listManager.getCheckBoxesValue(btnBreuschpagar,btnGoldfeldquandt),
+//			listManager.getCheckBoxesValue(grpNormalityTest),
+//			btnCooksDistance.getSelection(),
+//			btnLeverageValues.getSelection());
+//	
+	setReturnVal("Ahtg");
+	close();
+
+	}
+	/**
+	 * Create contents of the button bar.
+	 * @param parent
+	 */
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		createButton(parent, IDialogConstants.RETRY_ID, "Reset", false);
+		btnOk = createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
+				true);
+		createButton(parent, IDialogConstants.CANCEL_ID,
+				IDialogConstants.CANCEL_LABEL, false);
+	}
+
+	/**
+	 * Return the initial size of the dialog.
+	 */
+	@Override
+	protected Point getInitialSize() {
+		return new Point(491, 437);
+	}
+}

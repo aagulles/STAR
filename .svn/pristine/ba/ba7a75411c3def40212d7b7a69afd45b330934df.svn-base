@@ -1,0 +1,876 @@
+package org.irri.breedingtool.manager.impl;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
+import javax.annotation.PostConstruct;
+
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.e4.ui.model.application.ui.basic.MStackElement;
+import org.eclipse.jface.dialogs.InputDialog;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.window.Window;
+import org.eclipse.osgi.framework.adaptor.FilePath;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.wb.swt.ResourceManager;
+import org.irri.breedingtool.application.handler.PartStackHandler;
+import org.irri.breedingtool.application.model.ProjectExplorerTreeNodeModel;
+import org.irri.breedingtool.manager.api.IProjectExplorerManager;
+import org.irri.breedingtool.projectexplorer.dialog.NewProjectDialog;
+import org.irri.breedingtool.projectexplorer.dialog.OpenProjectDialog;
+import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
+import org.irri.breedingtool.projectexplorer.view.ProjectTreeComponent;
+import org.irri.breedingtool.projectexplorer.view.RJavaManagerInitializer;
+import org.irri.breedingtool.star.analysis.handler.CorrelationAnalysisHandler;
+import org.irri.breedingtool.utility.CheckFileExistValidator;
+import org.irri.breedingtool.utility.StarAnalysisUtilities;
+
+import com.sun.jna.LastErrorException;
+import com.sun.jna.platform.FileUtils;
+
+public class ProjectExplorerManager implements IProjectExplorerManager{
+
+	@Override
+	public ProjectExplorerTreeNodeModel createNewProjectExplorerModel(ProjectExplorerTreeNodeModel parentModel, String fileName) {
+		this.refreshFolder(parentModel);
+
+		for(int i = 0; i < parentModel.getTreeItem().getItemCount(); i++){
+			if(parentModel.getTreeItem().getItem(i).getText().toString().equals(fileName)){
+				return (ProjectExplorerTreeNodeModel) parentModel.getTreeItem().getItem(i).getData();
+			}
+
+		}
+
+		return null;
+	}
+
+	@Override
+	public boolean copySampleProjectTo(String workspacePath) throws IOException{
+		String applicationPath = new File(".").getCanonicalPath() + File.separator + "Projects" + File.separator + "SampleProject";
+		
+		this.copyDirectory(new File(applicationPath), new File (workspacePath));
+		return false; 
+	}
+	
+	@Override
+	public boolean createNewProject(String projectName, String projectDescription){
+		File newProjectFolder = new File(ProjectTreeComponent.getCurrentWorkspacePath() + projectName);
+		newProjectFolder.mkdir();
+		newProjectFolder = new File(ProjectTreeComponent.getCurrentWorkspacePath()+ projectName + "\\Data\\");
+		newProjectFolder.mkdir();
+
+		newProjectFolder = new File(ProjectTreeComponent.getCurrentWorkspacePath()+ projectName + "\\Output\\");
+		newProjectFolder.mkdir();
+		File  setINIFile = new File(ProjectTreeComponent.getCurrentWorkspacePath()+ projectName + "\\project.ini");                                                 
+
+		FileWriter fileWriter;
+		try {
+			fileWriter = new FileWriter(setINIFile.getAbsoluteFile());
+			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+			Date dateCreated = new Date();
+
+			SimpleDateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z");
+
+			String iniContent;
+			iniContent = "projectName=" + projectName + "\nprojectDescription=" + projectDescription + "\ndateCreated=" + formatter.format(dateCreated).toString();
+			bufferedWriter.write(iniContent);
+			bufferedWriter.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+
+
+		return true;
+	}
+
+	@Override
+	public String getProjectDescription(String projectName){
+		String retValue = "";
+		Properties projectINI = new Properties();
+		try {
+			projectINI.load(new FileInputStream(ProjectTreeComponent.getCurrentWorkspacePath()+ projectName + "\\project.ini"));
+			retValue = projectINI.getProperty("projectDescription");
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+		
+		}
+
+		return retValue;
+	}
+
+	@Override
+	public String getProjectDateCreated(String projectName){
+		String retValue = "";
+		Properties projectINI = new Properties();
+		try {
+			projectINI.load(new FileInputStream(ProjectTreeComponent.getCurrentWorkspacePath()+ projectName + "\\project.ini"));
+			retValue = projectINI.getProperty("dateCreated");
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+
+		}
+
+		return retValue;
+	}
+
+	@Override
+	public TreeItem getTreeNodeByName(TreeItem leaf, String searchTreeNode) {
+		for(int i = 0; i < leaf.getItemCount(); i++)
+
+			if(searchTreeNode.equals(leaf.getItem(i).getText().toString())) return leaf.getItem(i);
+
+		return leaf;
+	}
+
+	@Override
+	public TreeItem getDataFolder(TreeItem projectTree) {
+		TreeItem[] treeNodes = projectTree.getItems();
+		for(TreeItem node : treeNodes){
+			if(node.getText().toString().equals("Data")) 
+				return node;
+		}
+
+		return null;
+	}
+
+	@Override
+	public ProjectExplorerTreeNodeModel getTreeNodeModelbyFilePath(String filePath){
+		ProjectExplorerTreeNodeModel fileModel = null;
+
+		filePath = filePath.replace(this.getProjectPath() + "\\", "");
+
+		String[] folderPaths = filePath.split("\\\\");
+		TreeItem searchItem = ProjectExplorerView.projectTree;
+		for(int i = 0; i < folderPaths.length; i++){
+			searchItem = this.getTreeNodeByName(searchItem, folderPaths[i]);
+			if(folderPaths[i].equals(searchItem.getText().toString())){
+				fileModel = (ProjectExplorerTreeNodeModel) searchItem.getData();
+			}
+		}
+		return fileModel;
+	}
+
+	@Override
+	public TreeItem getOutputFolder(TreeItem projectTree) {
+	
+		TreeItem[] treeNodes = projectTree.getItems();
+		for(TreeItem node : treeNodes){
+			if(node.getText().toString().equals("Output")) 
+				return node;
+		}
+
+		return null;
+	}
+
+	@Override
+	public String getLastOpenedProject() {
+		Properties starINI = new Properties();
+		String retValue = "";
+		try {
+			starINI.load(new FileInputStream(this.getApplicationINI()) );
+			retValue = starINI.getProperty("lastOpenedProject");
+			if(retValue == null){
+			
+			
+					
+					return String.valueOf(Math.random());
+					
+				
+			}
+		} catch (FileNotFoundException e) {
+
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+
+			e.printStackTrace();
+		}
+		return retValue;
+	}
+	
+	@Override
+	public String getWorkspacePath() {
+		Properties starINI = new Properties();
+		String retValue = "";
+		try {
+			starINI.load(new FileInputStream(this.getApplicationINI()) );
+			retValue = starINI.getProperty("workspacePath");
+			if(retValue == null){
+			
+			
+					
+					//return String.valueOf(Math.random());
+					return "NULL";
+				
+			}
+		} catch (FileNotFoundException e) {
+
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+
+			e.printStackTrace();
+		}
+		if(!retValue.endsWith("\\")) return retValue + "\\";
+		return retValue;
+	}
+
+	@Override
+	public String getApplicationINI() {
+		String iniPath = System.getProperty ("user.dir") + "\\system.ini";
+		//check if init exist;\
+		if(!new File(iniPath).exists()){
+			try {
+				new File(iniPath).createNewFile();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+				PrintStream out = null;
+			try {
+			    try {
+					out = new PrintStream(new FileOutputStream(iniPath));
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					
+				}
+			    if(new File(System.getProperty ("user.dir") + "\\Projects\\SampleProject").exists()){
+			    	out.print("lastOpenedProject=SampleProject");
+				    	
+			    }
+			    else{
+			    	OpenProjectDialog openProject = new OpenProjectDialog(Display.getCurrent().getActiveShell());
+
+			    	
+					if(openProject.open() == 0) 	
+				{ 
+						ProjectTreeComponent	projectTreeComponent ;
+						
+					projectTreeComponent = new ProjectTreeComponent(ProjectExplorerView.projectTree, openProject.getGetProjectName());
+					out.print("lastOpenedProject="+openProject.getGetProjectName());
+				}
+					
+			    }
+			}
+			finally {
+			    if (out != null) out.close();
+			}
+		}
+		return System.getProperty ("user.dir") + "\\system.ini";	
+
+	}
+
+	@Override
+	public String getPackageName() {
+		// TODO Auto-generated method stub
+		return "Star";
+	}
+	@Override
+	public String getProjectPath(){
+		return new File(getWorkspacePath()+ File.separator + getLastOpenedProject()).getAbsolutePath();
+	}
+
+	@Override
+	public boolean deleteFile(String filePath) {
+		File projectFile = new File(filePath);
+		FileUtils fileUtil = FileUtils.getInstance();
+		File delFile[] = new File[1];
+		delFile[0] = projectFile;
+		String [] fileExeceptions = {this.getProjectPath() + "\\Data",this.getProjectPath() + "\\Output"};
+		
+		//System.out.println("deleted: "+ filePath);
+		if(Arrays.binarySearch(fileExeceptions, projectFile.getAbsolutePath().toString() ) > -1) {
+			return false;
+		}
+		if (projectFile.isDirectory()){
+			try {
+				fileUtil.moveToTrash(delFile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+		}
+
+
+		try {
+			if(delFile[0].getAbsolutePath().endsWith(".csv")){
+				File tempFile = new File(delFile[0].getAbsolutePath().replace(".csv", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION));
+				if(tempFile.exists()) tempFile.delete();
+			}
+			fileUtil.moveToTrash(delFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			return false;
+		}
+		catch (LastErrorException Lee) {
+			// TODO Auto-generated catch blocks
+			return false;
+		}
+		
+		return true;
+
+	}
+	@Override
+	public boolean deleteFolder(File directory) {
+
+		  // System.out.println("removeDirectory " + directory);
+
+		  if (directory == null)
+		    return false;
+		  if (!directory.exists())
+		    return true;
+		  if (!directory.isDirectory())
+		    return false;
+
+		  String[] list = directory.list();
+
+		  // Some JVMs return null for File.list() when the
+		  // directory is empty.
+		  if (list != null) {
+		    for (int i = 0; i < list.length; i++) {
+		      File entry = new File(directory, list[i]);
+
+		      //        System.out.println("\tremoving entry " + entry);
+
+		      if (entry.isDirectory())
+		      {
+		        if (!deleteFolder(entry))
+		          return false;
+		      }
+		      else
+		      {
+		        if (!entry.delete())
+		          return false;
+		      }
+		    }
+		  }
+
+		  return directory.delete();
+		}
+
+
+
+	@Override
+	public boolean deleteProject(String projectName) {
+		this.deleteFile(this.getProjectPath());
+		return true;
+	}
+
+	@Override
+	public void listFolder(File folder, TreeItem projectTree) {
+		File[] getDir = folder.listFiles();
+
+		Arrays.sort(getDir);
+
+		for (File fileEntry : getDir) {
+			if (fileEntry.isDirectory()) {
+
+				TreeItem folderLeaf =  new TreeItem(projectTree,0);
+				folderLeaf.setText(fileEntry.getName().toString());
+
+				folderLeaf.setImage(ResourceManager.getPluginImage(getPackageName(), "icons/folder.png"));	
+				if(fileEntry.list().length == 0) folderLeaf.setImage(ResourceManager.getPluginImage(getPackageName(), "icons/folder_empty.png"));	
+				
+				ProjectExplorerTreeNodeModel fileModel = new ProjectExplorerTreeNodeModel(fileEntry, folderLeaf);
+				
+				folderLeaf.setData(fileModel);
+				
+				listFolder(fileEntry,folderLeaf);
+			}
+		}
+
+	}
+
+	@Override
+	public void listFiles(File folder, TreeItem projectTree) {
+		FilenameFilter fileFilter = new FilenameFilter(){
+
+			@Override
+			public boolean accept(File arg0, String arg1) {
+				String[] filterFileTypes = {"ini","tmp","RData","_varInfo.txt","_original.txt","_varinfo.txt"};
+				
+				for(String filter : filterFileTypes ){
+					if(arg1.toUpperCase().endsWith(filter.toUpperCase())) return false;
+				}
+				return true;
+			}};
+		File[] getDir = folder.listFiles(fileFilter );
+
+		Arrays.sort(getDir);
+		String[] filterFileTypes = {"ini","tmp","RData","_varInfo.txt","_original.txt","_varinfo.txt"};
+		for (File fileEntry : getDir) {
+			if (fileEntry.isDirectory()) {
+
+				listFiles(fileEntry,getTreeNodeByName(projectTree,fileEntry.getName().toString()));
+			} else {
+				String fileType = fileEntry.getName().toString().split("\\.")[fileEntry.getName().toString().split("\\.").length - 1];
+				//					
+				if(!Arrays.asList(filterFileTypes).contains(fileType.toString()))
+				{
+					TreeItem fileLeaf =  new TreeItem(projectTree,0);
+					fileLeaf.setText(fileEntry.getName().toString());
+					
+					ProjectExplorerTreeNodeModel fileModel = new ProjectExplorerTreeNodeModel(fileEntry, fileLeaf);
+
+					fileLeaf.setData(fileModel);
+					if(fileEntry.getName().endsWith(".txt")) fileLeaf.setImage(ResourceManager.getPluginImage(getPackageName(), "icons/page_white_text.png"));	
+					else if(fileEntry.getName().endsWith(".png") || fileEntry.getName().endsWith(".jpg")) fileLeaf.setImage(ResourceManager.getPluginImage(getPackageName(), "icons/picture.png"));	
+					else if(fileEntry.getName().endsWith(".csv")) fileLeaf.setImage(ResourceManager.getPluginImage(getPackageName(), "icons/table.png"));	
+					else if(fileEntry.getName().endsWith(".pdf")) fileLeaf.setImage(ResourceManager.getPluginImage(getPackageName(), "icons/pdf_icon.png"));	
+					else  fileLeaf.setImage(ResourceManager.getPluginImage(getPackageName(), "icons/unknown.png"));	
+				}
+			}
+		}
+
+	}
+
+	@Override
+	public boolean copyFile(File sourceFile, File destinationFile) {
+		
+		if(sourceFile.getAbsolutePath().equals(destinationFile.getAbsolutePath())) return true;
+		System.out.println("Source: " + sourceFile.getAbsolutePath());
+		
+		System.out.println("Destination: " + destinationFile.getAbsolutePath());
+		try {
+			if(destinationFile.exists()){
+				String message="The file '" + destinationFile.getName().toString() + "' already exist in the  folder. Do you want to overwrite the file? \n\n\n WARNING: This action is permanent" ;
+				boolean isOverwrite=MessageDialog.openQuestion(Display.getCurrent().getActiveShell(), "Confirm", message);
+
+
+				if(!isOverwrite){
+					return false;
+				}
+			}
+			InputStream is = new FileInputStream(sourceFile);
+			OutputStream os = new FileOutputStream(destinationFile);
+
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = is.read(buf)) > 0) {
+				os.write(buf, 0, len);
+			}
+			is.close();
+			os.close();
+
+			boolean ko=destinationFile.renameTo(destinationFile);
+			//System.out.println(ko);
+			//System.out.println("Imported: "+sourceFile.getPath());
+			return true;
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			System.out.println("File not found");
+			return false;
+			//	 e1.printStackTrace();
+
+		} catch (IOException eg) {
+			return false;
+		}
+
+	}
+	@Override
+	public boolean copyBatchFile(File[] sourceFiles, File destinationFolder) {
+
+		StarAnalysisUtilities.testVarArgs(sourceFiles);
+		boolean overwriteYesToAll = false;
+		//System.out.println("sourceFile.len : " + sourceFiles.length);
+		
+		System.out.println("called copy batch file.");
+		String errMessage = null;
+		for(int i = sourceFiles.length - 1; i >= 0 ; i--){
+			File destinationFile = new File(destinationFolder.getPath() + "\\" + sourceFiles[i].getName());
+
+			if(sourceFiles[i].isDirectory()){ //if directory
+				if(!sourceFiles[i].getAbsolutePath().equals(destinationFolder.getAbsolutePath()))
+				this.copyDirectory(sourceFiles[i], destinationFile);
+
+			}
+			
+			else if (sourceFiles[i].isFile()) {
+
+				try {
+					//System.out.println("Try File");
+					int dialogResult = -1;
+					if (destinationFile.exists() && overwriteYesToAll == false) {
+						String message = "The file '"
+								+ destinationFile.getName().toString()
+								+ "' already exist in the destination folder. Do you want to overwrite the file? \n\n\n WARNING: This action is permanent";
+						MessageDialog dialogOverwrite = new MessageDialog(Display.getCurrent().getActiveShell(),
+								"Confirm Overwrite", null, message,
+								MessageDialog.CONFIRM, new String[] { "Yes",
+							"Yes To All", "No", "No to All" }, 0);
+						dialogResult = dialogOverwrite.open();
+
+						if(dialogResult == 3) return false;
+						else if(dialogResult == 1) overwriteYesToAll = true;
+					}
+
+					if (overwriteYesToAll == true || dialogResult == 0 || !destinationFile.exists()) {
+
+						InputStream is = new FileInputStream(sourceFiles[i]);
+						OutputStream os = new FileOutputStream(destinationFile);
+						byte[] buf = new byte[1024];
+						int len;
+						if(!PartStackHandler.isOpen(destinationFile.getAbsolutePath())){
+							while ((len = is.read(buf)) > 0) {
+								os.write(buf, 0, len);
+							}
+						}
+						else{
+							if(errMessage == null) errMessage = destinationFile.getName();
+							else errMessage = errMessage + ", " + destinationFile.getName();
+						}
+					
+						is.close();
+						os.close();
+						boolean ko = destinationFile.renameTo(destinationFile);
+						//System.out.println(ko);
+					}
+
+
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					System.out.println("File not found");
+					return false;
+					//	 e1.printStackTrace();
+
+				} catch (IOException eg) {
+					return false;
+				}
+			}
+		}
+		if(errMessage != null){
+			MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error File Operation", "The file(s) [" + errMessage + "]" + " is still active in the application. Close the files first.");
+
+		}
+		return true;
+
+	}
+
+
+	@Override
+	public  boolean copyDirectory(File sourceDir, File destDir)  {
+		
+		if(!destDir.exists()) {
+			destDir.mkdir();
+		}
+
+		//this.copyBatchFile(sourceDir.listFiles(), destDir);
+		//		
+		//		File[] children = sourceDir.listFiles();
+		//		
+		//		for(File sourceChild : children) {
+		//			String name = sourceChild.getName();
+		//			File destChild = new File(destDir, name);
+		//			if(sourceChild.isDirectory()) {
+		//				copyDirectory(sourceChild, destChild);
+		//			}
+		//			else {
+		//
+		//				System.out.println(sourceChild + "<<<< Source ");
+		//				System.out.println(destDir + "<<<< destDir");
+		//				copyFile(sourceChild,destChild);
+		//			}
+		//		}
+
+		StarAnalysisUtilities.testVarArgs(sourceDir.listFiles(),  sourceDir.getPath(),destDir);
+		
+		return this.copyBatchFile(sourceDir.listFiles(), destDir);
+	}
+
+
+
+	@Override
+	public boolean renameFile(String filePath, String newFileName)
+			 {
+		
+		
+		
+
+	      /*
+	      ===============================================
+	      HACK - I should just be able to call renameTo() here and return its
+	      result. In fact, I used to do just that and this method always worked
+	      fine. Now with this new version of Java (1.5.0), rename (and other
+	      file methods) sometimes don't work on the first try. This is because
+	      file objects that have been closed are hung onto, pending garbage
+	      collection. By suggesting garbage collection, the next time, the
+	      renameTo() usually (but not always) works.
+	      ----------------------------------------------- */
+	     
+		
+		
+		
+		
+		
+		
+		
+		File projectFile = new File(filePath);
+		String [] fileExeceptions = {this.getProjectPath() + "\\Data",this.getProjectPath() + "\\Output"};
+		if(Arrays.binarySearch(fileExeceptions, projectFile.getAbsolutePath().toString() ) > -1) {
+			return false;
+		}
+		String oldFileName = projectFile.getName();
+		
+		for(int i =0; i < 20; i++){
+			if(projectFile.renameTo(new File(projectFile.getParentFile().getAbsolutePath() + "\\"+ newFileName))){
+				if(filePath.endsWith(".csv")){
+					File tmpFile = new File(filePath.replace(".csv", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION));
+					if(tmpFile.exists()) tmpFile.renameTo(new File(tmpFile.getParentFile().getPath() + "\\" + newFileName.replace(".csv", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION)));
+				}
+				return true;
+			}
+			try {
+				  Thread.sleep(50);
+				} catch (InterruptedException ie) {
+				    //Handle exception
+				}
+		}
+		return false;
+		
+//	TRASH CODE!! New implementation is in testing
+//		String oldName = filePath;
+//		String newName = projectFile.getParent() + "\\" + newFileName;
+//
+//
+//		File srcFile = new File(oldName);
+//		boolean bSucceeded = false;
+//		try {
+//			File destFile = new File(newName);
+//			if (destFile.exists()) {
+//				if (!destFile.delete()) {
+//					throw new IOException(oldName + " was not successfully renamed to " + newName); 
+//				}
+//			}
+//			if (!srcFile.renameTo(destFile))        {
+//				throw new IOException(oldName + " was not successfully renamed to " + newName);
+//			} else {
+//				bSucceeded = true;
+//				if(filePath.endsWith(".csv")){
+//					File tmpFile = new File(filePath.replace(".csv", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION));
+//					if(tmpFile.exists()) tmpFile.renameTo(new File(tmpFile.getParentFile().getPath() + "\\" + newFileName.replace(".csv", RJavaManagerInitializer.VARINFO_TMPFILE_EXTENSION)));
+//				}
+//			}
+//		} finally {
+//			if (bSucceeded) {
+//				srcFile.delete();
+//			}
+//		}
+//		return bSucceeded;
+	}
+
+	@Override
+	public void copyToClipboard(String[] fileName) {
+		Display display = Display.getCurrent();
+		Clipboard clipboard = new Clipboard(display);
+		//  String[] data = { fileName[] };
+		clipboard.setContents(new Object[] { fileName },  new Transfer[] { FileTransfer.getInstance() });
+		clipboard.dispose();
+
+	}
+
+	@Override
+	public void pasteFromClipboard(String folderPath, String projectPath) {
+		Display display = Display.getCurrent();
+		Clipboard clipboard = new Clipboard(display);
+
+		String[] data = (String[]) clipboard.getContents(FileTransfer.getInstance());
+		if(data == null) return;
+		String errMessage = null;
+		for(int i = 0; i < data.length; i++){
+
+			File clipboardFile = new File(data[i]);
+
+			if(new File(folderPath + "\\" + clipboardFile.getName()).exists()){
+				if(!PartStackHandler.isOpen(new File(folderPath + "\\" + clipboardFile.getName()).getAbsolutePath())){
+					InputDialog dlgRenameFile = new InputDialog(Display.getCurrent().getActiveShell(),
+							"STAR - File Conflicts", "Enter the new file name", "Copy of " + clipboardFile.getName() , new CheckFileExistValidator(clipboardFile.getName(),folderPath,true));
+					if (dlgRenameFile.open() == Window.OK)
+						toImport(data[i], folderPath + "\\" + dlgRenameFile.getValue(),projectPath);
+	
+				}
+				else{
+					if(errMessage == null){
+						errMessage = clipboardFile.getName();
+					}
+					else{
+						errMessage = errMessage + ", " + clipboardFile.getName();
+					}
+				}
+				
+
+			}
+			else{
+				
+				toImport(data[i], folderPath + "\\" + clipboardFile.getName(),projectPath);
+
+			}		 
+		}
+		if(errMessage != null){
+			MessageDialog.openError(Display.getCurrent().getActiveShell(), "File Operation Error", "Error overwriting the file(s) [" + errMessage + "]. Make sure all the files are closed. "); 
+		}
+
+	}
+
+	@Override
+	public void refreshFolder(ProjectExplorerTreeNodeModel folderNode) {
+		folderNode.getTreeItem().removeAll();
+		listFolder(new File(folderNode.getProjectFile().getPath()),folderNode.getTreeItem());
+		listFiles(new File(folderNode.getProjectFile().getPath()),folderNode.getTreeItem());
+		List<MStackElement> stackChildren = PartStackHandler.getStackChildrens();
+//		for(int i = 0; i < stackChildren.size(); i++){
+//			if(!stackChildren.get(i).getElementId().equals("retainer")){
+//				TreeItem treeItem = this.getTreeNodeModelbyFilePath(stackChildren.get(i).getElementId()).getTreeItem();
+//				ProjectExplorerTreeNodeModel oldModel = (ProjectExplorerTreeNodeModel) ((MPart) stackChildren.get(i)).getObject();
+//				
+//				treeItem.setData(oldModel);
+//				
+//			}
+//		}
+	}
+
+	@Override
+	public boolean renameProject(String projectName) {
+		String fromDir = this.getProjectPath();
+		String toDir = getWorkspacePath() + "\\" + projectName;
+		
+	    File from = new File(fromDir);
+
+	    if (!from.exists() || !from.isDirectory()) {
+
+	      System.out.println("Directory does not exist: " + fromDir);
+	      return false;
+	    }
+
+	    File to = new File(toDir);
+
+	    //Rename
+	    if (from.renameTo(to))
+	     return true;
+	    else
+	      return false;
+
+	  }
+	
+
+	@Override
+	public boolean saveLastOpenedProject(String projectName) {
+		Properties starINI = new Properties();
+		try {
+
+			starINI.load(new FileInputStream(this.getApplicationINI()) );
+			starINI.setProperty("lastOpenedProject", projectName);
+			starINI.store(new FileOutputStream(this.getApplicationINI()), "                            ");
+			//starINI.cl
+			return true;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			return false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+	}
+	@Override
+	public boolean saveWorkspacePath(String workspacePath) {
+		Properties starINI = new Properties();
+		try {
+
+			starINI.load(new FileInputStream(this.getApplicationINI()) );
+			starINI.setProperty("workspacePath", workspacePath);
+			starINI.store(new FileOutputStream(this.getApplicationINI()), "                            ");
+			//starINI.cl
+			return true;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			return false;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+
+		
+	}
+
+	@Override
+	public boolean toImport(String importDestination,
+			String optionalOutputPath, String projectPath) {
+		boolean retValue = true;
+		System.out.println(importDestination + "<<<< Import Destination");
+		System.out.println(optionalOutputPath + "<<<< optionalOutputPath");
+
+		File ImportFiletoSelectedFolder = new File(importDestination);
+
+		if (optionalOutputPath == null) optionalOutputPath = projectPath + "\\Data\\" + ImportFiletoSelectedFolder.getName();
+
+		File OutputFile = new File(optionalOutputPath);
+		if(ImportFiletoSelectedFolder.isDirectory()){
+			copyDirectory(ImportFiletoSelectedFolder, OutputFile);
+		//	System.out.println("FOLDER");
+		}
+		else{
+			copyFile(ImportFiletoSelectedFolder, OutputFile);
+		}
+
+		return retValue;
+	}
+
+	@Override
+	public boolean redraw() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean removeAllTreeItems(TreeItem projectTree) {
+		projectTree.removeAll();
+		projectTree.setText("");
+		return true;
+	}
+
+	@Override
+	public void createNewFolder(String parentDestinationPath, String folderName) {
+
+		File newFolder = new File(parentDestinationPath + "\\" + folderName);
+		newFolder.mkdir();
+
+	}
+
+@PostConstruct
+public void postCreate(){
+//	CorrelationAnalysisHandler.canExecute();
+}
+
+
+
+}

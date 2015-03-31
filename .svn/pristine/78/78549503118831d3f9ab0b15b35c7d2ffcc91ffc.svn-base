@@ -1,0 +1,70 @@
+Statistical Tool for Agricultural Research (STAR)
+Mon May 20 14:19:14 2013
+
+Summary Information
+---------------------------------- 
+FACTOR  NO. OF LEVELS  LEVELS     
+---------------------------------- 
+Blk     4              1, 2, 3, 4 
+---------------------------------- 
+Number of Observations: 64 
+
+
+DESCRIPTIVE STATISTICS
+--------------------------------------------- 
+Variable   N_Obs    Min    Max   Mean  StdDev
+--------------------------------------------- 
+Y1            64  29.80  57.30  42.74    6.22
+Y2            64  15.20  25.80  20.16    3.25
+--------------------------------------------- 
+
+
+CORRELATION ANALYSIS 
+
+Pearson's product-moment correlation, Prob > |r|
+
+                     Y1        Y2
+Y1   coef          1.00      0.11
+     p-value               0.4037
+     n               64        64
+Y2   coef          0.11      1.00
+     p-value     0.4037          
+     n               64        64
+
+
+
+
+BOX'S M TEST FOR HOMOGENEITY OF COVARIANCE MATRICES
+---------------------------------------------------
+ Box M  F      df1 df2   Prob  
+ 5.0543 0.5277 9   41255 0.8556
+
+
+BARTLETT'S SPHERICITY TEST
+--------------------------
+ Statistic  Value  Df Prob  
+ Chi-Square 0.6972 1  0.4037
+
+
+SUM OF SQUARES AND PRODUCTS FOR THE HYPOTHESIS 
+----------------------------------------------
+
+TERM: Blk 
+
+        Y1     Y2
+Y1 218.557 -7.495
+Y2  -7.495  1.205
+
+
+SUM OF SQUARES AND PRODUCTS FOR ERROR
+-------------------------------------
+         Y1      Y2
+Y1 2215.157 142.692
+Y2  142.692 665.065
+
+
+MULTIVARIATE ANALYSIS OF VARIANCE IN CRD
+-----------------------------------------
+          Df  Pillai approx F num Df den Df Pr(>F)
+Blk        3 0.09392   0.9855      6    120  0.438
+Residuals 60                                      

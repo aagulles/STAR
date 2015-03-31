@@ -1,0 +1,133 @@
+package org.irri.breedingtool.pbtools.analysis.environment.dialog;
+
+import org.eclipse.swt.widgets.Dialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.List;
+
+public class StabilityModels extends Dialog {
+
+	protected Object result;
+	protected Shell shlImportData;
+	private Text text;
+	private Text text_1;
+
+	/**
+	 * Create the dialog.
+	 * @param parent
+	 * @param style
+	 */
+	public StabilityModels(Shell parent, int style) {
+		super(parent, style);
+		setText("SWT Dialog");
+	}
+
+	/**
+	 * Open the dialog.
+	 * @return the result
+	 */
+	public Object open() {
+		createContents();
+		shlImportData.open();
+		shlImportData.layout();
+		Display display = getParent().getDisplay();
+		while (!shlImportData.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Create contents of the dialog.
+	 */
+	private void createContents() {
+		shlImportData = new Shell(getParent(), getStyle());
+		shlImportData.setSize(389, 397);
+		shlImportData.setText("Stability Models:");
+		
+		Group grpFromOtherSoftwares = new Group(shlImportData, SWT.NONE);
+		grpFromOtherSoftwares.setText("Model:");
+		grpFromOtherSoftwares.setBounds(10, 253, 362, 58);
+		
+		Button btnGenetix = new Button(grpFromOtherSoftwares, SWT.CHECK);
+		btnGenetix.setSelection(true);
+		btnGenetix.setBounds(10, 28, 168, 16);
+		btnGenetix.setText("Finlay-Wilkinson");
+		
+		Button btnstrstrustructure = new Button(grpFromOtherSoftwares, SWT.CHECK);
+		btnstrstrustructure.setText("Shukla");
+		btnstrstrustructure.setBounds(208, 28, 120, 16);
+		
+		Button btnCancel = new Button(shlImportData, SWT.NONE);
+		btnCancel.setBounds(208, 330, 75, 25);
+		btnCancel.setText("Cancel");
+		
+		Button btnCancel_1 = new Button(shlImportData, SWT.NONE);
+		btnCancel_1.setBounds(126, 330, 75, 25);
+		btnCancel_1.setText("OK");
+		
+		Label lblNumericVariables = new Label(shlImportData, SWT.NONE);
+		lblNumericVariables.setBounds(10, 10, 108, 15);
+		lblNumericVariables.setText("Numeric Variables:");
+		
+		List list = new List(shlImportData, SWT.BORDER);
+		list.setBounds(10, 31, 130, 82);
+		
+		Label lblFactors = new Label(shlImportData, SWT.NONE);
+		lblFactors.setText("Factors:");
+		lblFactors.setBounds(10, 129, 41, 15);
+		
+		List list_1 = new List(shlImportData, SWT.BORDER);
+		list_1.setBounds(10, 150, 130, 83);
+		
+		Button btnSetToFactor = new Button(shlImportData, SWT.NONE);
+		btnSetToFactor.setBounds(65, 119, 75, 25);
+		btnSetToFactor.setText("Set to Factor");
+		
+		Button btnAdd = new Button(shlImportData, SWT.NONE);
+		btnAdd.setBounds(146, 58, 56, 25);
+		btnAdd.setText("Add");
+		
+		Label lblResponseVariables = new Label(shlImportData, SWT.NONE);
+		lblResponseVariables.setText("Response Variable(s):");
+		lblResponseVariables.setBounds(208, 10, 117, 15);
+		
+		List list_2 = new List(shlImportData, SWT.BORDER);
+		list_2.setBounds(208, 31, 164, 82);
+		
+		Button button = new Button(shlImportData, SWT.NONE);
+		button.setText("Add");
+		button.setBounds(146, 166, 56, 25);
+		
+		Button button_1 = new Button(shlImportData, SWT.NONE);
+		button_1.setText("Add");
+		button_1.setBounds(146, 197, 56, 25);
+		
+		Label lblEnvironment = new Label(shlImportData, SWT.NONE);
+		lblEnvironment.setBounds(208, 171, 75, 15);
+		lblEnvironment.setText("Environment:");
+		
+		text = new Text(shlImportData, SWT.BORDER);
+		text.setBounds(283, 166, 89, 21);
+		
+		Label lblGenotype = new Label(shlImportData, SWT.NONE);
+		lblGenotype.setText("Genotype:");
+		lblGenotype.setBounds(225, 202, 56, 15);
+		
+		text_1 = new Text(shlImportData, SWT.BORDER);
+		text_1.setBounds(283, 197, 89, 21);
+
+	}
+}

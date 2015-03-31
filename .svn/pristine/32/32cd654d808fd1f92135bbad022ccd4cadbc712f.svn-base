@@ -1,0 +1,39 @@
+package org.irri.breedingtool.application.handler;
+
+
+import java.io.File;
+
+import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
+import org.irri.breedingtool.application.dialog.SelectWorkspaceDialog;
+import org.irri.breedingtool.manager.impl.ProjectExplorerManager;
+import org.irri.breedingtool.utility.GeneralUtility;
+
+public class StartupLifeCycleHandler {
+
+public static boolean isWorkspaceNew = false;
+
+	@PostContextCreate
+	public void startup(IEclipseContext context) {
+		ProjectExplorerManager projMan = new ProjectExplorerManager();
+		final Shell shell = new Shell(SWT.INHERIT_NONE);
+		if(!projMan.getWorkspacePath().equals(""))
+		if( new File(projMan.getWorkspacePath()).exists() && GeneralUtility.isDirectoryWritable(projMan.getWorkspacePath())) return;
+		System.out.println("Startup LifeCycle Triggered");
+		
+		if(!GeneralUtility.isDirectoryWritable(projMan.getWorkspacePath())){
+			MessageDialog.openError(shell, "Workspace Error", "The workspace path: '" + projMan.getWorkspacePath() + "' is not a valid filepath.\n \nThe path does not exist OR permission denied");
+		}
+			
+		SelectWorkspaceDialog dlg = new SelectWorkspaceDialog(shell,true);
+		dlg.open();
+		if(dlg.isDialogCancelled()) System.exit(0);
+		isWorkspaceNew = dlg.isSampleProjectImported();
+		
+		
+	}
+
+} 

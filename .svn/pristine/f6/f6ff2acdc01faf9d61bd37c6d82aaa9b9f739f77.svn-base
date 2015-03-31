@@ -1,0 +1,36 @@
+Statistical Tool for Agricultural Research (STAR)
+Mon May 20 14:02:03 2013
+
+Summary Information
+---------------------------------- 
+FACTOR  NO. OF LEVELS  LEVELS     
+---------------------------------- 
+Site    2              Env1, Env2 
+---------------------------------- 
+Number of Observations: 64 
+
+
+
+
+SUM OF SQUARES AND PRODUCTS FOR THE HYPOTHESIS 
+----------------------------------------------
+
+TERM: Site 
+
+   Y1 Y2
+Y1  4  4
+Y2  4  4
+
+
+SUM OF SQUARES AND PRODUCTS FOR ERROR
+-------------------------------------
+          Y1       Y2
+Y1 2429.7144 131.1975
+Y2  131.1975 662.2700
+
+
+MULTIVARIATE ANALYSIS OF VARIANCE IN CRD
+-----------------------------------------
+          Df    Pillai approx F num Df den Df Pr(>F)
+Site       1 0.0070597  0.21685      2     61 0.8057
+Residuals 62                                        
