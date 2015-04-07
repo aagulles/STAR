@@ -11,11 +11,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.irri.breedingtool.projectexplorer.view.ProjectTreeComponent;
 import org.irri.breedingtool.projectexplorer.view.RJavaManagerInitializer;
-import org.irri.breedingtool.star.design.dialog.AugmentedRandomizedCompleteBlockDesign;
+import org.irri.breedingtool.star.design.dialog.AugmentedAlphaLatticeDesignDialog;
+import org.irri.breedingtool.star.design.dialog.AugmentedLatinSquareDesignDialog;
 
 
 
-public class AugmentedRandomizedCompleteBlockDesignHandler {
+
+public class AugmentedAlphaLatticeDesignHandler {
 	ProjectTreeComponent	projectTreeComponent ;
 	@Named(IServiceConstants.ACTIVE_SHELL)
 	@Execute
@@ -32,7 +34,7 @@ public class AugmentedRandomizedCompleteBlockDesignHandler {
 			return;
 		}
 		
-		AugmentedRandomizedCompleteBlockDesign designDialog = new AugmentedRandomizedCompleteBlockDesign(parent);
+		AugmentedAlphaLatticeDesignDialog designDialog = new AugmentedAlphaLatticeDesignDialog(parent);
 		designDialog.open();
 		
 	}

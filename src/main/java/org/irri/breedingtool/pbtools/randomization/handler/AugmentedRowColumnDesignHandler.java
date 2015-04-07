@@ -11,12 +11,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.irri.breedingtool.projectexplorer.view.ProjectTreeComponent;
 import org.irri.breedingtool.projectexplorer.view.RJavaManagerInitializer;
-import org.irri.breedingtool.star.design.dialog.AugmentedRandomizedCompleteBlockDesign;
+import org.irri.breedingtool.star.design.dialog.AugmentedLatinSquareDesignDialog;
+import org.irri.breedingtool.star.design.dialog.AugmentedRowColumnDesignDialog;
 
 
 
-public class AugmentedRandomizedCompleteBlockDesignHandler {
-	ProjectTreeComponent	projectTreeComponent ;
+
+public class AugmentedRowColumnDesignHandler {
+	ProjectTreeComponent projectTreeComponent;
 	@Named(IServiceConstants.ACTIVE_SHELL)
 	@Execute
 	public void launchDesignDialog(final Shell parent, EModelService service,  MWindow window) {
@@ -32,7 +34,7 @@ public class AugmentedRandomizedCompleteBlockDesignHandler {
 			return;
 		}
 		
-		AugmentedRandomizedCompleteBlockDesign designDialog = new AugmentedRandomizedCompleteBlockDesign(parent);
+		AugmentedRowColumnDesignDialog designDialog = new AugmentedRowColumnDesignDialog(parent);
 		designDialog.open();
 		
 	}
