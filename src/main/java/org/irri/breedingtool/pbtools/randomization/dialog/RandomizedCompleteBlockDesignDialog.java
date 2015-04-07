@@ -93,12 +93,6 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 				 }
 			}});
 		
-		tableManager.addItem(new Object[]{
-				"FactorA",
-				"A",
-				spinnerTableModel
-				
-		});
 
 		Composite composite_1 = new Composite(grpDesignParameters, SWT.NONE);
 		composite_1.setLayout(new GridLayout(2, false));
@@ -304,10 +298,10 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 		String fieldOrder = "Plot Order";
 		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
 
-		ProjectExplorerView.rJavaManager.getSTARDesignManager().doDesignRCBD(
+		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignRCBD(
 				outputFileTxt.replace(File.separator, "/"), 
 				outputFileCsv.replace(File.separator, "/"), 
-				txtTotalBlocks.getSelection(),
+				null, null, null, txtTotalBlocks.getSelection(),
 				txtTotalTrials.getSelection(),
 				txtFieldRows.getSelection(),
 				txtRowsPerBlk.getSelection(),

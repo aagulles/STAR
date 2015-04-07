@@ -18,8 +18,8 @@ public class RJavaManagerInitializer {
 	
 		//WARNING! Do not Commit!
 
-		initStar();
-//		initPBTools();
+//		initStar();
+		initPBTools();
 		System.out.println("Initialized " + ((isStarInitialized) ? "STAR" : "PBTOOLS"));
 		PartStackHandler.setStackNoCollapse();
 	}

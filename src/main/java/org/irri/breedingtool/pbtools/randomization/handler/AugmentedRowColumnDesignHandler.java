@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.irri.breedingtool.projectexplorer.view.ProjectTreeComponent;
 import org.irri.breedingtool.projectexplorer.view.RJavaManagerInitializer;
 import org.irri.breedingtool.star.design.dialog.AugmentedLatinSquareDesignDialog;
-import org.irri.breedingtool.star.design.dialog.AugmentedRowColumnDesignDialog;
+import org.irri.breedingtool.pbtools.randomization.dialog.AugmentedRowColumnDesignDialog;
 
 
 

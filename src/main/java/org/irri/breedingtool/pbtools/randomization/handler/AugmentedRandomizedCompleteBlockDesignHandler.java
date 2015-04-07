@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.irri.breedingtool.projectexplorer.view.ProjectTreeComponent;
 import org.irri.breedingtool.projectexplorer.view.RJavaManagerInitializer;
-import org.irri.breedingtool.star.design.dialog.AugmentedRandomizedCompleteBlockDesign;
+import org.irri.breedingtool.pbtools.randomization.dialog.AugmentedRandomizedCompleteBlockDesign;
 
 
 

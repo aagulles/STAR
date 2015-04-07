@@ -319,15 +319,15 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
 		
 		
-		ProjectExplorerView.rJavaManager.getSTARDesignManager().doDesignAugRCB(
+		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignAugRCB(
 		outputFileTxt.replace(File.separator, "/"), 
 		outputFileCsv.replace(File.separator, "/"),
 		txtTotalReplicatedTreatments.getSelection(), 
 		txtTotalUnreplicatedTreatments.getSelection(), 
-		txtTotalBlks.getSelection(), 
+		fieldOrder, txtTotalBlks.getSelection(), 
 		txtFieldRows.getSelection(),
 		txtTotalTrials.getSelection(), 
-		fieldOrder);
+		plotsWithinRow, fieldOrder, fieldOrder, fieldOrder, fieldOrder);
 		
 		StarAnalysisUtilities.testVarArgs(			
 				outputFileTxt.replace(File.separator, "/"), 
