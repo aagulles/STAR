@@ -360,7 +360,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		rInfo.open();
 		btnOk.setEnabled(false);
 
-		String outputFile = StarRandomizationUtilities.createOutputFolder("AlphaLatticeIBD");
+		String outputFile = StarRandomizationUtilities.createOutputFolder("AugmentedAlphaLattice");
 		String outputFileTxt = outputFile;
 		String outputFileCsv = txtFileName.getText();
 		String fieldOrder = "Plot Order";

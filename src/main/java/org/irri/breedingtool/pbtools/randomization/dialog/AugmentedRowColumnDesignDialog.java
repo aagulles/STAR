@@ -77,10 +77,10 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 								GridData gd_txtRepTreatments = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 								gd_txtRepTreatments.widthHint = 20;
 								txtRepTreatments.setLayoutData(gd_txtRepTreatments);
-								txtRepTreatments.setMinimum(9);
+								txtRepTreatments.setMinimum(4);
 //								txtTotalTreatments.setMaximum(144);
 //								txtTotalTreatments.setMinimum(9);
-								txtRepTreatments.setSelection(9);
+								txtRepTreatments.setSelection(4);
 										
 										Label lblNumberOfUnreplicated = new Label(composite_1, SWT.NONE);
 										lblNumberOfUnreplicated.setText("Number of Unreplicated Treatments");
@@ -89,8 +89,8 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 										txtUnrepTreatments = new Spinner(composite_1, SWT.BORDER);
 										txtUnrepTreatments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 										txtUnrepTreatments.setMaximum(500);
-										txtUnrepTreatments.setMinimum(9);
-										txtUnrepTreatments.setSelection(9);
+										txtUnrepTreatments.setMinimum(8);
+										txtUnrepTreatments.setSelection(8);
 								
 										Label lblNumberOfReplicates = new Label(composite_1, SWT.NONE);
 										lblNumberOfReplicates.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
@@ -122,8 +122,8 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 														txtRowsEachBlock = new Spinner(composite_1, SWT.BORDER);
 														txtRowsEachBlock.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 														txtRowsEachBlock.setMaximum(500);
-														txtRowsEachBlock.setMinimum(2);
-														txtRowsEachBlock.setSelection(2);
+														txtRowsEachBlock.setMinimum(1);
+														txtRowsEachBlock.setSelection(1);
 														
 														Label lblNumberOfField = new Label(composite_1, SWT.NONE);
 														lblNumberOfField.setText("Number of Field Rows");
@@ -133,8 +133,8 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 														GridData gd_txtFieldRows = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 														gd_txtFieldRows.widthHint = 20;
 														txtFieldRows.setLayoutData(gd_txtFieldRows);
-														txtFieldRows.setMinimum(3);
-														txtFieldRows.setSelection(3);
+														txtFieldRows.setMinimum(2);
+														txtFieldRows.setSelection(2);
 														txtFieldRows.setMaximum(500);
 												
 														Label lblNumberOfTrials = new Label(composite_1, SWT.NONE);
@@ -142,12 +142,12 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 														lblNumberOfTrials.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 														lblNumberOfTrials.setText("Number of Trials");
 														
-																txtTotalTrials = new Spinner(composite_1, SWT.BORDER);
-																GridData gd_txtTotalTrials = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-																gd_txtTotalTrials.widthHint = 20;
-																txtTotalTrials.setLayoutData(gd_txtTotalTrials);
-																txtTotalTrials.setMaximum(500);
-																txtTotalTrials.setMinimum(1);
+														txtTotalTrials = new Spinner(composite_1, SWT.BORDER);
+														GridData gd_txtTotalTrials = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
+														gd_txtTotalTrials.widthHint = 20;
+														txtTotalTrials.setLayoutData(gd_txtTotalTrials);
+														txtTotalTrials.setMaximum(500);
+														txtTotalTrials.setMinimum(1);
 		
 		Group group = new Group(container, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1));
@@ -214,16 +214,17 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 			MessageDialog.openError(getShell(), "Error", "The number of experimental units should be divisible by the number of field rows."); 
 			return ; 
 		}
-		if(numOfExperimentalUnits % txtTotalReplicates.getSelection() != 0){
-			MessageDialog.openError(getShell(), "Error", "The number of field rows should be divisible by the number of replicates."); 
-			return ; 
-		}
+		
+//		if(numOfExperimentalUnits % txtTotalReplicates.getSelection() != 0){
+//			MessageDialog.openError(getShell(), "Error", "The number of field rows should be divisible by the number of replicates."); 
+//			return ; 
+//		}
 		
 		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(),  "Performing Randomization");
 		rInfo.open();
 		btnOk.setEnabled(false);
 
-		String outputFile = StarRandomizationUtilities.createOutputFolder("LatticeIB");
+		String outputFile = StarRandomizationUtilities.createOutputFolder("AugmentedRowColumn");
 		String outputFileTxt = outputFile;
 		String outputFileCsv = txtFileName.getText();
 		String fieldOrder = "Plot Order";
