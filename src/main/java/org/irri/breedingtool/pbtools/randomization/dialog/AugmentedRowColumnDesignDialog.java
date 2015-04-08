@@ -33,7 +33,9 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 	private Button btnOk;
 	private Spinner txtFieldRows;
 	private Combo cmbOrder;
-	private Spinner txtRowsEachRep;
+	private Spinner txtRowBlockEachRep;
+	private Spinner txtUnrepTreatments;
+	private Spinner txtRowsEachBlock;
 	/**
 	 * Create the dialog.
 	 * @param parentShell
@@ -84,7 +86,7 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 										lblNumberOfUnreplicated.setText("Number of Unreplicated Treatments");
 										lblNumberOfUnreplicated.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 										
-										Spinner txtUnrepTreatments = new Spinner(composite_1, SWT.BORDER);
+										txtUnrepTreatments = new Spinner(composite_1, SWT.BORDER);
 										txtUnrepTreatments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 										txtUnrepTreatments.setMaximum(500);
 										txtUnrepTreatments.setMinimum(9);
@@ -107,17 +109,17 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 														lblNumberOfRows.setText("Number of Row Block in each Replicate");
 														lblNumberOfRows.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 														
-														txtRowsEachRep = new Spinner(composite_1, SWT.BORDER);
-														txtRowsEachRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-														txtRowsEachRep.setMaximum(500);
-														txtRowsEachRep.setMinimum(2);
-														txtRowsEachRep.setSelection(2);
+														txtRowBlockEachRep = new Spinner(composite_1, SWT.BORDER);
+														txtRowBlockEachRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+														txtRowBlockEachRep.setMaximum(500);
+														txtRowBlockEachRep.setMinimum(2);
+														txtRowBlockEachRep.setSelection(2);
 														
 														Label lblNumberOfRows_1 = new Label(composite_1, SWT.NONE);
 														lblNumberOfRows_1.setText("Number of Rows in each Row Block");
 														lblNumberOfRows_1.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 														
-														Spinner txtRowsEachBlock = new Spinner(composite_1, SWT.BORDER);
+														txtRowsEachBlock = new Spinner(composite_1, SWT.BORDER);
 														txtRowsEachBlock.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 														txtRowsEachBlock.setMaximum(500);
 														txtRowsEachBlock.setMinimum(2);
@@ -196,7 +198,7 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 		
 	@Override
 	protected void okPressed(){ 
-		double numOfExperimentalUnits = txtRepTreatments.getSelection() * txtTotalReplicates.getSelection();
+		double numOfExperimentalUnits = (txtRepTreatments.getSelection() * txtTotalReplicates.getSelection())+txtUnrepTreatments.getSelection();
 
 		if(txtFileName.getText().equals(""))  { 
 			MessageDialog.openError(getShell(), "Error", "Field Filename must not be empty."); 
@@ -228,16 +230,19 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
 		
 		StarRandomizationUtilities.testVarArgs(outputFileCsv.replace(File.separator, "/"),outputFileTxt.replace(File.separator, "/"), txtRepTreatments.getSelection(),txtTotalReplicates.getSelection(), txtTotalTrials.getSelection());
-//		
-//		ProjectExplorerView.rJavaManager.getSTARDesignManager().doDesignAugmentedRowColumn(path, fieldBookName, numCheck, numNew, trmtName, rep, trial, rowblkPerRep, rowPerRowblk, numFieldRow, fieldOrder, trmtLabel, checkTrmt, newTrmt)
-//				outputFileTxt.replace(File.separator, "/"), 
-//				outputFileCsv.replace(File.separator, "/"),
-//				txtRepTreatments.getSelection(),
-//				txtTotalReplicates.getSelection(), 
-//				txtTotalTrials.getSelection(),
-//				txtRowsEachRep.getSelection(),
-//				txtFieldRows.getSelection(),
-//				fieldOrder);
+		
+		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignAugmentedRowColumn(
+				outputFileTxt.replace(File.separator, "/"), 
+				outputFileCsv.replace(File.separator, "/"),
+				txtRepTreatments.getSelection(),
+				txtUnrepTreatments.getSelection(),
+				null,
+				txtRepTreatments.getSelection(),
+				txtTotalTrials.getSelection(),
+				txtRowBlockEachRep.getSelection(),
+				txtRowsEachBlock.getSelection(),
+				txtFieldRows.getSelection(),
+				fieldOrder, null, null, null);
 		
 		rInfo.close(); this.getShell().setMinimized(true);
 		StarRandomizationUtilities.openAndRefreshFileFolder(outputFile  + outputFileCsv + ".csv");

@@ -295,13 +295,17 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 		String outputFile = StarRandomizationUtilities.createOutputFolder("RCBD");
 		String outputFileTxt = outputFile;
 		String outputFileCsv = txtFileName.getText();
-		String fieldOrder = "Plot Order";
-		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
+		String fieldOrder = cmbOrder.getItem(cmbOrder.getSelectionIndex());
 
+		String[] factorName = {txtEntryno.getText()};
+		String[] factorId={"T"};
+		Integer[] factorLevels = {spnrNumTreatmentLevels.getSelection()};
+		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
+		
 		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignRCBD(
 				outputFileTxt.replace(File.separator, "/"), 
 				outputFileCsv.replace(File.separator, "/"), 
-				null, null, null, txtTotalBlocks.getSelection(),
+				factorName, factorId,factorLevels, txtTotalBlocks.getSelection(),
 				txtTotalTrials.getSelection(),
 				txtFieldRows.getSelection(),
 				txtRowsPerBlk.getSelection(),

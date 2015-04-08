@@ -39,6 +39,9 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 	private Text txtBlksPerRep;
 	private Spinner spinnerNumOfRowsEachRep;
 	private Spinner spinnerNumOfRowsEachBlock;
+	private Spinner spinnerNumOfUnrepTreatments;
+	private int numOfExperimentalUnits;
+	private int numOfPlotsPerRep;
 	/**
 	 * Create the dialog.
 	 * @param parentShell
@@ -95,11 +98,11 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		lblNumberOfUnreplicated.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 		new Label(composite_1, SWT.NONE);
 
-		Spinner spinnerNumOfUnrepTreatments = new Spinner(composite_1, SWT.BORDER);
+		spinnerNumOfUnrepTreatments = new Spinner(composite_1, SWT.BORDER);
 		spinnerNumOfUnrepTreatments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		spinnerNumOfUnrepTreatments.setMaximum(500);
-		spinnerNumOfUnrepTreatments.setMinimum(9);
-		spinnerNumOfUnrepTreatments.setSelection(9);
+		spinnerNumOfUnrepTreatments.setMinimum(6);
+		spinnerNumOfUnrepTreatments.setSelection(6);
 
 		Label lblNumberOfReplicates = new Label(composite_1, SWT.NONE);
 		lblNumberOfReplicates.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
@@ -127,7 +130,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		gd_spinnerNumOfPlotsPerBlock.widthHint = 20;
 		spinnerNumOfPlotsPerBlock.setLayoutData(gd_spinnerNumOfPlotsPerBlock);
 		spinnerNumOfPlotsPerBlock.setMaximum(500);
-		spinnerNumOfPlotsPerBlock.setMinimum(3);
+		spinnerNumOfPlotsPerBlock.setMinimum(4);
 		spinnerNumOfPlotsPerBlock.setSelection(3);
 
 		Label lblNumberOfBlocks = new Label(composite_1, SWT.NONE);
@@ -148,7 +151,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		spinnerNumOfRowsEachBlock = new Spinner(composite_1, SWT.BORDER);
 		spinnerNumOfRowsEachBlock.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 		spinnerNumOfRowsEachBlock.setMaximum(500);
-		spinnerNumOfRowsEachBlock.setMinimum(3);
+		spinnerNumOfRowsEachBlock.setMinimum(1);
 		spinnerNumOfRowsEachBlock.setSelection(1);
 
 		Label lblNumberOfRows_1 = new Label(composite_1, SWT.NONE);
@@ -188,16 +191,16 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		spinnerNumOfTrials.setMaximum(500);
 		spinnerNumOfTrials.setMinimum(1);
 
-		spinnerNumOfRepTreatments.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				setPlotValue();
-			}
-		});
-		spinnerNumOfPlotsPerBlock.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent e) {
-				setPlotValue();
-			}
-		});
+//		spinnerNumOfRepTreatments.addModifyListener(new ModifyListener() {
+//			public void modifyText(ModifyEvent e) {
+//				setPlotValue();
+//			}
+//		});
+//		spinnerNumOfPlotsPerBlock.addModifyListener(new ModifyListener() {
+//			public void modifyText(ModifyEvent e) {
+//				setPlotValue();
+//			}
+//		});
 
 		Group group = new Group(container, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
@@ -229,13 +232,38 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		cmbOrder.setLayoutData(gd_cmbOrder);
 		cmbOrder.select(0);
 
+		spinnerNumOfRepTreatments.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				setBlocksPerReplicate();
+			}
+		});
 
+		spinnerNumOfReps.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				setBlocksPerReplicate();
+			}
+		});
 
+		spinnerNumOfUnrepTreatments.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				setBlocksPerReplicate();
+			}
+		});
+		
+		spinnerNumOfPlotsPerBlock.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent e) {
+				setBlocksPerReplicate();
+			}
+		});
+		
+		setBlocksPerReplicate();
 		return container;
 	}
 
-	public void setPlotValue(){
-		double i = (double) spinnerNumOfRepTreatments.getSelection() / spinnerNumOfPlotsPerBlock.getSelection();
+	public void setBlocksPerReplicate(){
+		computeNumOfExpUnits();
+		computeNumOfPlotsPerRep();
+		double i = (double) numOfPlotsPerRep / spinnerNumOfPlotsPerBlock.getSelection();
 		String value = Double.toString(i);
 		txtBlksPerRep.setText(value);
 	}
@@ -260,8 +288,8 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 
 	@Override
 	protected void okPressed(){ 
-		double numOfExperimentalUnits = spinnerNumOfRepTreatments.getSelection() + spinnerNumOfReps.getSelection();
-		double numOfPlotsPerRep = (numOfExperimentalUnits/spinnerNumOfReps.getSelection());
+		computeNumOfExpUnits();
+		computeNumOfPlotsPerRep();
 				
 		Double.parseDouble(txtBlksPerRep.getText());
 
@@ -338,22 +366,36 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		String fieldOrder = "Plot Order";
 		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
 
-		ProjectExplorerView.rJavaManager.getSTARDesignManager().doDesignAlpha(
+		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignAugmentedAlpha(
 				outputFileTxt.replace(File.separator, "/"),
-				outputFileCsv.replace(File.separator, "/"), 
-				spinnerNumOfRepTreatments.getSelection(), 
-				spinnerNumOfPlotsPerBlock.getSelection(), 
+				outputFileCsv.replace(File.separator, "/"),
+				spinnerNumOfRepTreatments.getSelection(),
+				spinnerNumOfUnrepTreatments.getSelection(),
+				null,
+				spinnerNumOfPlotsPerBlock.getSelection(), //blksize
 				spinnerNumOfReps.getSelection(), 
-				spinnerNumOfTrials.getSelection(),
+				spinnerNumOfTrials.getSelection(), 
 				spinnerNumOfRowsEachBlock.getSelection(),
-				spinnerNumOfRowsEachRep.getSelection(),
-				spinnerNumOfFieldRows.getSelection(),
-				fieldOrder);
+				spinnerNumOfRowsEachRep.getSelection(), 
+				spinnerNumOfFieldRows.getSelection(), fieldOrder, null, null, null);
+		
+		//		ProjectExplorerView.rJavaManager.getSTARDesignManager().doDesignAugmentedAlpha(
+		//				spinnerNumOfRepTreatments.getSelection(), 
+		//				spinnerNumOfPlotsPerBlock.getSelection(), 
+		//				fieldOrder);
 
 		rInfo.close(); this.getShell().setMinimized(true);
 		StarRandomizationUtilities.openAndRefreshFileFolder(outputFile  + outputFileCsv + ".csv");
 		btnOk.setEnabled(true);
 
+	}
+	private void computeNumOfPlotsPerRep() {
+		// TODO Auto-generated method stub
+		numOfPlotsPerRep = (numOfExperimentalUnits/spinnerNumOfReps.getSelection());
+	}
+	private void computeNumOfExpUnits() {
+		// TODO Auto-generated method stub
+		numOfExperimentalUnits = (spinnerNumOfRepTreatments.getSelection()*spinnerNumOfReps.getSelection())+ spinnerNumOfUnrepTreatments.getSelection();
 	}
 	/**
 	 * Create contents of the button bar.

@@ -89,9 +89,9 @@
         <children xsi:type="menu:DirectMenuItem" xmi:id="_bo8f4DfHEeOmFIfJUjgEqg" elementId="star.directmenuitem.0" label="Row-Column Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.RowColumnDesignHandler"/>
         <children xsi:type="menu:Menu" xmi:id="_ray1INwNEeST87l9mTf5UA" elementId="star.menu.0" label="Augmented Designs">
           <children xsi:type="menu:DirectMenuItem" xmi:id="_wZtpgC7xEeKvU5lf1nZFXw" elementId="star.directmenuitem.0" label="Augmented Latin Square Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.AugmentedLatinSquareDesignHandler"/>
-          <children xsi:type="menu:DirectMenuItem" xmi:id="_TGW5kEgeEeKPWsHxSQgXzg" elementId="star.directmenuitem.0" label="Augmented Randomized Complete Block Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.AugmentedRandomizedCompleteBlockDesignHandler"/>
-          <children xsi:type="menu:DirectMenuItem" xmi:id="_9JEGUNwQEeST87l9mTf5UA" elementId="star.directmenuitem.0" label="Augmented Alpha Latice..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.AugmentedAlphaLatticeDesignHandler"/>
-          <children xsi:type="menu:DirectMenuItem" xmi:id="_EdIXkNwWEeST87l9mTf5UA" elementId="star.directmenuitem.0" label="Augmented Row-Column..." contributionURI="bundleclass://Star/org.irri.breedingtool.star.design.handler.AugmentedRowColumnDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_TGW5kEgeEeKPWsHxSQgXzg" elementId="star.directmenuitem.0" label="Augmented Randomized Complete Block Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.RandomizedCompleteBlockDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_9JEGUNwQEeST87l9mTf5UA" elementId="star.directmenuitem.0" label="Augmented Alpha Latice..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.AugmentedAlphaLatticeDesignHandler"/>
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_EdIXkNwWEeST87l9mTf5UA" elementId="star.directmenuitem.0" label="Augmented Row-Column..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.AugmentedRowColumnDesignHandler"/>
         </children>
         <children xsi:type="menu:Menu" xmi:id="_DNCF0NwPEeST87l9mTf5UA" elementId="star.menu.0" label="P-Rep Designs"/>
       </children>
