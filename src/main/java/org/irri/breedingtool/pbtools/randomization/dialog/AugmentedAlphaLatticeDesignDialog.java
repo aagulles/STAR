@@ -324,35 +324,35 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		//			return;
 		//		}
 
-		if(spinnerNumOfReps.getSelection()==2){
-			if(spinnerNumOfPlotsPerBlock.getSelection() > Double.parseDouble(txtBlksPerRep.getText())){
-				MessageDialog.openError(getShell(), "Error", "For r==2, block size should be less than or equal to the number of blocks per replicate"); 
-				return;
-			}
-			if((spinnerNumOfFieldRows.getSelection() % Double.parseDouble(txtBlksPerRep.getText()))!=0){
-				MessageDialog.openError(getShell(), "Error", "Number of field rows should be divisible by the number of blocks per replicate."); 
-				return;
-			}
-
-		} else if(spinnerNumOfReps.getSelection()==3){
-			if((spinnerNumOfPlotsPerBlock.getSelection() % 2)!=0){// if block is even
-				if(spinnerNumOfPlotsPerBlock.getSelection() > Double.parseDouble(txtBlksPerRep.getText())){
-					MessageDialog.openError(getShell(), "Error", "For r==3 and number of block is even, block size should be less than or equal to the number of blocks per replicate."); 
-					return;
-				}
-			}else{ // if block is odd
-				if(spinnerNumOfPlotsPerBlock.getSelection() >= Double.parseDouble(txtBlksPerRep.getText())){
-					MessageDialog.openError(getShell(), "Error", "For r==3 and number of block is even, block size should be less than the number of blocks per replicate."); 
-					return;
-				}
-			}
-
-		} else if(spinnerNumOfReps.getSelection()==4 && ((spinnerNumOfPlotsPerBlock.getSelection() % 2)!=0)){
-			if(spinnerNumOfPlotsPerBlock.getSelection() >= Double.parseDouble(txtBlksPerRep.getText())){
-				MessageDialog.openError(getShell(), "Error", "For r==4 and number of block is even, block size should be less than the number of blocks per replicate."); 
-				return;
-			}
-		}
+//		if(spinnerNumOfReps.getSelection()==2){
+//			if(spinnerNumOfPlotsPerBlock.getSelection() > Double.parseDouble(txtBlksPerRep.getText())){
+//				MessageDialog.openError(getShell(), "Error", "For r==2, block size should be less than or equal to the number of blocks per replicate"); 
+//				return;
+//			}
+//			if((spinnerNumOfFieldRows.getSelection() % Double.parseDouble(txtBlksPerRep.getText()))!=0){
+//				MessageDialog.openError(getShell(), "Error", "Number of field rows should be divisible by the number of blocks per replicate."); 
+//				return;
+//			}
+//
+//		} else if(spinnerNumOfReps.getSelection()==3){
+//			if((spinnerNumOfPlotsPerBlock.getSelection() % 2)!=0){// if block is even
+//				if(spinnerNumOfPlotsPerBlock.getSelection() > Double.parseDouble(txtBlksPerRep.getText())){
+//					MessageDialog.openError(getShell(), "Error", "For r==3 and number of block is even, block size should be less than or equal to the number of blocks per replicate."); 
+//					return;
+//				}
+//			}else{ // if block is odd
+//				if(spinnerNumOfPlotsPerBlock.getSelection() >= Double.parseDouble(txtBlksPerRep.getText())){
+//					MessageDialog.openError(getShell(), "Error", "For r==3 and number of block is even, block size should be less than the number of blocks per replicate."); 
+//					return;
+//				}
+//			}
+//
+//		} else if(spinnerNumOfReps.getSelection()==4 && ((spinnerNumOfPlotsPerBlock.getSelection() % 2)!=0)){
+//			if(spinnerNumOfPlotsPerBlock.getSelection() >= Double.parseDouble(txtBlksPerRep.getText())){
+//				MessageDialog.openError(getShell(), "Error", "For r==4 and number of block is even, block size should be less than the number of blocks per replicate."); 
+//				return;
+//			}
+//		}
 
 		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(), "Performing Randomization");
 		rInfo.open();

@@ -238,7 +238,7 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 				txtRepTreatments.getSelection(),
 				txtUnrepTreatments.getSelection(),
 				null,
-				txtRepTreatments.getSelection(),
+				txtTotalReplicates.getSelection(),
 				txtTotalTrials.getSelection(),
 				txtRowBlockEachRep.getSelection(),
 				txtRowsEachBlock.getSelection(),
