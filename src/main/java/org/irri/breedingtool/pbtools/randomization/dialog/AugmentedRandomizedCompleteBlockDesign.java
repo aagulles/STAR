@@ -322,7 +322,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignAugRCB(
 				outputFileTxt.replace(File.separator, "/"),  
 				outputFileCsv.replace(File.separator, "/"),
-				txtTotalReplicatedTreatments.getSelection(),//replicated?
+				txtTotalReplicatedTreatments.getSelection(),//replicated
 				txtTotalUnreplicatedTreatments.getSelection(),//unreplicated
 				null,
 				txtTotalBlks.getSelection(),
@@ -339,6 +339,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 				txtTotalBlks.getSelection(), 
 				txtFieldRows.getSelection(),
 				txtTotalTrials.getSelection(), 
+				spinnerNumOfRowsPerBlock.getSelection(), 
 				fieldOrder);
 
 
