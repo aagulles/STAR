@@ -53,7 +53,7 @@ import org.eclipse.wb.swt.SWTResourceManager;
 public class SingleEnvironmentDialog extends Dialog {
 
 	private ProjectExplorerTreeNodeModel fileModel;
-	private ArrayList<String> varInfo;
+	private ArrayList<String> varInfo, spatialStrucList;
 	private Combo designType;
 	private List numVarList;
 	private List factorVarList;
@@ -142,6 +142,14 @@ public class SingleEnvironmentDialog extends Dialog {
 	private Text txtRepVar;
 	private Text txtRowVar;
 	private Text txtColVar;
+	private Button btnMoransTest;
+	private Label lblSpatialStructure;
+	private Button btnCompoundSymmetry;
+	private Button btnGaussian;
+	private Button btnExponential;
+	private Button btnSpherical;
+	private boolean moransTest;
+	private String[] spatialStruc;
 	/**
 	 * Create the dialog.
 	 * @param parentShell
@@ -153,6 +161,7 @@ public class SingleEnvironmentDialog extends Dialog {
 		this.analysisType = analysisType;
 		this.file=file;
 		setFactors();
+		spatialStrucList = new ArrayList<String>();
 	}
 
 	/**
@@ -193,7 +202,7 @@ public class SingleEnvironmentDialog extends Dialog {
 		lblNewLabel.setText("Type of Design:");
 
 		designType = new Combo(modelComposite, SWT.READ_ONLY);
-		designType.setItems(new String[] {"Randomized Complete Block (RCB)", "Augmented RCB", "Augmented Latin Square", "Alpha-Lattice", "Row-Column", "Latinized Alpha-Lattice", "Latinized Row-Column"});
+		designType.setItems(new String[] {"Randomized Complete Block (RCB)", "Augmented RCB", "Augmented Latin Square", "Alpha-Lattice", "Row-Column", "Augmented Alpha-Lattice", "Augmented Row-Column", "Latinized Alpha-Lattice", "Latinized Row-Column", "P-Rep"});
 		designType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		designType.select(0);
 		designType.addSelectionListener(new SelectionAdapter(){
@@ -209,6 +218,7 @@ public class SingleEnvironmentDialog extends Dialog {
 					disable("replicate");
 					disable("row");
 					disable("column");
+					enablePrepOptions(false);
 				}
 				else if(designType.getSelectionIndex()==1){//AugmentedRCB
 
@@ -220,8 +230,9 @@ public class SingleEnvironmentDialog extends Dialog {
 					disable("replicate");
 					disable("row");
 					disable("column");
+					enablePrepOptions(false);
 				}
-				else if(designType.getSelectionIndex()==2){//AugmentedLatin square
+				else if(designType.getSelectionIndex()==2){//Augmented Latin square
 					enableAugmentedOptions(true);
 					if(checkPerformPairwiseBtn.getSelection()){
 						activateLevelOfConrolsOptions(true);
@@ -231,6 +242,7 @@ public class SingleEnvironmentDialog extends Dialog {
 //					lblReplicate.setEnabled(true);
 					disable("replicate");
 					disable("block");
+					enablePrepOptions(false);
 
 				}
 				else if(designType.getSelectionIndex()==3){//Alpha lattice
@@ -242,6 +254,7 @@ public class SingleEnvironmentDialog extends Dialog {
 					lblBlock.setEnabled(true);
 					disable("row");
 					disable("column");
+					enablePrepOptions(false);
 				}
 				else if(designType.getSelectionIndex()==4){//Row Column
 					enableAugmentedOptions(false);
@@ -252,8 +265,35 @@ public class SingleEnvironmentDialog extends Dialog {
 					lblCol.setEnabled(true);
 					lblRep.setEnabled(true);
 					disable("block");
+					enablePrepOptions(false);
 				}
-				else if(designType.getSelectionIndex()==5){// Latinized Alpha lattice
+				else if(designType.getSelectionIndex()==5){//Augmented Alpha lattice
+
+					enableAugmentedOptions(true);	
+					if(checkPerformPairwiseBtn.getSelection()){
+						activateLevelOfConrolsOptions(true);
+					}else activateLevelOfConrolsOptions(false);
+					
+					lblRep.setEnabled(true);
+					lblBlock.setEnabled(true);
+					disable("row");
+					disable("column");
+					enablePrepOptions(false);
+				}
+				else if(designType.getSelectionIndex()==6){//Augmented Row Column
+
+					enableAugmentedOptions(true);	
+					if(checkPerformPairwiseBtn.getSelection()){
+						activateLevelOfConrolsOptions(true);
+					}else activateLevelOfConrolsOptions(false);
+					
+					lblRow.setEnabled(true);
+					lblCol.setEnabled(true);
+					lblRep.setEnabled(true);
+					disable("block");
+					enablePrepOptions(false);
+				}
+				else if(designType.getSelectionIndex()==7){// Latinized Alpha lattice
 					enableAugmentedOptions(false);
 					if(checkPerformPairwiseBtn.getSelection()){
 						activateLevelOfConrolsOptions(true);
@@ -262,8 +302,9 @@ public class SingleEnvironmentDialog extends Dialog {
 					lblBlock.setEnabled(true);
 					disable("row");
 					disable("column");
+					enablePrepOptions(false);
 				}
-				else if(designType.getSelectionIndex()==6){// Latinized Row Column
+				else if(designType.getSelectionIndex()==8){// Latinized Row Column
 					enableAugmentedOptions(false);
 					if(checkPerformPairwiseBtn.getSelection()){
 						activateLevelOfConrolsOptions(true);
@@ -271,6 +312,18 @@ public class SingleEnvironmentDialog extends Dialog {
 					lblRow.setEnabled(true);
 					lblCol.setEnabled(true);
 					lblRep.setEnabled(true);
+					disable("block");
+					enablePrepOptions(false);
+				}
+				else if(designType.getSelectionIndex()==9){// P-Rep
+					enableAugmentedOptions(false);
+					if(checkPerformPairwiseBtn.getSelection()){
+						activateLevelOfConrolsOptions(true);
+					}else activateLevelOfConrolsOptions(false);
+					enablePrepOptions(true);
+					lblRow.setEnabled(true);
+					lblCol.setEnabled(true);
+					disable("replicate");
 					disable("block");
 				}
 			}
@@ -957,6 +1010,47 @@ public class SingleEnvironmentDialog extends Dialog {
 		checkVarianceComponents = new Button(composite_1, SWT.CHECK);
 		checkVarianceComponents.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 4, 1));
 		checkVarianceComponents.setText("Variance Components");
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		
+		btnMoransTest = new Button(composite_1, SWT.CHECK);
+		btnMoransTest.setEnabled(false);
+		btnMoransTest.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
+		btnMoransTest.setText("Moran's Test");
+		
+		lblSpatialStructure = new Label(composite_1, SWT.NONE);
+		lblSpatialStructure.setEnabled(false);
+		lblSpatialStructure.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 6, 1));
+		lblSpatialStructure.setText("Spatial Structure:");
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		
+		btnCompoundSymmetry = new Button(composite_1, SWT.CHECK);
+		btnCompoundSymmetry.setEnabled(false);
+		btnCompoundSymmetry.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+			}
+		});
+		btnCompoundSymmetry.setText("Compound Symmetry");
+		new Label(composite_1, SWT.NONE);
+		
+		btnExponential = new Button(composite_1, SWT.CHECK);
+		btnExponential.setEnabled(false);
+		btnExponential.setText("Exponential");
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		new Label(composite_1, SWT.NONE);
+		
+		btnGaussian = new Button(composite_1, SWT.CHECK);
+		btnGaussian.setEnabled(false);
+		btnGaussian.setText("Gaussian");
+		new Label(composite_1, SWT.NONE);
+		
+		btnSpherical = new Button(composite_1, SWT.CHECK);
+		btnSpherical.setEnabled(false);
+		btnSpherical.setText("Spherical");
+		new Label(composite_1, SWT.NONE);
 
 
 		TabItem tbtmGraph_1 = new TabItem(tabFolder, SWT.NONE);
@@ -1053,6 +1147,16 @@ public class SingleEnvironmentDialog extends Dialog {
 
 	}
 
+	private void enablePrepOptions(boolean state) {
+		// TODO Auto-generated method stub
+		btnMoransTest.setEnabled(state);
+		lblSpatialStructure.setEnabled(state);
+		btnCompoundSymmetry.setEnabled(state);
+		btnGaussian.setEnabled(state);
+		btnExponential.setEnabled(state);
+		btnSpherical.setEnabled(state);
+	}
+	
 	void initializeForm(){
 		dlgManager.initializeVariableMoveList(numVarList, factorVarList, moveBtn, file.getAbsolutePath());
 		
@@ -1309,6 +1413,18 @@ public class SingleEnvironmentDialog extends Dialog {
 				if(lblRep.getEnabled())rep = txtRepVar.getText();
 				if(lblRow.getEnabled())row = txtRowVar.getText();
 				if(lblCol.getEnabled())column = txtColVar.getText();
+				moransTest = btnMoransTest.getSelection();
+			
+				if( !btnCompoundSymmetry.getSelection() && !btnGaussian.getSelection() && !btnExponential.getSelection() && !btnSpherical.getSelection()){
+					spatialStrucList.add("none");
+				}else{ //, "CompSymm", "Gaus", "Exp", "Spher"
+					if(btnCompoundSymmetry.getSelection())spatialStrucList.add("CompSymm");
+					if(btnGaussian.getSelection())spatialStrucList.add("Gaus");
+					if(btnExponential.getSelection())spatialStrucList.add("Exp");
+					if(btnSpherical.getSelection())spatialStrucList.add("Spher");
+				}
+				
+				spatialStruc = spatialStrucList.toArray(new String[spatialStrucList.size()]);
 				respvars = responseVarList.getItems();
 				if(txtEnvVar.getText().isEmpty())environment = "NULL";
 				else environment = txtEnvVar.getText();
@@ -1325,11 +1441,21 @@ public class SingleEnvironmentDialog extends Dialog {
 				OperationProgressDialog rInfo = new OperationProgressDialog(getShell(), "Single Environment Analysis");
 				rInfo.open();
 //				rInfo.showProgressBar();
-				ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doSingleEnvironmentAnalysis(
+				if(designType.getSelectionIndex()==9){
+					ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doSingleEnvironmentAnalysisPRep(dataFileName,
+							newOutputFileName.replaceAll("\\\\+", "/"),
+							respvars,
+							selectedStrings,
+							selectedStrings2,
+							dataFileName, newOutputFileName, genotypeFixed, genotypeRandom, excludeControls, controlLevels, moransTest, spatialStruc, descriptiveStat, varianceComponents, boxplotRawData, histogramRawData, heatmapResiduals, diagnosticPlot);
+				}
+				else{
+					ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doSingleEnvironmentAnalysis(
 						dataFileName, newOutputFileName.replaceAll("\\\\+", "/"), outputFolder.getAbsolutePath().replaceAll("\\\\+", "/")+"/", design, respvars, environment, environmentLevels,
 						genotype, block, rep, row, column, descriptiveStat, varianceComponents, boxplotRawData, histogramRawData, heatmapResiduals, heatmapRow, 
 						heatmapColumn, diagnosticPlot, genotypeFixed, performPairwise, pairwiseAlpha, genotypeLevels, controlLevels, compareControl, performAllPairwise,
 						genotypeRandom, excludeControls, genoPhenoCorrelation);
+				}
 				rInfo.close();
 				WindowDialogControlUtil.hideAllWindowDialog();
 				PBToolAnalysisUtilities.openFolder(outputFolder);
