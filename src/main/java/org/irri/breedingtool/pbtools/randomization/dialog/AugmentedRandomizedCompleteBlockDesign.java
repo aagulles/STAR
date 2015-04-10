@@ -260,34 +260,32 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 
 	@Override
 	protected void okPressed(){
-
-		if(txtTotalReplicatedTreatments.getSelection()<2){
-			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of replicated treatments is equal to 2."); 
-			txtTotalReplicatedTreatments.setSelection(2);
-			return;
-		}
-		if(txtTotalBlks.getSelection()<2){
-			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of blocks is equal to 2."); 
-			txtTotalBlks.setSelection(2);
-			return;
-		}
-		if(txtTotalUnreplicatedTreatments.getSelection()<2){
-			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of unreplicated treatments is equal to 2."); 
-			txtTotalUnreplicatedTreatments.setSelection(2);
-			return;
-		}
-		if(txtFieldRows.getSelection()<1){
-			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of field rows is equal to 1."); 
-			txtFieldRows.setSelection(1);
-			return;
-		}
-
+//		if(txtTotalReplicatedTreatments.getSelection()<2){
+//			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of replicated treatments is equal to 2."); 
+//			txtTotalReplicatedTreatments.setSelection(2);
+//			return;
+//		}
+//		if(txtTotalBlks.getSelection()<2){
+//			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of blocks is equal to 2."); 
+//			txtTotalBlks.setSelection(2);
+//			return;
+//		}
+//		if(txtTotalUnreplicatedTreatments.getSelection()<2){
+//			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of unreplicated treatments is equal to 2."); 
+//			txtTotalUnreplicatedTreatments.setSelection(2);
+//			return;
+//		}
+//		if(txtFieldRows.getSelection()<1){
+//			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of field rows is equal to 1."); 
+//			txtFieldRows.setSelection(1);
+//			return;
+//		}
 		if(txtFileName.getText().equals(""))  { 
 			MessageDialog.openError(getShell(), "Error", "Field Filename must not be empty."); 
 			return ; 
 		}	
-		if(txtTotalBlks.getSelection() > txtFieldRows.getSelection()){
-			MessageDialog.openError(getShell(), "Error", "The number of blocks must be less than or equal to the number field rows."); 
+		if(spinnerNumOfRowsPerBlock.getSelection() > txtFieldRows.getSelection()){
+			MessageDialog.openError(getShell(), "Error", "The number of field rows must be greater than or equal to the number of rows per block."); 
 			return ;
 		}
 
@@ -295,16 +293,19 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 			MessageDialog.openError(getShell(), "Error", "The total number of plots (" + txtPlots.getText()+ ") must be divisible by the number of field rows."); 
 			return ; 
 		}
-
-		double rowWithinBlk = Math.floor(txtFieldRows.getSelection()/txtTotalBlks.getSelection());
-		int plotsWithinRow = ((txtTotalReplicatedTreatments.getSelection() * txtTotalBlks.getSelection()) + txtTotalUnreplicatedTreatments.getSelection())/txtFieldRows.getSelection();
-
-		if((rowWithinBlk * plotsWithinRow)< txtTotalReplicatedTreatments.getSelection()){
-			MessageDialog.openError(getShell(), "Error", "One or more blocks cannot accommodate the number of replicated treatments."); 
+		if((Double.parseDouble(txtPlots.getText()) % spinnerNumOfRowsPerBlock.getSelection()) != 0){
+			MessageDialog.openError(getShell(), "Error", "The number of rows per block must divide the number of plots in the design"); 
 			return ; 
 		}
+//		double rowWithinBlk = Math.floor(txtFieldRows.getSelection()/txtTotalBlks.getSelection());
+//		int plotsWithinRow = ((txtTotalReplicatedTreatments.getSelection() * txtTotalBlks.getSelection()) + txtTotalUnreplicatedTreatments.getSelection())/txtFieldRows.getSelection();
+//
+//		if((rowWithinBlk * plotsWithinRow)< txtTotalReplicatedTreatments.getSelection()){
+//			MessageDialog.openError(getShell(), "Error", "One or more blocks cannot accommodate the number of replicated treatments."); 
+//			return ; 
+//		}
 
-		if(txtFieldRows.getSelection()/spinnerNumOfRowsPerBlock.getSelection()!=0){
+		if(txtFieldRows.getSelection()%spinnerNumOfRowsPerBlock.getSelection()!=0){
 			MessageDialog.openError(getShell(), "Error", "Number of field rows must be divisible by the number of rows per block."); 
 			return ; 
 		}
@@ -318,16 +319,17 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		String fieldOrder = "Plot Order";
 		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
 		
-		
 		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignAugRCB(
-		outputFileTxt.replace(File.separator, "/"), 
-		outputFileCsv.replace(File.separator, "/"),
-		txtTotalReplicatedTreatments.getSelection(), 
-		txtTotalUnreplicatedTreatments.getSelection(), 
-		fieldOrder, txtTotalBlks.getSelection(), 
-		txtFieldRows.getSelection(),
-		txtTotalTrials.getSelection(), 
-		plotsWithinRow, fieldOrder, fieldOrder, fieldOrder, fieldOrder);
+				outputFileTxt.replace(File.separator, "/"),  
+				outputFileCsv.replace(File.separator, "/"),
+				txtTotalReplicatedTreatments.getSelection(),//replicated?
+				txtTotalUnreplicatedTreatments.getSelection(),//unreplicated
+				null,
+				txtTotalBlks.getSelection(),
+				txtTotalTrials.getSelection(),
+				spinnerNumOfRowsPerBlock.getSelection(), 
+				txtFieldRows.getSelection(),
+				fieldOrder, null, null, null);
 		
 		StarAnalysisUtilities.testVarArgs(			
 				outputFileTxt.replace(File.separator, "/"), 

@@ -215,10 +215,10 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 			return ; 
 		}
 		
-//		if(numOfExperimentalUnits % txtTotalReplicates.getSelection() != 0){
-//			MessageDialog.openError(getShell(), "Error", "The number of field rows should be divisible by the number of replicates."); 
-//			return ; 
-//		}
+		if(numOfExperimentalUnits % txtTotalReplicates.getSelection() != 0){
+			MessageDialog.openError(getShell(), "Error", "The number of experimental units should be divisible by the number of replicates."); 
+			return ; 
+		}
 		
 		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(),  "Performing Randomization");
 		rInfo.open();

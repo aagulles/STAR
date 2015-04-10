@@ -32,12 +32,12 @@ public class StarRandomizationUtilities {
 		return fileFolder.getPath() + File.separator + newFileName ;
 	}
 	public static String createOutputFolder(String OutputFolder){
-		ProjectExplorerManager projectMan = new ProjectExplorerManager();
+		ProjectExplorerManager projExpMan = new ProjectExplorerManager();
 
-		File fileFolder  = new File(((ProjectExplorerTreeNodeModel) projectMan.getOutputFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getPath() + File.separator + "Randomization" );
+		File fileFolder  = new File(((ProjectExplorerTreeNodeModel)projExpMan.getOutputFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getAbsolutePath() + File.separator + "Randomization" );
 		if(!fileFolder.exists()) fileFolder.mkdir();
 		Calendar cldTime = Calendar.getInstance();
-		fileFolder  = new File(((ProjectExplorerTreeNodeModel) projectMan.getOutputFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getPath() + File.separator +"Randomization" + File.separator  +OutputFolder + "_" +cldTime.getTimeInMillis());
+		fileFolder  = new File(((ProjectExplorerTreeNodeModel)projExpMan.getOutputFolder(ProjectExplorerView.projectTree).getData()).getProjectFile().getAbsolutePath() + File.separator +"Randomization" + File.separator  +OutputFolder + "_" +cldTime.getTimeInMillis());
 		if(!fileFolder.exists()) fileFolder.mkdir();
 
 

@@ -216,11 +216,11 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 	@Override
 	protected void okPressed(){	
 
-		if(txtTotalBlocks.getSelection()<2){//
-			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of blocks is equal to 2."); 
-			txtTotalBlocks.setSelection(2);
-			return;
-		}
+//		if(txtTotalBlocks.getSelection()<2){//
+//			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of blocks is equal to 2."); 
+//			txtTotalBlocks.setSelection(2);
+//			return;
+//		}
 		
 		if(txtFileName.getText().equals(""))  { 
 			MessageDialog.openError(getShell(), "Error", "Field Filename must not be empty."); 
@@ -268,6 +268,7 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 //		}
 		
 		int plot = txtTotalBlocks.getSelection()* spnrNumTreatmentLevels.getSelection();
+		
 		if ((plot  % txtFieldRows.getSelection()) !=0 ){
 			MessageDialog.openError(getShell(), "Error", "The total number of plots (" + plot + ") must be divisible by the number of field rows."); 
 			return ;

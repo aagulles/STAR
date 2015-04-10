@@ -191,16 +191,16 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		spinnerNumOfTrials.setMaximum(500);
 		spinnerNumOfTrials.setMinimum(1);
 
-//		spinnerNumOfRepTreatments.addModifyListener(new ModifyListener() {
-//			public void modifyText(ModifyEvent e) {
-//				setPlotValue();
-//			}
-//		});
-//		spinnerNumOfPlotsPerBlock.addModifyListener(new ModifyListener() {
-//			public void modifyText(ModifyEvent e) {
-//				setPlotValue();
-//			}
-//		});
+		//		spinnerNumOfRepTreatments.addModifyListener(new ModifyListener() {
+		//			public void modifyText(ModifyEvent e) {
+		//				setPlotValue();
+		//			}
+		//		});
+		//		spinnerNumOfPlotsPerBlock.addModifyListener(new ModifyListener() {
+		//			public void modifyText(ModifyEvent e) {
+		//				setPlotValue();
+		//			}
+		//		});
 
 		Group group = new Group(container, SWT.NONE);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
@@ -249,13 +249,13 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 				setBlocksPerReplicate();
 			}
 		});
-		
+
 		spinnerNumOfPlotsPerBlock.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				setBlocksPerReplicate();
 			}
 		});
-		
+
 		setBlocksPerReplicate();
 		return container;
 	}
@@ -290,7 +290,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 	protected void okPressed(){ 
 		computeNumOfExpUnits();
 		computeNumOfPlotsPerRep();
-				
+
 		Double.parseDouble(txtBlksPerRep.getText());
 
 		if(spinnerNumOfReps.getSelection()<2 || spinnerNumOfReps.getSelection()>4){
@@ -319,44 +319,42 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 			return;
 		}
 
-		if((spinnerNumOfReps.getSelection() % spinnerNumOfRowsEachBlock.getSelection())!=0){
-			MessageDialog.openError(getShell(), "Error", "Number of field rows is not divisible by the total number of blocks."); 
-			return;
-		}
+		//		if((spinnerNumOfReps.getSelection() % spinnerNumOfRowsEachBlock.getSelection())!=0){
+		//			MessageDialog.openError(getShell(), "Error", "Number of field rows is not divisible by the total number of blocks."); 
+		//			return;
+		//		}
 
 		if(spinnerNumOfReps.getSelection()==2){
-			if(spinnerNumOfPlotsPerBlock.getSelection() > numOfPlotsPerRep){
-				MessageDialog.openError(getShell(), "Error", "For r==2,"); 
+			if(spinnerNumOfPlotsPerBlock.getSelection() > Double.parseDouble(txtBlksPerRep.getText())){
+				MessageDialog.openError(getShell(), "Error", "For r==2, block size should be less than or equal to the number of blocks per replicate"); 
 				return;
 			}
-			if(spinnerNumOfPlotsPerBlock.getSelection() > numOfPlotsPerRep){
-				MessageDialog.openError(getShell(), "Error", "For r==3 and number of block is even, block size should be less than or equal to the number of blocks per replicate."); 
+			if((spinnerNumOfFieldRows.getSelection() % Double.parseDouble(txtBlksPerRep.getText()))!=0){
+				MessageDialog.openError(getShell(), "Error", "Number of field rows should be divisible by the number of blocks per replicate."); 
 				return;
 			}
 
 		} else if(spinnerNumOfReps.getSelection()==3){
 			if((spinnerNumOfPlotsPerBlock.getSelection() % 2)!=0){// if block is even
-				if(spinnerNumOfPlotsPerBlock.getSelection() > numOfPlotsPerRep){
+				if(spinnerNumOfPlotsPerBlock.getSelection() > Double.parseDouble(txtBlksPerRep.getText())){
 					MessageDialog.openError(getShell(), "Error", "For r==3 and number of block is even, block size should be less than or equal to the number of blocks per replicate."); 
 					return;
 				}
 			}else{ // if block is odd
-				if(spinnerNumOfPlotsPerBlock.getSelection() >= numOfPlotsPerRep){
+				if(spinnerNumOfPlotsPerBlock.getSelection() >= Double.parseDouble(txtBlksPerRep.getText())){
 					MessageDialog.openError(getShell(), "Error", "For r==3 and number of block is even, block size should be less than the number of blocks per replicate."); 
 					return;
 				}
 			}
 
 		} else if(spinnerNumOfReps.getSelection()==4 && ((spinnerNumOfPlotsPerBlock.getSelection() % 2)!=0)){
-			if(spinnerNumOfPlotsPerBlock.getSelection() > numOfPlotsPerRep){
-				if(spinnerNumOfPlotsPerBlock.getSelection() > numOfPlotsPerRep){
-					MessageDialog.openError(getShell(), "Error", "For r==4 and number of block is even, block size should be less than or equal to the number of blocks per replicate."); 
-					return;
-				}
+			if(spinnerNumOfPlotsPerBlock.getSelection() >= Double.parseDouble(txtBlksPerRep.getText())){
+				MessageDialog.openError(getShell(), "Error", "For r==4 and number of block is even, block size should be less than the number of blocks per replicate."); 
+				return;
 			}
 		}
 
-		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(),  "Performing Randomization");
+		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(), "Performing Randomization");
 		rInfo.open();
 		btnOk.setEnabled(false);
 
@@ -378,11 +376,6 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 				spinnerNumOfRowsEachBlock.getSelection(),
 				spinnerNumOfRowsEachRep.getSelection(), 
 				spinnerNumOfFieldRows.getSelection(), fieldOrder, null, null, null);
-		
-		//		ProjectExplorerView.rJavaManager.getSTARDesignManager().doDesignAugmentedAlpha(
-		//				spinnerNumOfRepTreatments.getSelection(), 
-		//				spinnerNumOfPlotsPerBlock.getSelection(), 
-		//				fieldOrder);
 
 		rInfo.close(); this.getShell().setMinimized(true);
 		StarRandomizationUtilities.openAndRefreshFileFolder(outputFile  + outputFileCsv + ".csv");
