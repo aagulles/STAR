@@ -115,7 +115,7 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 
 		Label lblNumberOfReplicates = new Label(composite_1, SWT.NONE);
 		lblNumberOfReplicates.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		lblNumberOfReplicates.setText("Number of Blocks");
+		lblNumberOfReplicates.setText("Number of Replicates");
 
 		txtTotalBlocks = new Spinner(composite_1, SWT.BORDER);
 		GridData gd_txtTotalBlocks = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -125,7 +125,7 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 		txtTotalBlocks.setSelection(2);
 		
 		Label lblNumberOfRows = new Label(composite_1, SWT.NONE);
-		lblNumberOfRows.setText("Number of Rows Per Block");
+		lblNumberOfRows.setText("Number of Rows Per Replicate");
 		
 		txtRowsPerBlk = new Spinner(composite_1, SWT.BORDER);
 		GridData gd_txtRowsPerBlk = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
@@ -158,7 +158,7 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 		Group grpFieldBookFilename = new Group(container, SWT.NONE);
 		grpFieldBookFilename.setLayout(new GridLayout(2, false));
 		GridData gd_grpFieldBookFilename = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
-		gd_grpFieldBookFilename.heightHint = 119;
+		gd_grpFieldBookFilename.heightHint = 84;
 		grpFieldBookFilename.setLayoutData(gd_grpFieldBookFilename);
 		grpFieldBookFilename.setText("Field Book ");
 		
@@ -340,7 +340,7 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 	 */
 	@Override
 	protected Point getInitialSize() {
-		return new Point(337, 492);
+		return new Point(337, 440);
 	}
 	private void setTableRows(Table dialogTable,int levels){
 		

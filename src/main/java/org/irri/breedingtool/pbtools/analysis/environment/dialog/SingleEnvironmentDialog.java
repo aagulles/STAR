@@ -202,8 +202,7 @@ public class SingleEnvironmentDialog extends Dialog {
 		lblNewLabel.setText("Type of Design:");
 
 		designType = new Combo(modelComposite, SWT.READ_ONLY);
-//		designType.setItems(new String[] {"Randomized Complete Block (RCB)", "Augmented RCB", "Augmented Latin Square", "Alpha-Lattice", "Row-Column", "Augmented Alpha-Lattice", "Augmented Row-Column", "Latinized Alpha-Lattice", "Latinized Row-Column", "P-Rep"});
-		designType.setItems(new String[] {"Randomized Complete Block (RCB)", "Augmented RCB", "Augmented Latin Square", "Alpha-Lattice", "Row-Column", "Latinized Alpha-Lattice", "Latinized Row-Column", "Augmented Alpha-Lattice", "Augmented Row-Column"});
+		designType.setItems(new String[] {"Randomized Complete Block (RCB)", "Augmented RCB", "Augmented Latin Square", "Alpha-Lattice", "Row-Column", "Latinized Alpha-Lattice", "Latinized Row-Column", "Augmented Alpha-Lattice", "Augmented Row-Column", "P-Rep"});
 		designType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		designType.select(0);
 		designType.addSelectionListener(new SelectionAdapter(){

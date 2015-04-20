@@ -132,7 +132,7 @@ public class IncompleteBlockAlphaLatticeDesignDialog extends Dialog {
 																txtBlksPerRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 																
 																lblNumberOfRows = new Label(composite_1, SWT.NONE);
-																lblNumberOfRows.setText("Number of Rows in Each Block");
+																lblNumberOfRows.setText("Number of Rows in Each Block per Replicate");
 																lblNumberOfRows.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 																new Label(composite_1, SWT.NONE);
 																

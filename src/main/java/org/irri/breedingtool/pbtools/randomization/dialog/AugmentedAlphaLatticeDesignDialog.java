@@ -144,7 +144,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		txtBlksPerRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
 		Label lblNumberOfRows = new Label(composite_1, SWT.NONE);
-		lblNumberOfRows.setText("Number of Rows in Each Block");
+		lblNumberOfRows.setText("Number of Rows in Each Block per Replicate");
 		lblNumberOfRows.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 		new Label(composite_1, SWT.NONE);
 
@@ -216,7 +216,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		txtFileName = new Text(group, SWT.BORDER);
 		txtFileName.setText("fieldbookAugAlphaLattice");
 		GridData gd_txtFileName = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
-		gd_txtFileName.widthHint = 100;
+		gd_txtFileName.widthHint = 153;
 		txtFileName.setLayoutData(gd_txtFileName);
 
 		Label label_4 = new Label(group, SWT.NONE);
