@@ -193,7 +193,7 @@ public class OneStageMultiEnvironmentDialog extends Dialog {
 		lblNewLabel.setText("Type of Design:");
 
 		designType = new Combo(modelComposite, SWT.READ_ONLY);
-		designType.setItems(new String[] {"Randomized Complete Block (RCB)", "Augmented RCB", "Augmented Latin Square", "Alpha-Lattice", "Row-Column", "Latinized Alpha-Lattice", "Latinized Row-Column"});
+		designType.setItems(new String[] {"Randomized Complete Block (RCB)", "Augmented RCB", "Augmented Latin Square", "Alpha-Lattice", "Row-Column", "Augmented Alpha-Lattice", "Augmenter Row-Column", "Latinized Alpha-Lattice", "Latinized Row-Column"});
 		designType.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		designType.select(0);
 		designType.addSelectionListener(new SelectionAdapter(){
@@ -219,25 +219,37 @@ public class OneStageMultiEnvironmentDialog extends Dialog {
 					disable("block");
 
 				}
-				else if(designType.getSelectionIndex()==1){//Alpha lattice
+				else if(designType.getSelectionIndex()==3){//Alpha lattice
 					lblRep.setEnabled(true);
 					lblBlock.setEnabled(true);
 					disable("row");
 					disable("column");
 				}
-				else if(designType.getSelectionIndex()==2){//Row Column
+				else if(designType.getSelectionIndex()==4){//Row Column
 					lblRow.setEnabled(true);
 					lblCol.setEnabled(true);
 					lblRep.setEnabled(true);
 					disable("block");
 				}
-				else if(designType.getSelectionIndex()==3){//Latinized Alpha lattice
+				else if(designType.getSelectionIndex()==5){// Augmented Alpha lattice
+					lblRep.setEnabled(true);
+					lblBlock.setEnabled(true);
+					disable("row");
+					disable("column");
+				}
+				else if(designType.getSelectionIndex()==6){//Augmented Row Column
+					lblRow.setEnabled(true);
+					lblCol.setEnabled(true);
+					lblRep.setEnabled(true);
+					disable("block");
+				}
+				else if(designType.getSelectionIndex()==7){//Latinized Alpha lattice
 					lblRep.setEnabled(true);
 					lblBlock.setEnabled(true);
 					disable("row");
 					disable("column");
 				} 
-				else if(designType.getSelectionIndex()==4){//Latinized Row-Column
+				else if(designType.getSelectionIndex()==8){//Latinized Row-Column
 					lblRow.setEnabled(true);
 					lblCol.setEnabled(true);
 					lblRep.setEnabled(true);
