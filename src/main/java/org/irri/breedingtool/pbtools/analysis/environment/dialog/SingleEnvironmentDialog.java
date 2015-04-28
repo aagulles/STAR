@@ -1442,12 +1442,13 @@ public class SingleEnvironmentDialog extends Dialog {
 				rInfo.open();
 //				rInfo.showProgressBar();
 				if(designType.getSelectionIndex()==9){
+
 					ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doSingleEnvironmentAnalysisPRep(dataFileName,
 							newOutputFileName.replaceAll("\\\\+", "/"),
 							respvars,
-							selectedStrings,
-							selectedStrings2,
-							dataFileName, newOutputFileName, genotypeFixed, genotypeRandom, excludeControls, controlLevels, moransTest, spatialStruc, descriptiveStat, varianceComponents, boxplotRawData, histogramRawData, heatmapResiduals, diagnosticPlot);
+							genotype,
+							row,
+							column, environment, genotypeFixed, genotypeRandom, excludeControls, controlLevels, moransTest, spatialStruc, descriptiveStat, varianceComponents, boxplotRawData, histogramRawData, heatmapResiduals, diagnosticPlot);
 				}
 				else{
 					ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doSingleEnvironmentAnalysis(

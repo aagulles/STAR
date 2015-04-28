@@ -126,13 +126,13 @@ public class PRepDesignDialog extends Dialog {
 		tableManager = new GraphTableManager(table, tableHeaderIdentity);
 
 		tableManager.addItem(new Object[]{
-				"Group 1",
+				"Group1",
 				"2",
 				"2"
 				
 		});
 		tableManager.addItem(new Object[]{
-				"Group 2",
+				"Group2",
 				"1",
 				"2"
 				
@@ -227,7 +227,7 @@ public class PRepDesignDialog extends Dialog {
 		}
 		else{//add row
 			tableManager.addItem(new Object[]{
-					"Group "+Integer.toString(i),
+					"Group"+Integer.toString(i),
 					"2",
 					"2"
 					
@@ -310,7 +310,7 @@ public class PRepDesignDialog extends Dialog {
 		String fieldOrder = "Plot Order";
 		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
 		
-		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignPRep(outputFileTxt.replace(File.separator, "/"), outputFileCsv.replace(File.separator, "/"), groupNames.toArray(new String[groupNames.size()]), numLevels.toArray(new Integer[groupNames.size()]), replicates.toArray(new Integer[replicates.size()]), null, txtTotalTrials.getSelection(), txtFieldRows.getSelection(), fieldOrder, null, null);
+		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignPRep(outputFileTxt.replace(File.separator, "/"), outputFileCsv.replace(File.separator, "/"), groupNames.toArray(new String[groupNames.size()]), numLevels.toArray(new Integer[groupNames.size()]), replicates.toArray(new Integer[replicates.size()]), "EntryNo", txtTotalTrials.getSelection(), txtFieldRows.getSelection(), fieldOrder, null, null);
 		
 				
 		rInfo.close();
