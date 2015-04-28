@@ -47,7 +47,9 @@ public class PRepDesignDialog extends Dialog {
 	private Table table;
 	private int maxLevel = 2000;
 	private GraphTableManager tableManager;
-	private RowEntityModel spinnerTableModel;
+	private TableColumn tblclmnReplicate;
+	private TableColumn tblclmnNumberOfLevels;
+	private TableColumn tblclmnGroup;
 	/**
 	 * Create the dialog.
 	 * @param parentShell
@@ -87,16 +89,15 @@ public class PRepDesignDialog extends Dialog {
 		grpFactorDefinition.setText("Factor Definition:");
 
 		Label lblNewLabel = new Label(grpFactorDefinition, SWT.NONE);
-		lblNewLabel.setText("Number of Factors");
+		lblNewLabel.setText("Number of Groups");
 
 		txtNumFactors = new Spinner(grpFactorDefinition, SWT.BORDER);
 		txtNumFactors.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		GridData gd_txtNumFactors = new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1);
 		gd_txtNumFactors.widthHint = 20;
 		txtNumFactors.setLayoutData(gd_txtNumFactors);
-
-		txtNumFactors.setMaximum(99999);
-		txtNumFactors.setMinimum(1);
+		txtNumFactors.setMaximum(10);
+		txtNumFactors.setMinimum(2);
 		
 		table = new Table(grpFactorDefinition, SWT.BORDER | SWT.FULL_SELECTION);
 		table.setLinesVisible(true);
@@ -105,66 +106,55 @@ public class PRepDesignDialog extends Dialog {
 		gd_table.heightHint = 64;
 		table.setLayoutData(gd_table);
 		
-		TableColumn tblclmnGroup = new TableColumn(table, SWT.NONE);
+		tblclmnGroup = new TableColumn(table, SWT.NONE);
 		tblclmnGroup.setWidth(100);
 		tblclmnGroup.setText("Group");
 		
-		TableColumn tblclmnReplicate = new TableColumn(table, SWT.NONE);
+		tblclmnReplicate = new TableColumn(table, SWT.NONE);
 		tblclmnReplicate.setWidth(100);
 		tblclmnReplicate.setText("Replicate");
 		
-		TableColumn tblclmnNumberOfLevels = new TableColumn(table, SWT.NONE);
+		tblclmnNumberOfLevels = new TableColumn(table, SWT.NONE);
 		tblclmnNumberOfLevels.setWidth(110);
 		tblclmnNumberOfLevels.setText("Number of Levels");
 		ArrayList<Integer> tableHeaderIdentity = new ArrayList<Integer>();
 		
 		tableHeaderIdentity.add(GraphTableManager.ROW_TEXT);
 		tableHeaderIdentity.add(GraphTableManager.ROW_TEXT);
-		tableHeaderIdentity.add(GraphTableManager.ROW_SPINNER);
-		
-		
-		spinnerTableModel = new RowEntityModel(GraphTableManager.ROW_SPINNER, 2, 2, 99999, new ModifyListener(){
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				 if(((Spinner) e.getSource()).getSelection() > maxLevel){
-					 MessageDialog.openWarning(getShell(), "Validation Warning!", "The maximum allowable number of levels is " + maxLevel + " ");
-					 ((Spinner) e.getSource()).setSelection(maxLevel);
-				 }
-			}});
-		
+		tableHeaderIdentity.add(GraphTableManager.ROW_TEXT);
 		
 		tableManager = new GraphTableManager(table, tableHeaderIdentity);
-		
-		TableItem tableItem = new TableItem(table, SWT.NONE);
-		tableItem.setText(new String[] {"Group 1", "2", "2"});
-		
-		TableItem tableItem_1 = new TableItem(table, SWT.NONE);
-		tableItem_1.setText(new String[] {"Group 2", "1", "2"});
-		
+
 		tableManager.addItem(new Object[]{
-				"FactorA",
-				"A",
-				spinnerTableModel
+				"Group 1",
+				"2",
+				"2"
 				
 		});
+		tableManager.addItem(new Object[]{
+				"Group 2",
+				"1",
+				"2"
+				
+		});
+		
 		txtNumFactors.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
-				
-				if(txtNumFactors.getSelection() < 2){
-//					spinnerTableModel = new RowEntityModel(GraphTableManager.ROW_SPINNER, 2, 2, 2000);
-					maxLevel = 2000;
-				}
-				else if(txtNumFactors.getSelection() <= 10){
-//					spinnerTableModel = new RowEntityModel(GraphTableManager.ROW_SPINNER, 2, 2, 500);
-					maxLevel = 500;
-				}
-				else{
-					 MessageDialog.openWarning(getShell(), "Validation Warning!", "The maximum allowable number of factors is 10.");
-					 txtNumFactors.setSelection(10);
-				}
-				
-				setTableRows(table,txtNumFactors.getSelection());
+				createGroupsOnTable(((Spinner)e.getSource()).getSelection());
+//				if(txtNumFactors.getSelection() < 2){
+////					spinnerTableModel = new RowEntityModel(GraphTableManager.ROW_SPINNER, 2, 2, 2000);
+//					maxLevel = 2000;
+//				}
+//				else if(txtNumFactors.getSelection() <= 10){
+////					spinnerTableModel = new RowEntityModel(GraphTableManager.ROW_SPINNER, 2, 2, 500);
+//					maxLevel = 500;
+//				}
+//				else{
+//					 MessageDialog.openWarning(getShell(), "Validation Warning!", "The maximum allowable number of factors is 10.");
+//					 txtNumFactors.setSelection(10);
+//				}
+//				
+//				setTableRows(table,txtNumFactors.getSelection());
 
 			}
 		});
@@ -229,19 +219,25 @@ public class PRepDesignDialog extends Dialog {
 		return container;
 	}
 	
+	protected void createGroupsOnTable(int i) {
+		// TODO Auto-generated method stub
+		
+		if(tableManager.getTableRowsObject().size() > i){//delete last row
+			tableManager.deleteRow(i);
+		}
+		else{//add row
+			tableManager.addItem(new Object[]{
+					"Group "+Integer.toString(i),
+					"2",
+					"2"
+					
+			});
+		}
+	}
 	@Override
 	protected void buttonPressed(int buttonId) { //when Reset button is pressed
 		if (buttonId == IDialogConstants.RETRY_ID) {
 			tableManager.removeAll();
-			spinnerTableModel = new RowEntityModel(GraphTableManager.ROW_SPINNER, 2, 2, 99999, new ModifyListener(){
-
-				@Override
-				public void modifyText(ModifyEvent e) {
-					 if(((Spinner) e.getSource()).getSelection() > maxLevel){
-						 MessageDialog.openWarning(getShell(), "Validation Warning!", "The maximum allowable number of levels is " + maxLevel + " ");
-						 ((Spinner) e.getSource()).setSelection(maxLevel);
-					 }
-				}});
 			txtNumFactors.setSelection(1);
 			txtTotalTrials.setSelection(1);
 			txtFieldRows.setSelection(1);
@@ -308,14 +304,13 @@ public class PRepDesignDialog extends Dialog {
 		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(),  "Star Randomization");
 		rInfo.open();
 		
-		String outputFile = StarRandomizationUtilities.createOutputFolder("RCBD");
+		String outputFile = StarRandomizationUtilities.createOutputFolder("PRep");
 		String outputFileTxt = outputFile;
 		String outputFileCsv = txtFileName.getText();
 		String fieldOrder = "Plot Order";
 		if(cmbOrder.getText().equals("Serpentine")) fieldOrder = "Serpentine";
 		
-		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignPRep
-		(outputFileTxt.replace(File.separator, "/"), outputFileCsv.replace(File.separator, "/"), groupNames.toArray(new String[groupNames.size()]), numLevels.toArray(new Integer[groupNames.size()]), replicates.toArray(new Integer[replicates.size()]), null, txtTotalTrials.getSelection(), txtFieldRows.getSelection(), fieldOrder, null, null);
+		ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignPRep(outputFileTxt.replace(File.separator, "/"), outputFileCsv.replace(File.separator, "/"), groupNames.toArray(new String[groupNames.size()]), numLevels.toArray(new Integer[groupNames.size()]), replicates.toArray(new Integer[replicates.size()]), null, txtTotalTrials.getSelection(), txtFieldRows.getSelection(), fieldOrder, null, null);
 		
 				
 		rInfo.close();
@@ -350,25 +345,13 @@ public class PRepDesignDialog extends Dialog {
 			spinner.setMaximum(99999);
 		}
 		
-		spinnerTableModel = new RowEntityModel(GraphTableManager.ROW_SPINNER, 2, 2, 99999, new ModifyListener(){
-
-			@Override
-			public void modifyText(ModifyEvent e) {
-				System.out.println(((Spinner) e.getSource()).getSelection() + " SELECTION SPINNER");
-				 if(((Spinner) e.getSource()).getSelection() > maxLevel){
-					 MessageDialog.openWarning(getShell(), "Validation Warning!", "The maximum allowable number of levels is " + maxLevel + " ");
-					 ((Spinner) e.getSource()).setSelection(maxLevel);
-				 }
-			}});
-		
 		int tableCount = tableManager.getTableRowsObject().size();
 		if(levels > tableCount){
 			
 			for(int i = tableCount; i < levels; i++){
 			tableManager.addItem(new Object[]{
-					"Factor" + (char) (65 + i),
+					"Group" + (char) (65 + i),
 					String.valueOf((char) (65 + i)),
-					spinnerTableModel
 					
 			});
 			}
