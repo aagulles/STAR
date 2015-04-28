@@ -93,7 +93,7 @@
           <children xsi:type="menu:DirectMenuItem" xmi:id="_9JEGUNwQEeST87l9mTf5UA" elementId="star.directmenuitem.0" label="Augmented Alpha Lattice..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.AugmentedAlphaLatticeDesignHandler"/>
           <children xsi:type="menu:DirectMenuItem" xmi:id="_EdIXkNwWEeST87l9mTf5UA" elementId="star.directmenuitem.0" label="Augmented Row-Column..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.AugmentedRowColumnDesignHandler"/>
         </children>
-        <children xsi:type="menu:Menu" xmi:id="_DNCF0NwPEeST87l9mTf5UA" elementId="star.menu.0" label="P-Rep Designs"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_LfmLYO1GEeSD7LGKSJxiAw" elementId="star.directmenuitem.0" label="P-Rep Design..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.randomization.handler.PRepDesignHandler"/>
       </children>
       <children xsi:type="menu:Menu" xmi:id="_kKt98AbtEeK3w6ZMumhoJQ" elementId="mnuAnalysis" accessibilityPhrase="" label="Analysis">
         <children xsi:type="menu:DirectMenuItem" xmi:id="_xmx6cAbtEeK3w6ZMumhoJQ" elementId="star.directmenuitem.0" accessibilityPhrase="" label="Single-environment Analysis..." contributionURI="bundleclass://Star/org.irri.breedingtool.pbtools.analysis.environment.handler.SingleEnvironmentHandler"/>
