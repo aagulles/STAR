@@ -292,11 +292,11 @@ public class PRepDesignDialog extends Dialog {
 			groupNames.add(tableRow[0]);
 			replicates.add(Integer.parseInt(tableRow[1]));
 			numLevels.add(Integer.parseInt(tableRow[2]));
-			perBlk = perBlk * Long.valueOf(tableRow[2]);
 		}
 		
+		plot = getNumOfPlots(numLevels, replicates);
 		if ((plot  % txtFieldRows.getSelection()) !=0 ){
-			MessageDialog.openError(getShell(), "Validation Error", "Number of field rows must divide number of plots."); 
+			MessageDialog.openError(getShell(), "Validation Error", "Number of plots should be divisible by the Number of field rows."); 
 			return ;
 		}
 		
@@ -318,6 +318,17 @@ public class PRepDesignDialog extends Dialog {
 		StarRandomizationUtilities.openAndRefreshFileFolder(outputFile  + outputFileCsv + ".csv");
 		btnOk.setEnabled(true);
 	}
+	private long getNumOfPlots(ArrayList<Integer> numLevels,
+			ArrayList<Integer> replicates) {
+		// TODO Auto-generated method stub
+		int numPlot=0;
+		for(int i=0; i<numLevels.size(); i++){
+			numPlot=numPlot+(numLevels.get(i)*replicates.get(i));
+		}
+		
+		return numPlot;
+	}
+	
 	/**
 	 * Create contents of the button bar.
 	 * @param parent

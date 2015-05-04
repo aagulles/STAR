@@ -1426,7 +1426,10 @@ public class SingleEnvironmentDialog extends Dialog {
 				
 				spatialStruc = spatialStrucList.toArray(new String[spatialStrucList.size()]);
 				respvars = responseVarList.getItems();
-				if(txtEnvVar.getText().isEmpty())environment = "NULL";
+				if(txtEnvVar.getText().isEmpty()){
+					if(designType.getSelectionIndex()==9) environment = null;
+					else environment = "NULL";
+				}
 				else environment = txtEnvVar.getText();
 				genotype = txtGenVar.getText();
 				String selectedStrings = txtEnvVar.getText();
@@ -1442,7 +1445,6 @@ public class SingleEnvironmentDialog extends Dialog {
 				rInfo.open();
 //				rInfo.showProgressBar();
 				if(designType.getSelectionIndex()==9){
-
 					ProjectExplorerView.rJavaManager.getPbToolAnalysisManager().doSingleEnvironmentAnalysisPRep(dataFileName,
 							newOutputFileName.replaceAll("\\\\+", "/"),
 							respvars,

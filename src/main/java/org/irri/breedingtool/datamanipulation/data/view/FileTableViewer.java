@@ -165,8 +165,8 @@ public class FileTableViewer {
 				catch (NullPointerException npe){}//if there's no selected column yet
 				catch (SWTException swr){}//if widget disposed
 				selectedColumn = (TableColumn) e.widget;
-				//				selectedColumn.setImage(new Image(Display.getDefault(), getClass().getResourceAsStream("/image/selected.png")));System.getProperty ("user.dir") + "\\Projects\\SampleProject"
-				selectedColumn.setImage(new Image(Display.getDefault(), System.getProperty ("user.dir") + File.separator + "icons" + File.separator +"selected.png"));
+				selectedColumn.setImage(new Image(Display.getDefault(), getClass().getResourceAsStream("/icons/selected.png"))); //System.getProperty ("user.dir") + "\\Projects\\SampleProject"
+//				selectedColumn.setImage(new Image(Display.getDefault(), System.getProperty ("user.dir") + File.separator + "icons" + File.separator +"selected.png"));
 				columnHeaderNames = dataManipulationManager.updateColHeaderNames(table, columnHeaderNames);
 				for(int i=1; i<table.getColumnCount();i++){
 					System.out.println(columnHeaderNames[i-1] +"index" + Integer.toString(i));
