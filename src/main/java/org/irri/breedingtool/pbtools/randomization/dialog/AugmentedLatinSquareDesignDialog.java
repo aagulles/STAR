@@ -270,10 +270,11 @@ public class AugmentedLatinSquareDesignDialog extends Dialog {
 				outputFileTxt.replace(File.separator, "/"), 
 				outputFileCsv.replace(File.separator, "/"), 
 				txtTotalReplicatedTreatments.getSelection(), 
-				txtTotalUnreplicatedTreatments.getSelection(),  
+				txtTotalUnreplicatedTreatments.getSelection(),
+				null, 
+				txtTotalTrials.getSelection(),
 				txtRows.getSelection(),
-				txtTotalTrials.getSelection(), 
-				fieldOrder);
+				fieldOrder, null, null, null);
 		
 		StarAnalysisUtilities.testVarArgs(			
 				outputFileTxt.replace(File.separator, "/"), 

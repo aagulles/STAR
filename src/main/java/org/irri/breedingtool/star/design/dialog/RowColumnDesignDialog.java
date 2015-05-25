@@ -346,8 +346,8 @@ public class RowColumnDesignDialog extends Dialog {
 					txtTotalReplicates.getSelection(),
 					txtTotalTrials.getSelection(),
 					txtRowsEachRep.getSelection(),
-					spinnerRowsInEachRowBlock.getSelection(),
-					spinnerColblkPerRep.getSelection(),
+					//spinnerRowsInEachRowBlock.getSelection(),
+					//spinnerColblkPerRep.getSelection(),
 					txtFieldRows.getSelection(), fieldOrder);
 		}
 		
