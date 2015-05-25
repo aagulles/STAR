@@ -98,7 +98,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		Label lblNumberOfBlks = new Label(composite, SWT.NONE);
 		lblNumberOfBlks.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 		lblNumberOfBlks.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
-		lblNumberOfBlks.setText("Number of Blocks");
+		lblNumberOfBlks.setText("Number of Replicates");
 		new Label(composite, SWT.NONE);
 
 		txtTotalBlks = new Spinner(composite, SWT.BORDER);
@@ -127,7 +127,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		txtTotalUnreplicatedTreatments.setSelection(2);
 
 		Label lblNumberOfRows_1 = new Label(composite, SWT.NONE);
-		lblNumberOfRows_1.setText("Number of Rows Per Blocks");
+		lblNumberOfRows_1.setText("Number of Rows Per Replicate");
 		lblNumberOfRows_1.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 		new Label(composite, SWT.NONE);
 
