@@ -23,8 +23,6 @@ import org.irri.breedingtool.datamanipulation.dialog.OperationProgressDialog;
 import org.irri.breedingtool.projectexplorer.view.ProjectExplorerView;
 import org.irri.breedingtool.utility.StarRandomizationUtilities;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 
 public class RowColumnDesignDialog extends Dialog {
 
@@ -37,10 +35,6 @@ public class RowColumnDesignDialog extends Dialog {
 	private Combo cmbOrder;
 	private Spinner txtRowsEachRep;
 	private Button btnLatinizedRowcolumn;
-	private Label lblNumberOfRows_1;
-	private Label lblNumberOfColumn;
-	private Spinner spinnerRowsInEachRowBlock;
-	private Spinner spinnerColblkPerRep;
 	/**
 	 * Create the dialog.
 	 * @param parentShell
@@ -70,12 +64,17 @@ public class RowColumnDesignDialog extends Dialog {
 		
 				Composite composite_1 = new Composite(container, SWT.BORDER);
 				composite_1.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, true, 1, 1));
-				composite_1.setLayout(new GridLayout(2, false));
+				composite_1.setLayout(new GridLayout(3, false));
 				
 						Label lblNumberOfReplicated = new Label(composite_1, SWT.NONE);
 						lblNumberOfReplicated.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 						lblNumberOfReplicated.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 						lblNumberOfReplicated.setText("Number of Treatments");
+								
+								Label lblNewLabel = new Label(composite_1, SWT.NONE);
+								GridData gd_lblNewLabel = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+								gd_lblNewLabel.widthHint = 60;
+								lblNewLabel.setLayoutData(gd_lblNewLabel);
 						
 								txtTotalTreatments = new Spinner(composite_1, SWT.BORDER);
 								txtTotalTreatments.setMaximum(10000);
@@ -90,6 +89,7 @@ public class RowColumnDesignDialog extends Dialog {
 										lblNumberOfReplicates.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 										lblNumberOfReplicates.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 										lblNumberOfReplicates.setText("Number of Replicates");
+												new Label(composite_1, SWT.NONE);
 										
 												txtTotalReplicates = new Spinner(composite_1, SWT.BORDER);
 												GridData gd_txtTotalReplicates = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -98,35 +98,19 @@ public class RowColumnDesignDialog extends Dialog {
 												txtTotalReplicates.setSelection(2);
 														
 														Label lblNumberOfRows = new Label(composite_1, SWT.NONE);
-														lblNumberOfRows.setText("Number of Row Blocks in each Replicate");
+														lblNumberOfRows.setText("Number of Rows in each Replicate");
 														lblNumberOfRows.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+														new Label(composite_1, SWT.NONE);
 														
 														txtRowsEachRep = new Spinner(composite_1, SWT.BORDER);
 														txtRowsEachRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
 														txtRowsEachRep.setMinimum(1);
 														txtRowsEachRep.setSelection(3);
 														
-														lblNumberOfRows_1 = new Label(composite_1, SWT.NONE);
-														lblNumberOfRows_1.setText("Number of Rows in each Row Block per Replicate");
-														lblNumberOfRows_1.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
-														
-														spinnerRowsInEachRowBlock = new Spinner(composite_1, SWT.BORDER);
-														spinnerRowsInEachRowBlock.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-														spinnerRowsInEachRowBlock.setMinimum(1);
-														spinnerRowsInEachRowBlock.setSelection(1);
-														
-														lblNumberOfColumn = new Label(composite_1, SWT.NONE);
-														lblNumberOfColumn.setText("Number of Column Blocks in each Replicate");
-														lblNumberOfColumn.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
-														
-														spinnerColblkPerRep = new Spinner(composite_1, SWT.BORDER);
-														spinnerColblkPerRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-														spinnerColblkPerRep.setMinimum(1);
-														spinnerColblkPerRep.setSelection(3);
-														
 														Label lblNumberOfField = new Label(composite_1, SWT.NONE);
 														lblNumberOfField.setText("Number of Field Rows");
 														lblNumberOfField.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
+														new Label(composite_1, SWT.NONE);
 														
 														txtFieldRows = new Spinner(composite_1, SWT.BORDER);
 														GridData gd_txtFieldRows = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
@@ -140,6 +124,7 @@ public class RowColumnDesignDialog extends Dialog {
 														lblNumberOfTrials.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));
 														lblNumberOfTrials.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
 														lblNumberOfTrials.setText("Number of Trials");
+																new Label(composite_1, SWT.NONE);
 														
 																txtTotalTrials = new Spinner(composite_1, SWT.BORDER);
 																GridData gd_txtTotalTrials = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
@@ -149,19 +134,6 @@ public class RowColumnDesignDialog extends Dialog {
 																txtTotalTrials.setMinimum(1);
 		
 		btnLatinizedRowcolumn = new Button(container, SWT.CHECK);
-		btnLatinizedRowcolumn.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-			
-				if(btnLatinizedRowcolumn.getSelection()){
-					disableLatinizedOptions(false);
-				}
-				else{
-					disableLatinizedOptions(true);
-				}
-
-			}
-		});
 		btnLatinizedRowcolumn.setText("Latinized Row-Column");
 		btnLatinizedRowcolumn.setSelection(false);
 		
@@ -200,15 +172,6 @@ public class RowColumnDesignDialog extends Dialog {
 		return container;
 	}
 	
-	protected void disableLatinizedOptions(boolean state) {
-		// TODO Auto-generated method stub
-			lblNumberOfRows_1.setEnabled(state);
-			spinnerRowsInEachRowBlock.setEnabled(state);
-			lblNumberOfColumn.setEnabled(state);
-			spinnerColblkPerRep.setEnabled(state);
-			
-	}
-	
 	@Override
 	protected void buttonPressed(int buttonId) { //when Reset button is pressed
 		if (buttonId == IDialogConstants.RETRY_ID) {
@@ -227,10 +190,7 @@ public class RowColumnDesignDialog extends Dialog {
 	
 	@Override
 	protected void okPressed(){ 
-		int rowsInEachRep = txtRowsEachRep.getSelection();
-		
-		if(!btnLatinizedRowcolumn.getSelection()) rowsInEachRep = (txtRowsEachRep.getSelection() * spinnerRowsInEachRowBlock.getSelection());
-		
+
 		if(txtTotalTreatments.getSelection()<9){
 			MessageDialog.openError(getShell(), "Error", "The minimum value of the number of treatments is equal to 9."); 
 			txtTotalTreatments.setSelection(9);
@@ -251,38 +211,39 @@ public class RowColumnDesignDialog extends Dialog {
 			txtFieldRows.setSelection(2);
 			return;
 		}
-		if(rowsInEachRep >= txtTotalTreatments.getSelection()){
+		if(txtRowsEachRep.getSelection() >= txtTotalTreatments.getSelection()){
 			MessageDialog.openError(getShell(), "Error", "The maximum value of the number of rows in each replicate should be less than the total number of treatments."); 
+			txtRowsEachRep.getSelection();
 			return;
 		}
-		if(txtFieldRows.getSelection() > (rowsInEachRep*txtTotalReplicates.getSelection())){
+		if(txtFieldRows.getSelection() > (txtRowsEachRep.getSelection()*txtTotalReplicates.getSelection())){
 			MessageDialog.openError(getShell(), "Error", "The maximum value of the number of field rows should be less than or equal to the product of rows in each replicate and total number of replicates.");
-			txtFieldRows.setSelection(rowsInEachRep*txtTotalReplicates.getSelection());
+			txtFieldRows.setSelection(txtRowsEachRep.getSelection()*txtTotalReplicates.getSelection());
 			return;
 		}
 		
 		//added by NSales
 		if (btnLatinizedRowcolumn.getSelection()) {
 			if(txtFieldRows.getSelection() != txtTotalTreatments.getSelection()){
-				if(txtFieldRows.getSelection() != rowsInEachRep){
-					if(txtFieldRows.getSelection() % (rowsInEachRep*txtTotalReplicates.getSelection()) != 0){
+				if(txtFieldRows.getSelection() != txtRowsEachRep.getSelection()){
+					if(txtFieldRows.getSelection() % (txtRowsEachRep.getSelection()*txtTotalReplicates.getSelection()) != 0){
 						MessageDialog.openError(getShell(), "Error", "The number of field rows should be equal to the number of treatments or equal to the number of rows per replicate or should be divisible by the product of rows in each replicate and total number of replicates.");
 						return;
 					} else {
-						if(txtFieldRows.getSelection() != (rowsInEachRep*txtTotalReplicates.getSelection())){
+						if(txtFieldRows.getSelection() != (txtRowsEachRep.getSelection()*txtTotalReplicates.getSelection())){
 							MessageDialog.openError(getShell(), "Error", "The number of field rows should be equal to the number of treatments or equal to the number of rows per replicate or equal to the product of rows in each replicate and total number of replicates.");
 							return;
 						}
 					}
 				}
 			} else {
-				if(txtFieldRows.getSelection() != (rowsInEachRep*txtTotalReplicates.getSelection())){
+				if(txtFieldRows.getSelection() != (txtRowsEachRep.getSelection()*txtTotalReplicates.getSelection())){
 					MessageDialog.openError(getShell(), "Error", "The number of field rows should be equal to the number of treatments or equal to the number of rows per replicate or equal to the product of rows in each replicate and total number of replicates.");
 					return;
 				}
 			}
 		} else {
-			if(txtFieldRows.getSelection() % rowsInEachRep != 0){
+			if(txtFieldRows.getSelection() % txtRowsEachRep.getSelection() != 0){
 				MessageDialog.openError(getShell(), "Error", "The number of field rows should be divisible by the number of rows in each replicate."); 
 				return ; 
 			}
@@ -298,20 +259,20 @@ public class RowColumnDesignDialog extends Dialog {
 			return ; 
 		}
 		
-		if((txtTotalTreatments.getSelection() % rowsInEachRep != 0) || rowsInEachRep<2){
+		if((txtTotalTreatments.getSelection() % txtRowsEachRep.getSelection() != 0) || txtRowsEachRep.getSelection()<2){
 			MessageDialog.openError(getShell(), "Error", "The number of rows in each replicate should be a factor of the number of treatments and should be greater than 1."); 
 			return ; 
 		}
 		
-		if((rowsInEachRep == 1) || (rowsInEachRep == txtTotalTreatments.getSelection()) ){
+		if((txtRowsEachRep.getSelection() == 1) || (txtRowsEachRep.getSelection() == txtTotalTreatments.getSelection()) ){
 			MessageDialog.openError(getShell(), "Error", "The number of rows should not be equal to one or the number of treatments."); 
 			return ;
 		}
-//		if((rowsInEachRep * txtTotalReplicates.getSelection()) > txtFieldRows.getSelection()){
+//		if((txtRowsEachRep.getSelection() * txtTotalReplicates.getSelection()) > txtFieldRows.getSelection()){
 //			MessageDialog.openError(getShell(), "Error", "The maximum number of field rows should be equal to the product of the number of rows in each replicate and number of replicates."); 
 //			return ;
 //		}
-		if(txtTotalReplicates.getSelection() % (txtFieldRows.getSelection()/rowsInEachRep) != 0 ){
+		if(txtTotalReplicates.getSelection() % (txtFieldRows.getSelection()/txtRowsEachRep.getSelection()) != 0 ){
 			MessageDialog.openError(getShell(), "Error", "The quotient of the number of field rows and number of rows in each replicate should be a factor of the number of the replicates."); 
 			return ;
 		}
@@ -335,21 +296,21 @@ public class RowColumnDesignDialog extends Dialog {
 					txtTotalTreatments.getSelection(),
 					txtTotalReplicates.getSelection(), 
 					txtTotalTrials.getSelection(),
-					rowsInEachRep,
+					txtRowsEachRep.getSelection(),
 					txtFieldRows.getSelection(),
 					fieldOrder);
 		} else {
-			ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignRowColumn
-			(outputFileTxt.replace(File.separator, "/"),
+			ProjectExplorerView.rJavaManager.getPbToolRandomizationManager().doDesignRowColumn(
+					outputFileTxt.replace(File.separator, "/"), 
 					outputFileCsv.replace(File.separator, "/"),
 					txtTotalTreatments.getSelection(),
-					txtTotalReplicates.getSelection(),
+					txtTotalReplicates.getSelection(), 
 					txtTotalTrials.getSelection(),
 					txtRowsEachRep.getSelection(),
-					spinnerRowsInEachRowBlock.getSelection(),
-					spinnerColblkPerRep.getSelection(),
-					txtFieldRows.getSelection(), fieldOrder);
+					txtFieldRows.getSelection(),
+					fieldOrder);
 		}
+		
 		
 		rInfo.close(); this.getShell().setMinimized(true);
 		StarRandomizationUtilities.openAndRefreshFileFolder(outputFile  + outputFileCsv + ".csv");
@@ -374,7 +335,7 @@ public class RowColumnDesignDialog extends Dialog {
 	 */
 	@Override
 	protected Point getInitialSize() {
-		return new Point(366, 450);
+		return new Point(363, 420);
 	}
 	boolean isPerfectSquare(long n)
 	{

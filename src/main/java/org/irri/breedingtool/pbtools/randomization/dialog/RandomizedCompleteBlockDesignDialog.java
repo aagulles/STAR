@@ -110,7 +110,7 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 		
 		spnrNumTreatmentLevels = new Spinner(composite_1, SWT.BORDER);
 		spnrNumTreatmentLevels.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		spnrNumTreatmentLevels.setMaximum(500);
+		spnrNumTreatmentLevels.setMaximum(10000);
 		spnrNumTreatmentLevels.setSelection(2);
 
 		Label lblNumberOfReplicates = new Label(composite_1, SWT.NONE);
@@ -131,7 +131,7 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 		GridData gd_txtRowsPerBlk = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_txtRowsPerBlk.widthHint = 20;
 		txtRowsPerBlk.setLayoutData(gd_txtRowsPerBlk);
-		txtRowsPerBlk.setMaximum(500);
+		txtRowsPerBlk.setMaximum(10000);
 		txtRowsPerBlk.setMinimum(1);
 		
 		Label lblNumberOfField = new Label(composite_1, SWT.NONE);
@@ -141,7 +141,7 @@ public class RandomizedCompleteBlockDesignDialog extends Dialog {
 		GridData gd_txtFieldRows = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_txtFieldRows.widthHint = 20;
 		txtFieldRows.setLayoutData(gd_txtFieldRows);
-		txtFieldRows.setMaximum(500);
+		txtFieldRows.setMaximum(10000);
 		txtFieldRows.setMinimum(1);
 
 		Label lblNumberOfTrials = new Label(composite_1, SWT.NONE);
