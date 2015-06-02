@@ -100,7 +100,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 
 		spinnerNumOfUnrepTreatments = new Spinner(composite_1, SWT.BORDER);
 		spinnerNumOfUnrepTreatments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		spinnerNumOfUnrepTreatments.setMaximum(500);
+		spinnerNumOfUnrepTreatments.setMaximum(1500);
 		spinnerNumOfUnrepTreatments.setMinimum(6);
 		spinnerNumOfUnrepTreatments.setSelection(6);
 
@@ -129,7 +129,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		GridData gd_spinnerNumOfPlotsPerBlock = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
 		gd_spinnerNumOfPlotsPerBlock.widthHint = 20;
 		spinnerNumOfPlotsPerBlock.setLayoutData(gd_spinnerNumOfPlotsPerBlock);
-		spinnerNumOfPlotsPerBlock.setMaximum(500);
+		spinnerNumOfPlotsPerBlock.setMaximum(1500);
 		spinnerNumOfPlotsPerBlock.setMinimum(4);
 		spinnerNumOfPlotsPerBlock.setSelection(3);
 
@@ -150,7 +150,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 
 		spinnerNumOfRowsEachBlock = new Spinner(composite_1, SWT.BORDER);
 		spinnerNumOfRowsEachBlock.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		spinnerNumOfRowsEachBlock.setMaximum(500);
+		spinnerNumOfRowsEachBlock.setMaximum(1500);
 		spinnerNumOfRowsEachBlock.setMinimum(1);
 		spinnerNumOfRowsEachBlock.setSelection(1);
 
@@ -161,7 +161,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 
 		spinnerNumOfRowsEachRep = new Spinner(composite_1, SWT.BORDER);
 		spinnerNumOfRowsEachRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		spinnerNumOfRowsEachRep.setMaximum(500);
+		spinnerNumOfRowsEachRep.setMaximum(1500);
 		spinnerNumOfRowsEachRep.setMinimum(3);
 		spinnerNumOfRowsEachRep.setSelection(3);
 
@@ -174,7 +174,7 @@ public class AugmentedAlphaLatticeDesignDialog extends Dialog {
 		GridData gd_spinnerNumOfFieldRows = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_spinnerNumOfFieldRows.widthHint = 20;
 		spinnerNumOfFieldRows.setLayoutData(gd_spinnerNumOfFieldRows);
-		spinnerNumOfFieldRows.setMaximum(500);
+		spinnerNumOfFieldRows.setMaximum(10000);
 		spinnerNumOfFieldRows.setMinimum(3);
 		spinnerNumOfFieldRows.setSelection(3);
 

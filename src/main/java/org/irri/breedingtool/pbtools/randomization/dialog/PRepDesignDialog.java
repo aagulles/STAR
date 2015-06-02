@@ -301,7 +301,7 @@ public class PRepDesignDialog extends Dialog {
 		}
 		
 		btnOk.setEnabled(false);	
-		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(),  "PBTools Randomization");
+		OperationProgressDialog rInfo = new OperationProgressDialog(getShell(),  "Performing Randomization");
 		rInfo.open();
 		
 		String outputFile = StarRandomizationUtilities.createOutputFolder("PRep");

@@ -51,7 +51,7 @@ public class AboutUsStarDialog extends Dialog {
 		GridData gd_txtStatisticalToolFor = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
 		gd_txtStatisticalToolFor.heightHint = 184;
 		txtStatisticalToolFor.setLayoutData(gd_txtStatisticalToolFor);
-		txtStatisticalToolFor.setText("Statistical Tool for Agricultural Research (STAR)\r\n\r\nVersion: 2.0.1\r\n\r\n(c) Copyright International Rice Research Institute (IRRI) 2013 - 2020 All rights reserved.\r\n\r\nFor updates, please visit http://bbi.irri.org\r\n\r\nFor any concerns, contact us through email at star.bbi@irri.org. \r\n");
+		txtStatisticalToolFor.setText("Statistical Tool for Agricultural Research (STAR)\r\n\r\nVersion: 2.0.2\r\n\r\n(c) Copyright International Rice Research Institute (IRRI) 2013 - 2020 All rights reserved.\r\n\r\nFor updates, please visit http://bbi.irri.org\r\n\r\nFor any concerns, contact us through email at star.bbi@irri.org. \r\n");
 		txtStatisticalToolFor.setBackground(SWTResourceManager.getColor(255, 255, 255));
 
 		return container;

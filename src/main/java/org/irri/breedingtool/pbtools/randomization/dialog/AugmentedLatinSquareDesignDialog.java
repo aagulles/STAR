@@ -81,11 +81,11 @@ public class AugmentedLatinSquareDesignDialog extends Dialog {
 		lblNewLabel.setLayoutData(gd_lblNewLabel);
 		
 		txtTotalReplicatedTreatments = new Spinner(composite, SWT.BORDER);
+		txtTotalReplicatedTreatments.setMaximum(20);
 		
 		GridData gd_txtTotalReplicatedTreatments = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_txtTotalReplicatedTreatments.widthHint = 20;
 		txtTotalReplicatedTreatments.setLayoutData(gd_txtTotalReplicatedTreatments);
-		txtTotalReplicatedTreatments.setMaximum(11);
 		txtTotalReplicatedTreatments.setSelection(2);
 		
 				
@@ -112,7 +112,7 @@ public class AugmentedLatinSquareDesignDialog extends Dialog {
 						GridData gd_txtRows = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 						gd_txtRows.widthHint = 20;
 						txtRows.setLayoutData(gd_txtRows);
-						txtRows.setMaximum(500);
+						txtRows.setMaximum(10000);
 						txtRows.setSelection(2);
 						
 						Label lblNumberOfPlots = new Label(composite, SWT.NONE);

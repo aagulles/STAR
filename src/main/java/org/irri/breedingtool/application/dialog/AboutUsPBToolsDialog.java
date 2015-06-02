@@ -48,7 +48,7 @@ public class AboutUsPBToolsDialog extends Dialog {
 		
 		txtStatisticalToolFor = new Text(container, SWT.BORDER | SWT.READ_ONLY | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
 		txtStatisticalToolFor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		txtStatisticalToolFor.setText("Plant Breeding Tools (PBTools)\r\n\r\nVersion: 1.3\r\n\r\n(c) Copyright International Rice Research Institute (IRRI) 2013 - 2020 All rights reserved.\r\n\r\nFor updates, please visit http://bbi.irri.org\r\n\r\nFor any concerns, contact us through email at pbtools.bbi@irri.org. \r\n");
+		txtStatisticalToolFor.setText("Plant Breeding Tools (PBTools)\r\n\r\nVersion: 1.5\r\n\r\n(c) Copyright International Rice Research Institute (IRRI) 2013 - 2020 All rights reserved.\r\n\r\nFor updates, please visit http://bbi.irri.org\r\n\r\nFor any concerns, contact us through email at pbtools.bbi@irri.org. \r\n");
 		txtStatisticalToolFor.setBackground(SWTResourceManager.getColor(255, 255, 255));
 
 		return container;

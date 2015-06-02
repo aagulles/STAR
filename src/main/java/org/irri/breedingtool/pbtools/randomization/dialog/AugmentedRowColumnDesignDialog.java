@@ -73,7 +73,7 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 						lblNumberOfReplicated.setText("Number of Replicated Treatments");
 						
 								txtRepTreatments = new Spinner(composite_1, SWT.BORDER);
-								txtRepTreatments.setMaximum(500);
+								txtRepTreatments.setMaximum(1000);
 								GridData gd_txtRepTreatments = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 								gd_txtRepTreatments.widthHint = 20;
 								txtRepTreatments.setLayoutData(gd_txtRepTreatments);
@@ -88,7 +88,7 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 										
 										txtUnrepTreatments = new Spinner(composite_1, SWT.BORDER);
 										txtUnrepTreatments.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-										txtUnrepTreatments.setMaximum(500);
+										txtUnrepTreatments.setMaximum(1500);
 										txtUnrepTreatments.setMinimum(8);
 										txtUnrepTreatments.setSelection(8);
 								
@@ -111,7 +111,7 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 														
 														txtRowBlockEachRep = new Spinner(composite_1, SWT.BORDER);
 														txtRowBlockEachRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-														txtRowBlockEachRep.setMaximum(500);
+														txtRowBlockEachRep.setMaximum(1500);
 														txtRowBlockEachRep.setMinimum(2);
 														txtRowBlockEachRep.setSelection(2);
 														
@@ -121,7 +121,7 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 														
 														txtRowsEachBlock = new Spinner(composite_1, SWT.BORDER);
 														txtRowsEachBlock.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-														txtRowsEachBlock.setMaximum(500);
+														txtRowsEachBlock.setMaximum(1500);
 														txtRowsEachBlock.setMinimum(1);
 														txtRowsEachBlock.setSelection(1);
 														
@@ -135,7 +135,7 @@ public class AugmentedRowColumnDesignDialog extends Dialog {
 														txtFieldRows.setLayoutData(gd_txtFieldRows);
 														txtFieldRows.setMinimum(2);
 														txtFieldRows.setSelection(2);
-														txtFieldRows.setMaximum(500);
+														txtFieldRows.setMaximum(10000);
 												
 														Label lblNumberOfTrials = new Label(composite_1, SWT.NONE);
 														lblNumberOfTrials.setFont(SWTResourceManager.getFont("Tahoma", 8, SWT.NORMAL));

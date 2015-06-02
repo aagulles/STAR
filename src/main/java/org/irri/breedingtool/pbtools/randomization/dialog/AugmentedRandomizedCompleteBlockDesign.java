@@ -90,7 +90,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		GridData gd_txtTotalReplicatedTreatments = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_txtTotalReplicatedTreatments.widthHint = 20;
 		txtTotalReplicatedTreatments.setLayoutData(gd_txtTotalReplicatedTreatments);
-		txtTotalReplicatedTreatments.setMaximum(500);
+		txtTotalReplicatedTreatments.setMaximum(1000);
 		txtTotalReplicatedTreatments.setMinimum(2);
 		txtTotalReplicatedTreatments.setSelection(2);
 
@@ -106,7 +106,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		GridData gd_txtTotalBlks = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_txtTotalBlks.widthHint = 20;
 		txtTotalBlks.setLayoutData(gd_txtTotalBlks);
-		txtTotalBlks.setMaximum(100);
+		txtTotalBlks.setMaximum(500);
 		txtTotalBlks.setMinimum(2);
 		txtTotalBlks.setSelection(2);
 
@@ -122,7 +122,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		GridData gd_txtTotalUnreplicatedTreatments = new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1);
 		gd_txtTotalUnreplicatedTreatments.widthHint = 20;
 		txtTotalUnreplicatedTreatments.setLayoutData(gd_txtTotalUnreplicatedTreatments);
-		txtTotalUnreplicatedTreatments.setMaximum(1500);
+		txtTotalUnreplicatedTreatments.setMaximum(5000);
 		txtTotalUnreplicatedTreatments.setMinimum(2);
 		txtTotalUnreplicatedTreatments.setSelection(2);
 
@@ -133,7 +133,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 
 		spinnerNumOfRowsPerBlock = new Spinner(composite, SWT.BORDER);
 		spinnerNumOfRowsPerBlock.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
-		spinnerNumOfRowsPerBlock.setMaximum(1500);
+		spinnerNumOfRowsPerBlock.setMaximum(5000);
 		spinnerNumOfRowsPerBlock.setMinimum(1);
 		spinnerNumOfRowsPerBlock.setSelection(1);
 
@@ -146,7 +146,7 @@ public class AugmentedRandomizedCompleteBlockDesign extends Dialog {
 		GridData gd_txtFieldRows = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 		gd_txtFieldRows.widthHint = 20;
 		txtFieldRows.setLayoutData(gd_txtFieldRows);
-		txtFieldRows.setMaximum(500);
+		txtFieldRows.setMaximum(10000);
 		txtFieldRows.setMinimum(1);
 		txtFieldRows.setSelection(1);
 

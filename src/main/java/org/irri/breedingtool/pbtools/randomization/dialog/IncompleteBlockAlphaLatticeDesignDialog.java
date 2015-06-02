@@ -91,7 +91,8 @@ public class IncompleteBlockAlphaLatticeDesignDialog extends Dialog {
 								GridData gd_txtTotalTreatments = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
 								gd_txtTotalTreatments.widthHint = 20;
 								txtTotalTreatments.setLayoutData(gd_txtTotalTreatments);
-								txtTotalTreatments.setMaximum(100000);
+								txtTotalTreatments.setMaximum(750);
+								txtTotalTreatments.setMinimum(9);
 								txtTotalTreatments.setSelection(9);
 								
 										Label lblNumberOfReplicates = new Label(composite_1, SWT.NONE);
@@ -114,6 +115,7 @@ public class IncompleteBlockAlphaLatticeDesignDialog extends Dialog {
 																new Label(composite_1, SWT.NONE);
 														
 																txtTotalBlockSize = new Spinner(composite_1, SWT.BORDER);
+																txtTotalBlockSize.setMaximum(1000);
 																
 																GridData gd_txtTotalBlockSize = new GridData(SWT.FILL, SWT.CENTER, true, true, 1, 1);
 																gd_txtTotalBlockSize.widthHint = 20;
@@ -138,6 +140,7 @@ public class IncompleteBlockAlphaLatticeDesignDialog extends Dialog {
 																
 																txtRowsEachBlk = new Spinner(composite_1, SWT.BORDER);
 																txtRowsEachBlk.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+																txtRowsEachBlk.setMaximum(1000);
 															
 																txtRowsEachBlk.setMinimum(1);
 																txtRowsEachBlk.setSelection(3);
@@ -149,6 +152,7 @@ public class IncompleteBlockAlphaLatticeDesignDialog extends Dialog {
 																
 																txtRowsEachRep = new Spinner(composite_1, SWT.BORDER);
 																txtRowsEachRep.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
+																txtRowsEachRep.setMaximum(1000);
 																
 																txtRowsEachRep.setMinimum(1);
 																txtRowsEachRep.setSelection(3);
@@ -162,6 +166,7 @@ public class IncompleteBlockAlphaLatticeDesignDialog extends Dialog {
 																GridData gd_txtFieldRows = new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1);
 																gd_txtFieldRows.widthHint = 20;
 																txtFieldRows.setLayoutData(gd_txtFieldRows);
+																txtFieldRows.setMaximum(1500);
 																
 																txtFieldRows.setMinimum(1);
 																txtFieldRows.setSelection(3);
